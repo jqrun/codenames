@@ -1,4 +1,6 @@
+import Home from './home.js';
 import React from 'react';
+import Room from './room.js';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 
 function NoRouteMatched() {
@@ -10,7 +12,11 @@ export default function App() {
     <Router>
       <Switch>
         <Route exact path="/">
-          <NoRouteMatched />
+          <Home />
+        </Route>
+
+        <Route exact path="/room/:roomId">
+          <Room />
         </Route>
 
          <Route path="*">
