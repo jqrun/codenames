@@ -34,5 +34,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:3001"
+  "proxy": "http://localhost:5001/codenames-273814/us-central1/server"
 }
