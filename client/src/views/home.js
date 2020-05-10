@@ -4,12 +4,11 @@ import Util from '../common/util';
 
 export default function Home() {
   const [roomName, setRoomName] = useState('');
-  const [generatedRoomName, setGeneratedRoomName] = useState('');  
 
   const generateRoomName = async () => {
     const response = await fetch(`${Util.serverUrl}/rooms/generate-random`);
     const data = await response.json();
-    setGeneratedRoomName(data.id);
+    setRoomName(data.name);
   };
 
   const createRoom = async (event) => {
@@ -24,11 +23,10 @@ export default function Home() {
     generateRoomName();
   },[]);
 
-  if (!generatedRoomName) return (<div></div>)
+  if (!roomName) return (<div></div>)
 
   return (
-    <div>
-      Generated room name: {generatedRoomName} <br/><br/>
+    <div className={styles.home}>
       <form onSubmit={createRoom}>
         <input 
           tyle="text"
