@@ -1,9 +1,36 @@
 import './base.scss';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import App from './app.js'
+import Home from './views/home.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Room from './views/room.js';
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+
+function NoRouteMatched() {
+  return <div className="centeredFlex" style={{fontSize: "36px"}}>404, page not found</div>
+}
+
+function App() {
+  return (
+    <Router>
+      <Switch>
+        <Route exact path="/">
+          <Home />
+        </Route>
+
+        <Route exact path="/room/:roomId">
+          <Room />
+        </Route>
+
+         <Route path="*">
+          <NoRouteMatched />
+        </Route>
+      </Switch>
+    </Router>
+  );  
+}
+
 
 ReactDOM.render(
   <React.StrictMode>

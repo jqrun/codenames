@@ -1,7 +1,7 @@
 const cors = require('cors');
 const express = require('express');
 const functions = require('firebase-functions');
-const rooms = require('./rooms');
+const rooms = require('./routes/rooms');
 
 const server = express();
 

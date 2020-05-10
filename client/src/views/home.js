@@ -1,15 +1,15 @@
 import styles from './home.module.scss'
 import React, {useEffect, useState} from 'react';
-import Util from './common/util';
+import Util from '../common/util';
 
 export default function Home() {
   const [roomName, setRoomName] = useState('');
-  const [generated, setGenerated] = useState('');  
+  const [generatedRoomName, setGeneratedRoomName] = useState('');  
 
-  const generateId = async () => {
+  const generateRoomName = async () => {
     const response = await fetch(`${Util.serverUrl}/rooms/generate-random`);
     const data = await response.json();
-    setGenerated(data.id);
+    setGeneratedRoomName(data.id);
   };
 
   const createRoom = async (event) => {
@@ -20,14 +20,15 @@ export default function Home() {
     console.log(data);
   };
 
-
   useEffect(() => {
-    generateId();
+    generateRoomName();
   },[]);
+
+  if (!generatedRoomName) return (<div></div>)
 
   return (
     <div>
-      Generated id: {generated} <br/><br/>
+      Generated room name: {generatedRoomName} <br/><br/>
       <form onSubmit={createRoom}>
         <input 
           tyle="text"
