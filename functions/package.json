@@ -2,14 +2,18 @@
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "scripts": {
+    "deploy": "firebase deploy --only functions",
     "lint": "eslint .",
+    "logs": "firebase functions:log",
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
-    "start": "yarn run shell",
-    "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "start": "yarn run shell"
+  },
+  "engines": {
+    "node": "10"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "firebase": "^7.14.3",
     "firebase-admin": "^8.12.1",

@@ -1,12 +1,13 @@
 import styles from './home.module.scss'
 import React, {useEffect, useState} from 'react';
+import Util from './common/util';
 
 export default function Home() {
   const [roomName, setRoomName] = useState('');
   const [generated, setGenerated] = useState('');  
 
   const generateId = async () => {
-    const response = await fetch('/rooms/generate-random');
+    const response = await fetch(`${Util.serverUrl}/rooms/generate-random`);
     const data = await response.json();
     setGenerated(data.id);
   };
@@ -14,7 +15,7 @@ export default function Home() {
   const createRoom = async (event) => {
     event.preventDefault();
 
-    const response = await fetch(`/rooms/${roomName}`, {method: 'PUT'});
+    const response = await fetch(`${Util.serverUrl}/rooms/${roomName}`, {method: 'PUT'});
     const data = await response.text();
     console.log(data);
   };

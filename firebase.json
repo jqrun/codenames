@@ -14,8 +14,6 @@
     ]
   },
   "functions": {
-    "predeploy": [
-      "yarn --prefix \"$RESOURCE_DIR\" run lint"
-    ]
+    "source": "functions"
   }
 }

@@ -13,11 +13,13 @@
     "react-scripts": "3.4.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "local": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "deploy": "yarn build && firebase deploy --only hosting",
+    "eject": "react-scripts eject",
+    "local": "react-scripts start",
+    "serve": "yarn build && firebase emulators:start --only hosting",
+    "start": "react-scripts start",
+    "test": "react-scripts test"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -33,6 +35,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "proxy": "http://localhost:5001/codenames-273814/us-central1/server"
+  }
 }
