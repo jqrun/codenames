@@ -18,10 +18,14 @@ router.get('/generate-random', (req, res) => {
 
 router.put('/:roomId', (req, res) => {
   const {roomId} = req.params;
+  const now = new Date();
 
   db.collection('rooms').add({
     roomId: roomId,
-    lastUpdated: Date.now(),
+    lastUpdated: {
+      timestamp: Number(now),
+      localeString: `${now.toLocaleString("en-US", {timeZone: "America/New_York"})} EST`,
+    }
   });
 
   res.send(req.params.roomId);
