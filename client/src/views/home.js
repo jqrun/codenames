@@ -15,7 +15,7 @@ export default function Home() {
   const createRoom = async (event) => {
     event.preventDefault();
 
-    const response = await fetch(`${Util.serverUrl}/rooms/${roomId}`, {method: 'PUT'});
+    const response = await fetch(`${Util.serverUrl}/rooms/create/${roomId}`, {method: 'POST'});
     const data = await response.json();
 
     if (data.status === 'already_exists') {

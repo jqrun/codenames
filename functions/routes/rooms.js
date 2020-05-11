@@ -5,6 +5,30 @@ const hridWords = require('../assets/human_readable_id_words.json');
 
 const router = express.Router();
 
+
+// const tempGame = {
+//   board: [
+//     {
+//       word,
+//       type,
+//       revealed,
+//     },
+//   ],
+//   turn,
+//   blue: {
+//     score,
+//   },
+//   red: {
+//     score,
+//   },
+// };
+
+function generateNewGame() {
+  return {
+
+  };
+}
+
 function generateRandomId() {
   const adjectives = hridWords.adjectives;
   const nouns = hridWords.nouns;
@@ -38,11 +62,13 @@ async function roomExists(roomId) {
   return doc.exists;
 }
 
+/** ROUTES **/
+
 router.get('/generate-random', (req, res) => {
   res.json({'name': generateRandomId()});
 });
 
-router.put('/:roomId', async (req, res) => {
+router.post('/create/:roomId', async (req, res) => {
   const {roomId} = req.params;
 
   if (await roomExists(roomId)) {
