@@ -5,7 +5,6 @@ const hridWords = require('../assets/human_readable_id_words.json');
 
 const router = express.Router();
 
-
 // const tempGame = {
 //   board: [
 //     {
@@ -22,6 +21,19 @@ const router = express.Router();
 //     score,
 //   },
 // };
+
+function getRandomWords(words, n) {
+  const randomWords = [];
+  const picked = {};
+
+  while (n) {
+    const pick = words[Math.floor(Math.random() * words.length)];
+    if (pick in picked) continue;
+    randomWords.push(pick);
+    n--;
+  }
+  return randomWords;
+}
 
 function generateNewGame() {
   return {
@@ -50,7 +62,6 @@ async function createRoom(roomId) {
         localeString: `${now.toLocaleString("en-US", {timeZone: "America/New_York"})} EST`,
       },
     });
-
     return true;
   } catch {
     return false;
