@@ -1,13 +1,13 @@
 import styles from './home.module.scss'
 import React, {useEffect, useState} from 'react';
-import Util from '../common/util';
+import {serverUrl} from '../common/util';
 
 export default function Home() {
   const [roomId, setRoomId] = useState('');
   const [roomExistsError, setRoomExistsError] = useState(false);
 
   const generateRoomId = async () => {
-    const response = await fetch(`${Util.serverUrl}/rooms/generate-random`);
+    const response = await fetch(`${serverUrl}/rooms/generate-random`);
     const data = await response.json();
     setRoomId(data.name);
   };
@@ -15,7 +15,7 @@ export default function Home() {
   const createRoom = async (event) => {
     event.preventDefault();
 
-    const response = await fetch(`${Util.serverUrl}/rooms/create/${roomId}`, {method: 'POST'});
+    const response = await fetch(`${serverUrl}/rooms/create/${roomId}`, {method: 'POST'});
     const data = await response.json();
 
     if (data.status === 'already_exists') {
