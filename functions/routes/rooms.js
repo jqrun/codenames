@@ -1,7 +1,7 @@
 const db = require('../common/database').getDb();
 const express = require('express');
 const hridWords = require('../assets/human_readable_id_words.json');
-const {generateNewGame} = require('./game');
+const {gameRouter, generateNewGame} = require('./game');
 
 const router = express.Router();
 
@@ -23,6 +23,9 @@ async function createRoom(roomId) {
 
   try {
     await db.collection('rooms').doc(roomId).set({
+      game: {
+        board: generateNewGame(),
+      },
       lastUpdated: {
         timestamp: Number(now),
         localeString: `${now.toLocaleString("en-US", {timeZone: "America/New_York"})} EST`,
@@ -56,5 +59,7 @@ router.post('/create/:roomId', async (req, res) => {
   const created = await createRoom(roomId);
   res.json({'status': created ? 'created' : 'failed'});
 });
+
+router.use('/:roomId/game', gameRouter);
 
 module.exports = router;

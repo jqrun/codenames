@@ -1,7 +1,7 @@
 const cors = require('cors');
 const express = require('express');
 const functions = require('firebase-functions');
-const rooms = require('./routes/rooms');
+const roomsRouter = require('./routes/rooms');
 
 const server = express();
 
@@ -25,9 +25,9 @@ const corsOptions = {
 server.use(cors(corsOptions));
 
 server.get('/', (req, res) => {
-  res.send('Hello world!');
+  res.send('Hello world! This is the codenames server.');
 });
 
-server.use('/rooms', rooms);
+server.use('/rooms', roomsRouter);
 
 exports.server = functions.https.onRequest(server);
