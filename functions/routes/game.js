@@ -36,7 +36,9 @@ function getRandomWords(words, numWords) {
 }
 
 function assignRandomCards(words, numAgents) {
-  const cards = words.map(word => {return {word, type: 'bystander'}});
+  const cards = words.map(word => {
+    return {word, type: 'bystander', revealed :false}
+  });
   const firstAgent = Math.random() < 0.5 ? 'blue' : 'red';
   const secondAgent = firstAgent === 'blue' ? 'red' : 'blue';
 

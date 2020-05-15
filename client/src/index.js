@@ -1,10 +1,10 @@
 import './base.scss';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import Home from './views/home.js';
+import Home from './home/home.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Room from './views/room.js';
+import Room from './room/room.js';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 
 function NoRouteMatched() {
