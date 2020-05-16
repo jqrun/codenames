@@ -2,6 +2,7 @@ const db = require('../common/database').getDb();
 const express = require('express');
 const hridWords = require('../assets/human_readable_id_words.json');
 const {gameRouter, generateNewGame} = require('./game');
+const {usersRouter} = require('./users');
 
 const router = express.Router();
 
@@ -23,9 +24,7 @@ async function createRoom(roomId) {
 
   try {
     await db.collection('rooms').doc(roomId).set({
-      game: {
-        board: generateNewGame(),
-      },
+      game: generateNewGame(),
       lastUpdated: {
         timestamp: Number(now),
         localeString: `${now.toLocaleString("en-US", {timeZone: "America/New_York"})} EST`,
@@ -39,7 +38,7 @@ async function createRoom(roomId) {
 
 async function roomExists(roomId) {
   const doc = await db.collection('rooms').doc(roomId).get();
-  return doc.exists;
+  return doc && doc.exists;
 }
 
 /** ROUTES **/
@@ -61,5 +60,6 @@ router.post('/create/:roomId', async (req, res) => {
 });
 
 router.use('/:roomId/game', gameRouter);
+router.use('/:roomId/users', usersRouter);
 
 module.exports = router;

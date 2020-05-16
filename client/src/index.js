@@ -19,7 +19,7 @@ function App() {
           <Home />
         </Route>
 
-        <Route exact path="/room/:roomId">
+        <Route exact path="/room/:roomId/">
           <Room />
         </Route>
 

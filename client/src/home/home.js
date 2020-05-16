@@ -1,10 +1,13 @@
-import styles from './home.module.scss'
 import React, {useEffect, useState} from 'react';
+import styles from './home.module.scss'
 import {serverUrl} from '../common/util';
+import {useHistory} from "react-router-dom";
 
 export default function Home() {
   const [roomId, setRoomId] = useState('');
   const [roomExistsError, setRoomExistsError] = useState(false);
+
+  const history = useHistory();
 
   const generateRoomId = async () => {
     const response = await fetch(`${serverUrl}/rooms/generate-random`);
@@ -18,8 +21,14 @@ export default function Home() {
     const response = await fetch(`${serverUrl}/rooms/create/${roomId}`, {method: 'POST'});
     const data = await response.json();
 
-    if (data.status === 'already_exists') {
-      setRoomExistsError(true);
+    switch (data.status) {
+      case 'already_exists':
+        setRoomExistsError(true);
+        break;
+      case 'created':
+        history.push(`/room/${roomId}`);
+        break;
+      default:
     }
   };
 

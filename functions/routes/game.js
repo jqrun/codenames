@@ -59,7 +59,9 @@ function assignRandomCards(words, numAgents) {
 function generateNewGame() {
   const randomWords =  getRandomWords(gameWords.english.original, 25);
   const cards = assignRandomCards(randomWords, 17);
-  return cards;
+  return {
+    board: cards,
+  };
 }
 module.exports.generateNewGame = generateNewGame;
 
