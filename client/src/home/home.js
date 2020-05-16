@@ -4,7 +4,7 @@ import {serverUrl} from '../common/util';
 import {useHistory} from "react-router-dom";
 
 export default function Home() {
-  const [roomId, setRoomId] = useState('');
+  const [roomId, setRoomId] = useState(undefined);
   const [roomExistsError, setRoomExistsError] = useState(false);
 
   const history = useHistory();
@@ -13,6 +13,10 @@ export default function Home() {
     const response = await fetch(`${serverUrl}/rooms/generate-random`);
     const data = await response.json();
     setRoomId(data.name);
+  };
+
+  const handleRoomInput = (event) => {
+
   };
 
   const createRoom = async (event) => {
@@ -36,16 +40,17 @@ export default function Home() {
     generateRoomId();
   },[]);
 
-  if (!roomId) return (<div></div>)
+  if (typeof roomId === 'undefined') return (<div></div>)
 
   return (
     <div className={styles.home}>
       <form onSubmit={createRoom}>
         <input 
-          tyle="text"
+          type="text"
           className={styles.input} 
           value={roomId}
           onChange={e => setRoomId(e.target.value)}
+          autoFocus
         />
       </form>
       {roomExistsError && 

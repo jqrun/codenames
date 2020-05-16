@@ -6,8 +6,6 @@ const {usersRouter} = require('./users');
 
 const router = express.Router();
 
-console.log(generateNewGame());
-
 function generateRandomId() {
   const adjectives = hridWords.adjectives;
   const nouns = hridWords.nouns;
@@ -19,7 +17,7 @@ function generateRandomId() {
   return`${randomAdjective}-${randomNoun}-${randomNumber}`;
 }
 
-async function createRoom(roomId) {
+async function createRoom({roomId}) {
   const now = new Date();
 
   try {
@@ -36,7 +34,7 @@ async function createRoom(roomId) {
   }
 }
 
-async function roomExists(roomId) {
+async function roomExists({roomId}) {
   const doc = await db.collection('rooms').doc(roomId).get();
   return doc && doc.exists;
 }
@@ -48,14 +46,12 @@ router.get('/generate-random', (req, res) => {
 });
 
 router.post('/create/:roomId', async (req, res) => {
-  const {roomId} = req.params;
-
-  if (await roomExists(roomId)) {
+  if (await roomExists(req.params)) {
     res.json({'status': 'already_exists'});
     return;
   }
 
-  const created = await createRoom(roomId);
+  const created = await createRoom(req.params);
   res.json({'status': created ? 'created' : 'failed'});
 });
 

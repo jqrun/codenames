@@ -5,33 +5,45 @@ import {serverUrl} from '../common/util';
 export default function Join(props) {
   const {roomId, setUser} = props;
 
-  useEffect(() => {
-    const createUser = async (nickname) => {
-      const url = `${serverUrl}/rooms/${roomId}/users/create/${nickname}`;
-      const response = await fetch(url, {method: 'POST'});
-      const {status, userId} = await response.json();
-      console.log(status);
-      console.log(userId);
+  const [name, setName] = useState('');
+  const [nameTakenError, setNameTakenError] = useState(false);
 
-      switch(status) {
-        case 'nickname_taken':
-          return false;
-        case 'created':
-          setUser({userId, nickname});
-          return true;
-        default:
+  const createUser = async (name) => {
+    const url = `${serverUrl}/rooms/${roomId}/users/create/${name}`;
+    const response = await fetch(url, {method: 'POST'});
+    const {status, userId} = await response.json();
+
+    switch(status) {
+      case 'name_taken':
+        setNameTakenError(true);
+        break;
+      case 'created':
+        setUser({userId, name});
+        break;
+      default:
+    }
+  };
+
+  const joinRoom = (event) => {
+    event.preventDefault();
+    createUser(name);
+  };
+
+  return (
+    <div className={styles.join}>
+      Enter a name to join!
+      <form onSubmit={joinRoom}>
+        <input 
+          type="text"
+          className={styles.input} 
+          value={name}
+          onChange={e => setName(e.target.value)}
+          autoFocus
+        />
+      </form>
+      {nameTakenError && 
+        <div style={{color: "red"}}>This name is already taken!</div>
       }
-    };
-
-    (async () => {
-      let succeeded;
-      while (!succeeded) {
-        const nickname = window.prompt('Enter a nickname');
-        succeeded = await createUser(nickname);
-      }
-    })();
-
-  }, [roomId, setUser]);
-
-  return (<React.Fragment>Hey</React.Fragment>);
+    </div>
+  );
 }

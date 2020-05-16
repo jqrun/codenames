@@ -3,35 +3,43 @@ const express = require('express');
 
 const router = express.Router({mergeParams: true});
 
-async function nicknameExists({roomId, nickname}) {
+async function nameExists({roomId, name}) {
   const query = await db.collection('rooms').doc(roomId)
-                        .collection('users').where('nickname', '==', nickname).get();
-                        console.log(query.empty);
+                        .collection('users').where('name', '==', name).get();
   return !query.empty;
 }
 
-async function createUser({roomId, nickname}) {
+async function createUser({roomId, name}) {
   const doc = await db.collection('rooms').doc(roomId).collection('users').add({
-    nickname,
+    name,
     team: null,
     spymaster: false,
   });
   return doc.id;
 }
 
+async function deleteUser({roomId, userId}) {
+  return db.collection('rooms').doc(roomId).collection('users').doc(userId).delete();
+}
+
 
 /** ROUTES **/
 
-router.post('/create/:nickname', async (req, res) => {
-  const {roomId, nickname} = req.params;
+router.post('/create/:name', async (req, res) => {
+  const {roomId} = req.params;
 
-  if (await nicknameExists({roomId, nickname})) {
-    res.json({'status': 'nickname_taken'});
+  if (await nameExists(req.params)) {
+    res.json({'status': 'name_taken'});
     return;
   }
 
-  const userId = await createUser({roomId, nickname});
+  const userId = await createUser(req.params);
   res.json({'status': 'created', 'userId': userId});
+});
+
+router.post('/delete/:userId', async (req, res) => {
+  await deleteUser(req.params);
+  res.json({'status': 'deleted'});
 });
 
 
