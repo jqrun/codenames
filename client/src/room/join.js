@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import styles from './join.module.scss';
 import {serverUrl} from '../common/util';
 
-export default function Join(props) {
+const Join = React.memo(props => {
   const {roomId, setUser} = props;
 
   const [name, setName] = useState('');
@@ -46,4 +46,5 @@ export default function Join(props) {
       }
     </div>
   );
-}
+});
+export default Join;

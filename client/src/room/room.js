@@ -8,6 +8,23 @@ export default function Room() {
   const {roomId} = useParams();
 
   const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
+
+  const fetchRoom = async () => {
+      const url = `${serverUrl}/rooms/${roomId}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      console.log(data);
+  };
+
+  const fetchUsers = async () => {
+      const url = `${serverUrl}/rooms/${roomId}/users`;
+      const response = await fetch(url);
+      const data = await response.json();
+      console.log(data);
+      setUsers(data.users);
+  };
+
 
   useEffect(() => {
     const deleteUser = () => {
@@ -17,12 +34,17 @@ export default function Room() {
       fetch(url, {method: 'POST'});
     };
 
+    const temp = setInterval(fetchUsers, 5000);
+    fetchUsers();
     window.addEventListener('unload', deleteUser);
 
     return () => {
+      clearInterval(temp);
       window.removeEventListener('unload', deleteUser);
     };
-  }, [user])
+  }, [user]);
+
+  // useEffect
 
   return (
     <React.Fragment>
@@ -32,8 +54,12 @@ export default function Room() {
 
       {user &&
         <div style={styles.room}>
-          Room: {roomId} <br />
-          User: {user.name}
+          Room: {roomId} <br/>
+          User: {user.name} <br/><br/>
+          All users: <br/>
+          {users.map(user => 
+            <div key={user.userId}>{user.name}</div>
+          )}
         </div>
       }
     </React.Fragment>

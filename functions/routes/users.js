@@ -3,19 +3,29 @@ const express = require('express');
 
 const router = express.Router({mergeParams: true});
 
+async function getUsers({roomId}) {
+  const users = await db.collection('rooms').doc(roomId).collection('users').get();
+  return users.docs.map(user => {
+    return {
+      userId: user.id,
+      ...user.data(),
+    };
+  });
+} 
+
 async function nameExists({roomId, name}) {
-  const query = await db.collection('rooms').doc(roomId)
+  const user = await db.collection('rooms').doc(roomId)
                         .collection('users').where('name', '==', name).get();
-  return !query.empty;
+  return !user.empty;
 }
 
 async function createUser({roomId, name}) {
-  const doc = await db.collection('rooms').doc(roomId).collection('users').add({
+  const user = await db.collection('rooms').doc(roomId).collection('users').add({
     name,
     team: null,
     spymaster: false,
   });
-  return doc.id;
+  return user.id;
 }
 
 async function deleteUser({roomId, userId}) {
@@ -24,6 +34,11 @@ async function deleteUser({roomId, userId}) {
 
 
 /** ROUTES **/
+
+router.get('/', async (req, res) => {
+  const users = await getUsers(req.params);
+  res.json({users});
+});
 
 router.post('/create/:name', async (req, res) => {
   const {roomId} = req.params;

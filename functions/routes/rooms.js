@@ -17,6 +17,11 @@ function generateRandomId() {
   return`${randomAdjective}-${randomNoun}-${randomNumber}`;
 }
 
+async function getRoom({roomId}) {
+  const room = await db.collection('rooms').doc(roomId).get();
+  return room.data();
+}
+
 async function createRoom({roomId}) {
   const now = new Date();
 
@@ -35,14 +40,19 @@ async function createRoom({roomId}) {
 }
 
 async function roomExists({roomId}) {
-  const doc = await db.collection('rooms').doc(roomId).get();
-  return doc && doc.exists;
+  const room = await db.collection('rooms').doc(roomId).get();
+  return room && room.exists;
 }
 
 /** ROUTES **/
 
 router.get('/generate-random', (req, res) => {
   res.json({'name': generateRandomId()});
+});
+
+router.get('/:roomId', async (req, res) => {
+  const room = await getRoom(req.params);
+  res.json({room});
 });
 
 router.post('/create/:roomId', async (req, res) => {
