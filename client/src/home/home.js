@@ -19,9 +19,9 @@ export default function Home() {
     event.preventDefault();
 
     const response = await fetch(`${serverUrl}/rooms/create/${roomId}`, {method: 'POST'});
-    const data = await response.json();
+    const {status} = await response.json();
 
-    switch (data.status) {
+    switch (status) {
       case 'already_exists':
         setRoomExistsError(true);
         break;

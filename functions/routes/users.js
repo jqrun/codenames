@@ -3,9 +3,12 @@ const express = require('express');
 
 const router = express.Router({mergeParams: true});
 
-// async function nicknameTaken = ({nickname, roomId}}) => {
-//   const doc = await db.collection('rooms').doc(roomId)
-// };
+async function nicknameExists({roomId, nickname}) {
+  const query = await db.collection('rooms').doc(roomId)
+                        .collection('users').where('nickname', '==', nickname).get();
+                        console.log(query.empty);
+  return !query.empty;
+}
 
 async function createUser({roomId, nickname}) {
   const doc = await db.collection('rooms').doc(roomId).collection('users').add({
@@ -13,7 +16,7 @@ async function createUser({roomId, nickname}) {
     team: null,
     spymaster: false,
   });
-  // const userId = 
+  return doc.id;
 }
 
 
@@ -21,8 +24,14 @@ async function createUser({roomId, nickname}) {
 
 router.post('/create/:nickname', async (req, res) => {
   const {roomId, nickname} = req.params;
-  await createUser({roomId, nickname});
-  res.json({'status': 'created'});
+
+  if (await nicknameExists({roomId, nickname})) {
+    res.json({'status': 'nickname_taken'});
+    return;
+  }
+
+  const userId = await createUser({roomId, nickname});
+  res.json({'status': 'created', 'userId': userId});
 });
 
 
