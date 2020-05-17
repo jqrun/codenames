@@ -41,7 +41,7 @@ async function createRoom({roomId}) {
 
 async function roomExists({roomId}) {
   const room = await db.collection('rooms').doc(roomId).get();
-  return room && room.exists;
+  return room.exists;
 }
 
 /** ROUTES **/

@@ -10,13 +10,6 @@ export default function Room() {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
 
-  const fetchRoom = async () => {
-      const url = `${serverUrl}/rooms/${roomId}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      console.log(data);
-  };
-
   const fetchUsers = async () => {
       const url = `${serverUrl}/rooms/${roomId}/users`;
       const response = await fetch(url);
