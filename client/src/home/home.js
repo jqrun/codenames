@@ -16,7 +16,13 @@ export default function Home() {
   };
 
   const handleRoomInput = (event) => {
-
+    const originalValue = event.target.value 
+    let roomId = originalValue;
+    roomId = roomId.toLowerCase();
+    roomId = roomId.replace(/ /g, '-');
+    roomId = roomId.split('-').map(id => id.replace(/\W/g, '')).join('-');
+    roomId = roomId.slice(0, 100);
+    setRoomId(roomId);
   };
 
   const createRoom = async (event) => {
@@ -49,7 +55,7 @@ export default function Home() {
           type="text"
           className={styles.input} 
           value={roomId}
-          onChange={e => setRoomId(e.target.value)}
+          onChange={handleRoomInput}
           autoFocus
         />
       </form>
