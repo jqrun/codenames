@@ -1,8 +1,12 @@
 const admin = require('firebase-admin');
+const serviceAccount = require("../../secrets/firebase_admin_key.json");
 
 class Database {
   constructor() {
-    admin.initializeApp();
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      databaseURL: "https://codenames-273814.firebaseio.com"
+    });
 
     this.db = admin.firestore();
 
@@ -11,37 +15,6 @@ class Database {
 
   getDb() {
     return this.db;
-  }
-
-  subscribe({roomId, collection}) {
-    this.pubSub[roomId] = this.pubSub[roomId] || {}; 
-    if (typeof this.pubSub[roomId][collection] === 'undefined') {
-      this.pubSub[roomId][collection] = (() => {
-        let toResolve;
-        const resolvePromise = () => toResolve();
-        const promise = new Promise(resolve => {
-          toResolve = resolve;
-        });
-        return {promise, resolvePromise};
-      })();
-    }
-    console.log(this.pubSub);
-    return this.pubSub[roomId][collection].promise;
-  };
-
-  publish({roomId, collection}) {
-    console.log('attempting to publish');
-    console.log(this.pubSub);
-    this.pubSub[roomId] = this.pubSub[roomId] || {}; 
-    if (typeof this.pubSub[roomId][collection] !== 'undefined') {
-      console.log('we are here');
-      this.pubSub[roomId][collection].resolvePromise();
-      delete this.pubSub[roomId][collection];
-    }
-  }
-
-  removePubSub({roomId}) {
-    if (this.pubSub[roomId] !== 'undefined') delete this.pubSub[roomId];
   }
 }
 

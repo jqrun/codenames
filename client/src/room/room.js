@@ -7,33 +7,31 @@ import {useParams} from 'react-router-dom';
 export default function Room() {
   const {roomId} = useParams();
 
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    if (!roomId) return;
+    if (!roomId || !user) return;
 
     const fetchUsers = async () => {
       const url = `${serverUrl}/rooms/${roomId}/users`;
       const response = await fetch(url);
       const data = await response.json();
-      console.log(data.users);
       setUsers(data.users);
     };
     fetchUsers();
 
     const longPollUsers = () => {
-      const url = `${serverUrl}/rooms/${roomId}/long-poll/users`;
+      const url = `${serverUrl}/long-poll/${roomId}/${user.userId}/users`;
       fetch(url)
           .then(response => response.json())
           .then(data => {
-            console.log(data);
+            setUsers(data.users);
             longPollUsers();
           });
     };
-    // longPollUsers();
-
-    if (!user) return;
+    longPollUsers();
 
     const deleteUser = async () => {
       const url = `${serverUrl}/rooms/${roomId}/users/delete/${user.userId}`;
@@ -48,13 +46,18 @@ export default function Room() {
     }
   }, [roomId, user]);
 
+  useEffect(() => {
+    if (!roomId || !user || !users.length) return;
+    setLoading(false);
+  }, [roomId, user, users]);
+
   return (
     <React.Fragment>
       {!user &&
         <Join roomId={roomId} setUser={setUser} />
       }
 
-      {user &&
+      {!loading &&
         <div style={styles.room}>
           Room: {roomId} <br/>
           User: {user.name} <br/><br/>

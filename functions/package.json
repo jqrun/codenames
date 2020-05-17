@@ -5,8 +5,7 @@
     "deploy": "firebase deploy --only functions",
     "lint": "eslint .",
     "logs": "firebase functions:log",
-    "serve": "firebase emulators:start --only functions,firestore",
-    "serve Functions": "firebase emulators:start --only functions",
+    "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
     "start": "yarn run shell"
   },
