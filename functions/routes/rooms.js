@@ -28,7 +28,7 @@ async function createRoom({roomId}) {
   try {
     await db.collection('rooms').doc(roomId).set({
       game: generateNewGame(),
-      lastUpdated: {
+      created: {
         timestamp: Number(now),
         localeString: `${now.toLocaleString("en-US", {timeZone: "America/New_York"})} EST`,
       },

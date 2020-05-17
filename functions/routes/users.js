@@ -14,14 +14,15 @@ async function getUsers({roomId}) {
 } 
 
 async function nameExists({roomId, name}) {
-  const user = await db.collection('rooms').doc(roomId)
-                        .collection('users').where('name', '==', name).get();
+  const user = await db.collection('rooms').doc(roomId).collection('users')
+      .where('nameCaseInsensitive', '==', name.toLowerCase()).get();
   return !user.empty;
 }
 
 async function createUser({roomId, name}) {
   const user = await db.collection('rooms').doc(roomId).collection('users').add({
     name,
+    nameCaseInsensitive: name.toLowerCase(),
     team: null,
     spymaster: false,
   });
@@ -29,7 +30,16 @@ async function createUser({roomId, name}) {
 }
 
 async function deleteUser({roomId, userId}) {
-  return db.collection('rooms').doc(roomId).collection('users').doc(userId).delete();
+  await db.collection('rooms').doc(roomId).collection('users').doc(userId).delete();
+  cleanUpIfLastuser({roomId});
+  return;
+}
+
+async function cleanUpIfLastuser({roomId}) {
+  const users = await db.collection('rooms').doc(roomId).collection('users').get();
+  if (users.empty) {
+    await db.collection('rooms').doc(roomId).delete();
+  } 
 }
 
 

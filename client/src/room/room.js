@@ -1,5 +1,5 @@
 import Join from './join';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styles from './room.module.scss';
 import {serverUrl} from '../common/util';
 import {useParams} from 'react-router-dom';
@@ -10,6 +10,8 @@ export default function Room() {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
 
+  const userIdRef = useRef();
+
   const fetchUsers = async () => {
       const url = `${serverUrl}/rooms/${roomId}/users`;
       const response = await fetch(url);
@@ -18,26 +20,32 @@ export default function Room() {
       setUsers(data.users);
   };
 
-
   useEffect(() => {
     const deleteUser = () => {
-      if (!user) return;
+      const userId = userIdRef.current;
+      if (!userId) return;
 
-      const url = `${serverUrl}/rooms/${roomId}/users/delete/${user.userId}`;
+      const url = `${serverUrl}/rooms/${roomId}/users/delete/${userId}`;
       fetch(url, {method: 'POST'});
     };
 
     const temp = setInterval(fetchUsers, 5000);
     fetchUsers();
-    window.addEventListener('unload', deleteUser);
+
+    window.addEventListener('beforeunload', deleteUser);
 
     return () => {
       clearInterval(temp);
-      window.removeEventListener('unload', deleteUser);
-    };
-  }, [user]);
 
-  // useEffect
+      deleteUser();
+      window.removeEventListener('beforeunload', deleteUser);
+    }
+  }, []);
+
+  useEffect(() => {
+    userIdRef.current = user && user.userId;
+    fetchUsers();
+  }, [user]);
 
   return (
     <React.Fragment>

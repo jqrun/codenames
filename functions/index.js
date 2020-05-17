@@ -30,3 +30,4 @@ server.get('/', (req, res) => {
 
 server.use('/rooms', roomsRouter);
 exports.server = functions.https.onRequest(server);
+
