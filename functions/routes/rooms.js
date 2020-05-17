@@ -1,9 +1,11 @@
-const db = require('../common/database').getDb();
+const database = require('../common/database');
 const express = require('express');
 const hridWords = require('../assets/human_readable_id_words.json');
 const {gameRouter, generateNewGame} = require('./game');
+const {longPollRouter} = require('./long_poll');
 const {usersRouter} = require('./users');
 
+const db = database.getDb();
 const router = express.Router();
 
 function generateRandomId() {
@@ -67,5 +69,6 @@ router.post('/create/:roomId', async (req, res) => {
 
 router.use('/:roomId/game', gameRouter);
 router.use('/:roomId/users', usersRouter);
+router.use('/:roomId/long-poll', longPollRouter);
 
 module.exports = router;

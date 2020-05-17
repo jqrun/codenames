@@ -1,7 +1,8 @@
-const db = require('../common/database').getDb();
+const database = require('../common/database');
 const express = require('express');
 const gameWords = require('../assets/game_words.json');
 
+const db = database.getDb();
 const router = express.Router({mergeParams: true});
 
 

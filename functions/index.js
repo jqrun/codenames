@@ -31,3 +31,10 @@ server.get('/', (req, res) => {
 server.use('/rooms', roomsRouter);
 exports.server = functions.https.onRequest(server);
 
+/** FIRESTORE TRIGGERS **/
+exports.notifyUsersUpdate = functions.firestore
+    .document('rooms/{roomId}/users/{userId}')
+    .onWrite((change, context) => {
+      console.log('UPDATED WOO');
+    });
+

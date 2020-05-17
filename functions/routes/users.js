@@ -1,6 +1,7 @@
-const db = require('../common/database').getDb();
+const database = require('../common/database');
 const express = require('express');
 
+const db = database.getDb();
 const router = express.Router({mergeParams: true});
 
 async function getUsers({roomId}) {
@@ -11,7 +12,7 @@ async function getUsers({roomId}) {
       ...user.data(),
     };
   });
-} 
+}
 
 async function nameExists({roomId, name}) {
   const user = await db.collection('rooms').doc(roomId).collection('users')
@@ -45,10 +46,11 @@ async function cleanUpIfLastuser({roomId}) {
 
 /** ROUTES **/
 
-router.get('/', async (req, res) => {
+const handleGetUsers = async (req, res) => {
   const users = await getUsers(req.params);
   res.json({users});
-});
+};
+router.get('/', handleGetUsers);
 
 router.post('/create/:name', async (req, res) => {
   const {roomId} = req.params;
@@ -67,5 +69,13 @@ router.post('/delete/:userId', async (req, res) => {
   res.json({'status': 'deleted'});
 });
 
+router.post('/delete', async (req, res) => {
+  await cleanUpIfLastuser(req.params);
+  res.json({'status': 'deleted'});
+});
 
-module.exports.usersRouter = router;
+
+module.exports = {
+  usersRouter: router,
+  handleGetUsers,
+};

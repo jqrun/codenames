@@ -1,5 +1,5 @@
 import Join from './join';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styles from './room.module.scss';
 import {serverUrl} from '../common/util';
 import {useParams} from 'react-router-dom';
@@ -10,42 +10,43 @@ export default function Room() {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
 
-  const userIdRef = useRef();
+  useEffect(() => {
+    if (!roomId) return;
 
-  const fetchUsers = async () => {
+    const fetchUsers = async () => {
       const url = `${serverUrl}/rooms/${roomId}/users`;
       const response = await fetch(url);
       const data = await response.json();
-      console.log(data);
+      console.log(data.users);
       setUsers(data.users);
-  };
-
-  useEffect(() => {
-    const deleteUser = () => {
-      const userId = userIdRef.current;
-      if (!userId) return;
-
-      const url = `${serverUrl}/rooms/${roomId}/users/delete/${userId}`;
-      fetch(url, {method: 'POST'});
     };
-
-    const temp = setInterval(fetchUsers, 5000);
     fetchUsers();
+
+    const longPollUsers = () => {
+      const url = `${serverUrl}/rooms/${roomId}/long-poll/users`;
+      fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            longPollUsers();
+          });
+    };
+    // longPollUsers();
+
+    if (!user) return;
+
+    const deleteUser = async () => {
+      const url = `${serverUrl}/rooms/${roomId}/users/delete/${user.userId}`;
+      await fetch(url, {method: 'POST'});
+    };
 
     window.addEventListener('beforeunload', deleteUser);
 
     return () => {
-      clearInterval(temp);
-
       deleteUser();
       window.removeEventListener('beforeunload', deleteUser);
     }
-  }, []);
-
-  useEffect(() => {
-    userIdRef.current = user && user.userId;
-    fetchUsers();
-  }, [user]);
+  }, [roomId, user]);
 
   return (
     <React.Fragment>
