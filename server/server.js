@@ -7,7 +7,7 @@ const port = 4000;
 
 const corsWhitelist = [
   'http://localhost:3000',
-  'http://localhost:3001',
+  'http://localhost:5000',
   'https://codenames-273814.web.app',
 ];
 const corsOptions = {
