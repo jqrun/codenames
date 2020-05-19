@@ -20,7 +20,10 @@ function generateRandomId() {
 }
 
 async function getRoom({roomId}) {
-  const room = (await db.collection('rooms').doc(roomId).get()).data();
+  const roomDoc = await db.collection('rooms').doc(roomId).get();
+  if (!roomDoc.exists) return null;
+
+  const room = roomDoc.data();
   room.users = formatUsers(room.users);
   return room;
 }
@@ -43,8 +46,7 @@ async function createRoom({roomId}) {
 }
 
 async function roomExists({roomId}) {
-  const room = await db.collection('rooms').doc(roomId).get();
-  return room.exists;
+  return (await db.collection('rooms').doc(roomId).get()).exists;
 }
 
 /** ROUTES **/

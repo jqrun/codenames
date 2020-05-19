@@ -4,10 +4,11 @@ import {serverUrl} from '../common/util';
 import {useHistory} from "react-router-dom";
 
 export default function Home() {
+  const history = useHistory();
+
   const [roomId, setRoomId] = useState(undefined);
   const [roomExistsError, setRoomExistsError] = useState(false);
 
-  const history = useHistory();
 
   const generateRoomId = async () => {
     const response = await fetch(`${serverUrl}/rooms/generate-random`);

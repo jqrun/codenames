@@ -2,25 +2,33 @@ import Join from './join';
 import React, {useEffect, useState} from 'react';
 import styles from './room.module.scss';
 import {serverUrl} from '../common/util';
+import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
 export default function Room() {
   const {roomId} = useParams();
+  const history = useHistory();
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
+  const [room, setRoom] = useState(null);
 
   useEffect(() => {
-    if (!roomId || !user) return;
+    if (!roomId) return;
 
-    const fetchUsers = async () => {
-      const url = `${serverUrl}/rooms/${roomId}/users`;
-      const response = await fetch(url);
-      const data = await response.json();
-      setUsers(data.users);
+    const fetchRoom = async () => {
+      const url = `${serverUrl}/rooms/${roomId}`;
+      const data = await (await fetch(url)).json();
+
+      // TODO: Switch to an explaining page.
+      if (!data.room) history.push('/room-not-found');
+
+      setRoom(data.room);
     };
-    fetchUsers();
+    fetchRoom();
+
+    if (!user) return;
 
     const longPollRoom = () => {
       const url = `${serverUrl}/long-poll/${roomId}/${user.userId}`;
@@ -50,6 +58,8 @@ export default function Room() {
     if (!roomId || !user || !users.length) return;
     setLoading(false);
   }, [roomId, user, users]);
+
+  if (!room) return (<div></div>);
 
   return (
     <React.Fragment>
