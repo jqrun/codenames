@@ -107,4 +107,4 @@ dist
 client/.firebase*
 
 # Secrets
-secrets/
+server/secrets/

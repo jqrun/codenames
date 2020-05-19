@@ -3,7 +3,7 @@ const express = require('express');
 const {roomsRouter} = require('./routes/rooms');
 
 const server = express();
-const port = 4000;
+const port = 8080;
 
 const corsWhitelist = [
   'http://localhost:3000',
@@ -28,5 +28,7 @@ server.get('/', (req, res) => {
 
 server.use('/rooms', roomsRouter);
 
-server.listen(port);
+const listener = server.listen(port, () => {
+  console.log('Comenames server is listening...');
+});
 

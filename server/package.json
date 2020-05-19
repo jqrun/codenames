@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
+    "deploy": "gcloud app deploy",
     "local": "nodemon server.js",
     "start": "node server.js"
   },
@@ -10,7 +11,8 @@
     "@google-cloud/firestore": "^3.8.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "firebase-admin": "^8.12.1"
+    "firebase-admin": "^8.12.1",
+    "pouchdb": "^7.2.1"
   },
   "private": true
 }
