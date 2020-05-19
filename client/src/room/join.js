@@ -8,6 +8,12 @@ const Join = React.memo(props => {
   const [name, setName] = useState('');
   const [nameTakenError, setNameTakenError] = useState(false);
 
+  const handleNameInput = (event) => {
+    let name = event.target.value;
+    name = name.slice(0, 25);
+    setName(name);
+  };
+
   const createUser = async (name) => {
     const url = `${serverUrl}/rooms/${roomId}/users/create/${name}`;
     const response = await fetch(url, {method: 'POST'});
@@ -26,6 +32,7 @@ const Join = React.memo(props => {
 
   const joinRoom = (event) => {
     event.preventDefault();
+    if (!name) return;
     createUser(name);
   };
 
@@ -37,7 +44,7 @@ const Join = React.memo(props => {
           type="text"
           className={styles.input} 
           value={name}
-          onChange={e => setName(e.target.value)}
+          onChange={handleNameInput}
           autoFocus
         />
       </form>

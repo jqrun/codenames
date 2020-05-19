@@ -27,6 +27,7 @@ export default function Home() {
 
   const createRoom = async (event) => {
     event.preventDefault();
+    if (!roomId) return;
 
     const response = await fetch(`${serverUrl}/rooms/create/${roomId}`, {method: 'POST'});
     const {status} = await response.json();

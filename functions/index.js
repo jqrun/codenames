@@ -1,7 +1,7 @@
 const cors = require('cors');
 const express = require('express');
 const functions = require('firebase-functions');
-const roomsRouter = require('./routes/rooms');
+const {roomsRouter} = require('./routes/rooms');
 const {longPollRouter} = require('./routes/long_poll');
 
 const server = express();
@@ -32,14 +32,5 @@ server.get('/', (req, res) => {
 server.use('/rooms', roomsRouter);
 server.use('/long-poll', longPollRouter);
 
-exports.server = functions.https.onRequest(server);
-
-/** FIRESTORE TRIGGERS **/
-// exports.notifyUsersUpdate = functions.firestore
-//     .document('rooms/{roomId}/users/{userId}')
-//     .onWrite((change, context) => {
-//       const {roomId} = context.params;
-//       // database.publish({roomId, collection: 'users'});
-//       console.log('USERS UPDATED');
-//     });
+exports.server = functions.runWith({timeoutSeconds: 540}).https.onRequest(server);
 

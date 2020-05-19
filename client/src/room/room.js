@@ -22,16 +22,16 @@ export default function Room() {
     };
     fetchUsers();
 
-    const longPollUsers = () => {
-      const url = `${serverUrl}/long-poll/${roomId}/${user.userId}/users`;
+    const longPollRoom = () => {
+      const url = `${serverUrl}/long-poll/${roomId}/${user.userId}`;
       fetch(url)
           .then(response => response.json())
           .then(data => {
-            setUsers(data.users);
-            longPollUsers();
+            setUsers(data.room.users);
+            longPollRoom();
           });
     };
-    longPollUsers();
+    longPollRoom();
 
     const deleteUser = async () => {
       const url = `${serverUrl}/rooms/${roomId}/users/delete/${user.userId}`;
@@ -63,7 +63,7 @@ export default function Room() {
           User: {user.name} <br/><br/>
           All users: <br/>
           {users.map(user => 
-            <div key={user.userId}>{user.name}</div>
+            <div key={user.userId}>{user.name} {user.team}</div>
           )}
         </div>
       }

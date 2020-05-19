@@ -54,7 +54,7 @@ function assignRandomCards(words, numAgents) {
     numAgents--;
   }
 
-  return cards;
+  return {...cards};
 }
 
 function generateNewGame() {
@@ -64,22 +64,25 @@ function generateNewGame() {
     board: cards,
   };
 }
-module.exports.generateNewGame = generateNewGame;
 
 /** ROUTES **/
 
-router.get('/', async (req, res) => {
-  const {roomId} = req.params;
+// TODO
+// router.get('/', async (req, res) => {
+//   const {roomId} = req.params;
 
-  const doc = await db.collection('rooms').doc(roomId).get();
-  if (!doc.exists) {
-    res.json({game: undefined});
-    return;
-  }
+//   const doc = await db.collection('rooms').doc(roomId).get();
+//   if (!doc.exists) {
+//     res.json({game: undefined});
+//     return;
+//   }
 
-  const game = doc.data().game;
-  res.json({game});
-});
+//   const game = doc.data().game;
+//   res.json({game});
+// });
 
 
-module.exports.gameRouter = router;
+module.exports = {
+  gameRouter: router,
+  generateNewGame,
+}

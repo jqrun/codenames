@@ -1,44 +1,66 @@
 const database = require('../common/database');
 const express = require('express');
+const {FieldValue} = require('firebase-admin').firestore;
 
 const db = database.getDb();
 const router = express.Router({mergeParams: true});
 
-async function getUsers({roomId}) {
-  const users = await db.collection('rooms').doc(roomId).collection('users').get();
-  return users.docs.map(user => {
+function formatUsers(users) {
+  return Object.entries(users).map(([userId, user]) => {
     return {
-      userId: user.id,
-      ...user.data(),
+      userId,
+      ...user,
     };
   });
 }
 
+async function getUsers({roomId}) {
+  const users = (await db.collection('rooms').doc(roomId).get()).data().users;
+  return formatUsers(users);
+}
+
 async function nameExists({roomId, name}) {
-  const user = await db.collection('rooms').doc(roomId).collection('users')
-      .where('nameCaseInsensitive', '==', name.toLowerCase()).get();
-  return !user.empty;
+  const users = (await db.collection('rooms').doc(roomId).get()).data().users;
+  return Object.values(users).some(user => user.name === name);
+}
+
+async function getNextBalancedTeam({roomId}) {
+  const users = (await db.collection('rooms').doc(roomId).get()).data().users;
+  const numBlue = Object.values(users).filter(user => user.team === 'blue').length;
+  const numRed = Object.values(users).filter(user => user.team === 'red').length;
+
+  if (numBlue !== numRed) return numBlue > numRed ? 'red' : 'blue';
+  return Math.random() < 0.5 ? 'red': 'blue';
 }
 
 async function createUser({roomId, name}) {
-  const user = await db.collection('rooms').doc(roomId).collection('users').add({
-    name,
-    nameCaseInsensitive: name.toLowerCase(),
-    team: null,
-    spymaster: false,
+  const team = await getNextBalancedTeam({roomId});
+
+  const userId = name.toLowerCase();
+  await db.collection('rooms').doc(roomId).update({
+    [`users.${userId}`]: {
+      name,
+      team,
+      spymaster: false,
+    },
+    'timestamps.lastUpdate': FieldValue.serverTimestamp(),
   });
-  return user.id;
+
+  return userId;
 }
 
 async function deleteUser({roomId, userId}) {
-  await db.collection('rooms').doc(roomId).collection('users').doc(userId).delete();
+  await db.collection('rooms').doc(roomId).update({
+    [`users.${userId}`]: FieldValue.delete(),
+    'timestamps.lastUpdate': FieldValue.serverTimestamp(),
+  });
   cleanUpIfLastuser({roomId});
   return;
 }
 
 async function cleanUpIfLastuser({roomId}) {
-  const users = await db.collection('rooms').doc(roomId).collection('users').get();
-  if (users.empty) {
+  const users = (await db.collection('rooms').doc(roomId).get()).data().users;
+  if (!Object.keys(users).length) {
     await db.collection('rooms').doc(roomId).delete();
   } 
 }
@@ -46,11 +68,10 @@ async function cleanUpIfLastuser({roomId}) {
 
 /** ROUTES **/
 
-const handleGetUsers = async (req, res) => {
+router.get('/', async (req, res) => {
   const users = await getUsers(req.params);
   res.json({users});
-};
-router.get('/', handleGetUsers);
+});
 
 router.post('/create/:name', async (req, res) => {
   const {roomId} = req.params;
@@ -77,5 +98,5 @@ router.post('/delete', async (req, res) => {
 
 module.exports = {
   usersRouter: router,
-  handleGetUsers,
+  formatUsers,
 };

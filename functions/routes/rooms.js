@@ -1,8 +1,9 @@
 const database = require('../common/database');
 const express = require('express');
 const hridWords = require('../assets/human_readable_id_words.json');
+const {FieldValue} = require('firebase-admin').firestore;
 const {gameRouter, generateNewGame} = require('./game');
-const {usersRouter} = require('./users');
+const {formatUsers, usersRouter} = require('./users');
 
 const db = database.getDb();
 const router = express.Router();
@@ -19,19 +20,20 @@ function generateRandomId() {
 }
 
 async function getRoom({roomId}) {
-  const room = await db.collection('rooms').doc(roomId).get();
-  return room.data();
+  const room = (await db.collection('rooms').doc(roomId).get()).data();
+  room.users = formatUsers(room.users);
+  return room;
 }
 
 async function createRoom({roomId}) {
-  const now = new Date();
-
   try {
     await db.collection('rooms').doc(roomId).set({
       game: generateNewGame(),
-      created: {
-        timestamp: Number(now),
-        localeString: `${now.toLocaleString("en-US", {timeZone: "America/New_York"})} EST`,
+      users: {},
+      messages: {},
+      timestamps: {
+        created: FieldValue.serverTimestamp(),
+        lastUpdate: FieldValue.serverTimestamp(),
       },
     });
     return true;
@@ -51,11 +53,6 @@ router.get('/generate-random', (req, res) => {
   res.json({'name': generateRandomId()});
 });
 
-router.get('/:roomId', async (req, res) => {
-  const room = await getRoom(req.params);
-  res.json({room});
-});
-
 router.post('/create/:roomId', async (req, res) => {
   const {roomId} = req.params;
 
@@ -68,7 +65,17 @@ router.post('/create/:roomId', async (req, res) => {
   res.json({'status': created ? 'created' : 'failed'});
 });
 
+async function handleGetRoom (req, res) {
+  const room = await getRoom(req.params);
+  res.json({room});
+}
+router.get('/:roomId', handleGetRoom);
+
+
 router.use('/:roomId/game', gameRouter);
 router.use('/:roomId/users', usersRouter);
 
-module.exports = router;
+module.exports = {
+  roomsRouter: router,
+  handleGetRoom,
+};
