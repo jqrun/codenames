@@ -21,6 +21,15 @@ class Database {
   getPouchDb() {
     return this.pouchDb;
   }
+
+  async commitToFirebase(room) {
+    const roomId = room._id;
+    await this.firestore.collection('rooms').doc(roomId).set(room);
+  }
+
+  async deleteFirebaseRoom(roomId) {
+    await db.collection('rooms').doc(roomId).delete();
+  }
 }
 
 module.exports = new Database();

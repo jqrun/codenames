@@ -33,16 +33,16 @@ export default function Room() {
 
     if (!user) return;
 
-    const longPollRoom = () => {
-      const url = `${serverUrl}/long-poll/${roomId}/${user.userId}`;
-      fetch(url)
-          .then(response => response.json())
-          .then(data => {
-            setUsers(data.room.users);
-            longPollRoom();
-          });
-    };
-    longPollRoom();
+    // const longPollRoom = () => {
+    //   const url = `${serverUrl}/long-poll/${roomId}/${user.userId}`;
+    //   fetch(url)
+    //       .then(response => response.json())
+    //       .then(data => {
+    //         setUsers(data.room.users);
+    //         longPollRoom();
+    //       });
+    // };
+    // longPollRoom();
 
     const deleteUser = async () => {
       const url = `${serverUrl}/rooms/${roomId}/users/delete/${user.userId}`;

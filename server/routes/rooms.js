@@ -1,6 +1,8 @@
 const database = require('../database');
 const express = require('express');
 const hridWords = require('../assets/human_readable_id_words.json');
+const {generateNewGame} = require('./game');
+const {usersRouter} = require('./users');
 
 const db = database.getPouchDb();
 const router = express.Router();
@@ -31,12 +33,15 @@ async function createRoom({roomId}) {
     _id: roomId,
     users: {},
     messages: {},
+    game: generateNewGame(),
     timestamps: {
       created: now,
       lastUpdate: now,
+      lastFirebaseCommit: now,
     },
   };
   const response = await db.put(room);
+  database.commitToFirebase(room);
   return room;
 }
 
@@ -64,7 +69,6 @@ async function handleGetRoom (req, res) {
 }
 router.get('/:roomId', handleGetRoom);
 
-module.exports = {
-  roomsRouter: router,
-  handleGetRoom,
-};
+router.use('/:roomId/users', usersRouter);
+
+module.exports = {roomsRouter: router, handleGetRoom};
