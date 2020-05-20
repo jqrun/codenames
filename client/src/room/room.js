@@ -22,7 +22,10 @@ export default function Room() {
       const data = await (await fetch(url)).json();
 
       // TODO: Switch to an explaining page.
-      if (!data.room) history.push('/room-not-found');
+      if (!data.room) {
+        history.push('/room-not-found');
+        return;
+      }
 
       setRoom(data.room);
     };
