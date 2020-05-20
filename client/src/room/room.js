@@ -45,8 +45,14 @@ export default function Room() {
     longPollRoom();
 
     const deleteUser = async () => {
+      navigator.beacon = navigator.beacon || ((url) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', url, false);
+        xhr.send(); 
+      });
+
       const url = `${serverUrl}/rooms/${roomId}/users/delete/${user.userId}`;
-      await fetch(url, {method: 'POST'});
+      navigator.sendBeacon(url);
     };
 
     window.addEventListener('beforeunload', deleteUser);
