@@ -21,8 +21,8 @@ async function getNextBalancedTeam({roomId}) {
 async function createUser({roomId, name}) {
   const team = await getNextBalancedTeam({roomId});
 
-  const userId = name.toLowerCase();
   const room = await db.get(roomId);
+  const userId = database.getUniqueId();
   room.users[userId] = {
       name,
       team,
@@ -35,7 +35,7 @@ async function createUser({roomId, name}) {
 
 async function deleteUser({roomId, userId}) {
   const room = await db.get(roomId);
-  delete rooms.users[userId];
+  delete room.users[userId];
   room.timestamps.lastUpdate = Number(new Date());
   await db.put(room);
 }
@@ -70,4 +70,4 @@ router.post('/delete/:userId', async (req, res) => {
 // });
 
 
-module.exports = {usersRouter: router};
+module.exports.usersRouter = router;

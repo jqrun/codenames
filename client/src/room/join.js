@@ -15,7 +15,7 @@ const Join = React.memo(props => {
   };
 
   const createUser = async (name) => {
-    const url = `${serverUrl}/rooms/${roomId}/users/create/${name}`;
+    const url = `${serverUrl}/rooms/${roomId}/users/create/${encodeURIComponent(name)}`;
     const response = await fetch(url, {method: 'POST'});
     const {status, userId} = await response.json();
 

@@ -11,7 +11,6 @@ export default function Room() {
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [users, setUsers] = useState([]);
   const [room, setRoom] = useState(null);
 
   useEffect(() => {
@@ -33,16 +32,17 @@ export default function Room() {
 
     if (!user) return;
 
-    // const longPollRoom = () => {
-    //   const url = `${serverUrl}/long-poll/${roomId}/${user.userId}`;
-    //   fetch(url)
-    //       .then(response => response.json())
-    //       .then(data => {
-    //         setUsers(data.room.users);
-    //         longPollRoom();
-    //       });
-    // };
-    // longPollRoom();
+    const longPollRoom = () => {
+      const url = `${serverUrl}/long-poll/${roomId}/${user.userId}`;
+      fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            setRoom(data.room);
+            longPollRoom();
+          });
+    };
+    longPollRoom();
 
     const deleteUser = async () => {
       const url = `${serverUrl}/rooms/${roomId}/users/delete/${user.userId}`;
@@ -55,12 +55,12 @@ export default function Room() {
       deleteUser();
       window.removeEventListener('beforeunload', deleteUser);
     }
-  }, [roomId, user]);
+  }, [roomId, user, history]);
 
   useEffect(() => {
-    if (!roomId || !user || !users.length) return;
+    if (!room || !roomId || !user) return;
     setLoading(false);
-  }, [roomId, user, users]);
+  }, [room, roomId, user]);
 
   if (!room) return (<div></div>);
 
@@ -75,8 +75,8 @@ export default function Room() {
           Room: {roomId} <br/>
           User: {user.name} <br/><br/>
           All users: <br/>
-          {users.map(user => 
-            <div key={user.userId}>{user.name} {user.team}</div>
+          {Object.entries(room.users).map(([userId, user]) => 
+            <div key={userId}>{user.name} {user.team} | {userId}</div>
           )}
         </div>
       }

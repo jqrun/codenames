@@ -1,5 +1,6 @@
 const cors = require('cors');
 const express = require('express');
+const {longPollRouter} = require('./routes/long_poll');
 const {roomsRouter} = require('./routes/rooms');
 
 const server = express();
@@ -27,6 +28,7 @@ server.get('/', (req, res) => {
 });
 
 server.use('/rooms', roomsRouter);
+server.use('/long-poll', longPollRouter);
 
 const listener = server.listen(port, () => {
   console.log('Comenames server is listening...');
