@@ -3,18 +3,23 @@ import styles from './join.module.scss';
 import {serverUrl} from '../common/util';
 
 const Join = React.memo(props => {
-  const {roomId, setUser} = props;
+  const {roomId, setUserId} = props;
 
   const [name, setName] = useState('');
   const [nameTakenError, setNameTakenError] = useState(false);
 
-  const handleNameInput = (event) => {
+  const sessionUserName = sessionStorage.getItem(roomId);
+  if (sessionUserName) {
+    createUser(sessionUserName);
+  }
+
+  function handleNameInput(event) {
     let name = event.target.value;
     name = name.slice(0, 25);
     setName(name);
   };
 
-  const createUser = async (name) => {
+  async function createUser (name) {
     const url = `${serverUrl}/rooms/${roomId}/users/create/${encodeURIComponent(name)}`;
     const response = await fetch(url, {method: 'POST'});
     const {status, userId} = await response.json();
@@ -24,13 +29,14 @@ const Join = React.memo(props => {
         setNameTakenError(true);
         break;
       case 'created':
-        setUser({userId, name});
+        setUserId(userId);
+        sessionStorage.setItem(roomId, name);
         break;
       default:
     }
   };
 
-  const joinRoom = (event) => {
+  async function joinRoom(event) {
     event.preventDefault();
     if (!name) return;
     createUser(name);

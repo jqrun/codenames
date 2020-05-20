@@ -9,14 +9,14 @@ export default function Room() {
   const {roomId} = useParams();
   const history = useHistory();
 
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [room, setRoom] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!roomId) return;
 
-    const fetchRoom = async () => {
+    async function fetchRoom() {
       const url = `${serverUrl}/rooms/${roomId}`;
       const data = await (await fetch(url)).json();
 
@@ -30,10 +30,10 @@ export default function Room() {
     };
     fetchRoom();
 
-    if (!user) return;
+    if (!userId) return;
 
-    const longPollRoom = () => {
-      const url = `${serverUrl}/long-poll/${roomId}/${user.userId}`;
+    function longPollRoom() {
+      const url = `${serverUrl}/long-poll/${roomId}/${userId}`;
       fetch(url)
           .then(response => response.json())
           .then(data => {
@@ -44,14 +44,14 @@ export default function Room() {
     };
     longPollRoom();
 
-    const deleteUser = async () => {
+    function deleteUser() {
       navigator.beacon = navigator.beacon || ((url) => {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', url, false);
         xhr.send(); 
       });
 
-      const url = `${serverUrl}/rooms/${roomId}/users/delete/${user.userId}`;
+      const url = `${serverUrl}/rooms/${roomId}/users/delete/${userId}`;
       navigator.sendBeacon(url);
     };
 
@@ -61,30 +61,46 @@ export default function Room() {
       deleteUser();
       window.removeEventListener('beforeunload', deleteUser);
     }
-  }, [roomId, user, history]);
+  }, [roomId, userId, history]);
 
   useEffect(() => {
-    if (!room || !roomId || !user) return;
+    if (!room || !roomId || !userId) return;
     setLoading(false);
-  }, [room, roomId, user]);
+  }, [room, roomId, userId]);
 
   if (!room) return (<div></div>);
 
   return (
     <React.Fragment>
-      {!user &&
-        <Join roomId={roomId} setUser={setUser} />
+      {!userId &&
+        <Join roomId={roomId} setUserId={setUserId} />
       }
 
       {!loading &&
+        <React.Fragment>
         <div style={styles.room}>
+          <div style={styles.board}>
+            Board
+          </div>
+
+          <div style={styles.teams}>
+            Teams
+          </div>
+
+          <div style={styles.chat}>
+            Chat
+          </div>
+        </div>
+
+        <div style={{position: "fixed", bottom: "1vw", left:"1vw", opacity: "0.4"}}>
           Room: {roomId} <br/>
-          User: {user.name} <br/><br/>
+          User: {userId} <br/><br/>
           All users: <br/>
           {Object.entries(room.users).map(([userId, user]) => 
             <div key={userId}>{user.name} {user.team} | {userId}</div>
           )}
         </div>
+        </React.Fragment>
       }
     </React.Fragment>
   );  

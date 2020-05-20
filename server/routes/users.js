@@ -40,9 +40,9 @@ async function deleteUser({roomId, userId}) {
   await db.put(room);
 }
 
-// async function cleanUpIfLastuser({roomId}) {
-
-// }
+async function cleanUpIfLastuser({roomId}) {
+  // MAYBE TODO
+}
 
 
 /** ROUTES **/

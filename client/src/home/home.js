@@ -9,14 +9,13 @@ export default function Home() {
   const [roomId, setRoomId] = useState(undefined);
   const [roomExistsError, setRoomExistsError] = useState(false);
 
-
-  const generateRoomId = async () => {
+  async function generateRoomId() {
     const response = await fetch(`${serverUrl}/rooms/generate-random`);
     const data = await response.json();
     setRoomId(data.name);
   };
 
-  const handleRoomInput = (event) => {
+  function handleRoomInput(event) {
     const originalValue = event.target.value 
     let roomId = originalValue;
     roomId = roomId.toLowerCase();
@@ -26,7 +25,7 @@ export default function Home() {
     setRoomId(roomId);
   };
 
-  const createRoom = async (event) => {
+  async function createRoom(event) {
     event.preventDefault();
     if (!roomId) return;
 
