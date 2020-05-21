@@ -1,0 +1,7 @@
+.inner {
+  display: flex;
+
+  & > div {
+    width: 50%;
+  }
+}

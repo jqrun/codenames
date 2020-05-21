@@ -13,11 +13,21 @@ export default function Room() {
   const {roomId} = useParams();
   const history = useHistory();
 
-  const sessionUserId = sessionStorage.getItem(roomId);
+  function initialUserId() {
+    if (!isDev || !PERSIST_USER) return null;
+    return sessionStorage.getItem(roomId);
+  };
 
-  const [userId, setUserId] = useState((isDev && PERSIST_USER) ? sessionUserId: null);
+  const [userId, setUserId] = useState(initialUserId);
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  function parseAndSetRoom(room) {
+    if (room.users[userId]) {
+      room.users[userId].isCurrent = true;
+    }
+    setRoom(room);
+  }
 
   // Initial room fetch.
   useEffect(() => {
@@ -31,7 +41,7 @@ export default function Room() {
         return;
       }
 
-      setRoom(data.room);
+      parseAndSetRoom(data.room);
     })();
   }, [roomId, history]);
 
@@ -44,7 +54,7 @@ export default function Room() {
     eventSource.onmessage = (event) => {
       const room = JSON.parse(event.data);
       console.log(room);
-      setRoom(room);
+      parseAndSetRoom(room);
     };
 
     return () => {
