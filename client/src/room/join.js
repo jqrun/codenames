@@ -1,5 +1,5 @@
-import React, {useEffect, useRef, useState} from 'react';
-import styles from './join.module.scss';
+import css from './join.module.scss';
+import React, {useState} from 'react';
 import {serverUrl} from '../common/util';
 
 const Join = React.memo(props => {
@@ -38,12 +38,12 @@ const Join = React.memo(props => {
   };
 
   return (
-    <div className={styles.join}>
+    <div className={css.join}>
       Enter a name to join!
       <form onSubmit={joinRoom}>
         <input 
           type="text"
-          className={styles.input} 
+          className={css.input} 
           value={name}
           onChange={handleNameInput}
           autoFocus

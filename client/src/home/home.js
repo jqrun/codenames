@@ -1,5 +1,5 @@
+import css from './home.module.scss'
 import React, {useEffect, useState} from 'react';
-import styles from './home.module.scss'
 import {serverUrl} from '../common/util';
 import {useHistory} from "react-router-dom";
 
@@ -50,11 +50,11 @@ export default function Home() {
   if (typeof roomId === 'undefined') return (<div></div>)
 
   return (
-    <div className={styles.home}>
+    <div className={css.home}>
       <form onSubmit={createRoom}>
         <input 
           type="text"
-          className={styles.input} 
+          className={css.input} 
           value={roomId}
           onChange={handleRoomInput}
           autoFocus

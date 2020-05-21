@@ -1,11 +1,13 @@
+import css from './room.module.scss'
 import Join from './join';
 import React, {useEffect, useState} from 'react';
-import styles from './room.module.scss';
+import Teams from './teams';
 import {isDev, serverUrl} from '../common/util';
 import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
-const PERSIST_USER = false;
+// Toggle for ease of local development.
+const PERSIST_USER = true;
 
 export default function Room() {
   const {roomId} = useParams();
@@ -89,25 +91,28 @@ export default function Room() {
 
       {!loading &&
         <React.Fragment>
-        <div style={styles.room}>
-          <div style={styles.board}>
-            Board
-          </div>
+        <div className={css.room}>
+          <div className={css.inner}>
+            <div className={css.left}>
+              <div className={css.board}>
+              </div>
+            </div>
 
-          <div style={styles.controls}>
-            Controls
-          </div>
+            <div className={css.right}>
+              <div className={css.teams}>
+                <Teams roomId={roomId} userId={userId} users={room.users}/>
+              </div>
 
-          <div style={styles.teams}>
-            Teams
-          </div>
+              <div className={css.chat}>
+              </div>
 
-          <div style={styles.chat}>
-            Chat
+              <div className={css.controls}>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div style={{position: "fixed", bottom: "1vw", left:"1vw", opacity: "0.4"}}>
+        <div style={{position: "fixed", bottom: "10px", right:"10px", opacity: "0.4"}}>
           Room: {roomId} <br/>
           User: {userId} <br/><br/>
           All users: <br/>

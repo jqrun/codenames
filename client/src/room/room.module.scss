@@ -1,0 +1,39 @@
+.room {
+  .inner {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 auto;
+    padding: 5vw 0;
+    width: 95vw;
+
+    & > div {
+      border: 1px solid #0af;
+    }
+  }
+
+  .left {
+    width: 60%;
+    height: 400px;
+  }
+
+  .right {
+    width: 35%;
+  }
+}
+
+@media (max-width: 800px) {
+  .room {
+    .inner {
+      flex-direction: column;
+    }
+
+    .left {
+      width: 100%;
+    }
+
+    .right {
+      margin-top: 5vw;
+      width: 100%;
+    }
+  }
+}
