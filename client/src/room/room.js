@@ -1,6 +1,7 @@
+import Board from './board';
 import css from './room.module.scss'
 import Join from './join';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import Teams from './teams';
 import {isDev, serverUrl} from '../common/util';
 import {useHistory} from "react-router-dom";
@@ -22,12 +23,12 @@ export default function Room() {
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  function parseAndSetRoom(room) {
+  const parseAndSetRoom = useCallback((room) => {
     if (room.users[userId]) {
       room.users[userId].current = true;
     }
     setRoom(room);
-  }
+  }, []);
 
   // Initial room fetch.
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function Room() {
 
       parseAndSetRoom(data.room);
     })();
-  }, [roomId, history]);
+  }, [roomId, history, parseAndSetRoom]);
 
   // Subscribe to room updates.
   useEffect(() => {
@@ -53,14 +54,13 @@ export default function Room() {
     const eventSource = new EventSource(url, {withCredentials: true});
     eventSource.onmessage = (event) => {
       const room = JSON.parse(event.data);
-      console.log(room);
       parseAndSetRoom(room);
     };
 
     return () => {
       eventSource.close();
     };
-  }, [roomId, userId]);
+  }, [roomId, userId, parseAndSetRoom]);
 
   // Delete user when leaving the page.
   useEffect(() => {
@@ -101,12 +101,13 @@ export default function Room() {
         <div className={css.inner}>
           <div className={css.left}>
             <div className={css.board}>
+              <Board roomId={roomId} userId={userId} board={room.game.board} />
             </div>
           </div>
 
           <div className={css.right}>
             <div className={css.teams}>
-              <Teams roomId={roomId} userId={userId} users={room.users}/>
+              <Teams roomId={roomId} userId={userId} users={room.users} />
             </div>
 
             <div className={css.chat}>

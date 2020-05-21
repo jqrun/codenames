@@ -8,12 +8,13 @@ const router = express.Router({mergeParams: true});
 
 function getRandomWords(words, numWords) {
   const randomWords = [];
-  const picked = {};
+  const picked = new Set();
 
   while (numWords) {
     const pick = words[Math.floor(Math.random() * words.length)];
-    if (pick in picked) continue;
+    if (picked.has(pick)) continue;
     randomWords.push(pick);
+    picked.add(pick);
     numWords--;
   }
   return randomWords;
