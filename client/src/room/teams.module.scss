@@ -1,7 +1,25 @@
+.teams {
+  padding: 0.5vw;
+}
+
 .inner {
   display: flex;
 
   & > div {
     width: 50%;
+  }
+}
+
+.user {
+  &.current {
+    font-weight: bold;
+  } 
+
+  &.blue {
+    color: blue;
+  }
+
+  &.red {
+    color: red;
   }
 }

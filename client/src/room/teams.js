@@ -7,32 +7,37 @@ const Teams = React.memo((props) => {
 
   const blueTeam = getTeam('blue');
   const redTeam = getTeam('red');
+  const teams = [blueTeam, redTeam];
 
   function getTeam(color) {
     const team = Object.values(users).filter(user => user.team === color);
     team.sort();
-    console.log(team);
     return team;
   }
 
-  console.log(users);
+  function getUserClasses(user) {
+    const classes = [
+      user.team, 'user',
+      user.current ? 'current': '', 
+      user.spymaster ? 'spymaster': '',
+    ];
+    return classes.map(name => css[name]).join(' ');
+  }
 
   return (
     <div className={css.teams}>
       Teams <br/><br/>
 
       <div className={css.inner}>
-        <div className={css.blueTeam}>
-          {blueTeam.map(user => 
-            <div key={user.name}>{user.name} {user.isCurrent ? 'this' : ''}</div>
-          )}
-        </div>
-
-        <div className={css.redTeam}>
-          {redTeam.map(user => 
-            <div key={user.name}>{user.name} {user.isCurrent ? 'this' : ''}</div>
-          )}
-        </div>
+        {teams.map((team, index) =>
+          <div key={index} className={css.teamList}>
+            {team.map(user => 
+              <div key={user.name} className={getUserClasses(user)}>
+                {user.name}
+              </div>
+            )}
+          </div> 
+        )}
       </div>
     </div>
   );

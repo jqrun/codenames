@@ -24,7 +24,7 @@ export default function Room() {
 
   function parseAndSetRoom(room) {
     if (room.users[userId]) {
-      room.users[userId].isCurrent = true;
+      room.users[userId].current = true;
     }
     setRoom(room);
   }
@@ -95,43 +95,28 @@ export default function Room() {
   if (!room) return (<div></div>);
   return (
     <React.Fragment>
-      {!userId &&
-        <Join roomId={roomId} setUserId={setUserId} />
-      }
+      {!userId && <Join roomId={roomId} setUserId={setUserId} />}
 
-      {!loading &&
-        <React.Fragment>
-        <div className={css.room}>
-          <div className={css.inner}>
-            <div className={css.left}>
-              <div className={css.board}>
-              </div>
+      {!loading && <div className={css.room}>
+        <div className={css.inner}>
+          <div className={css.left}>
+            <div className={css.board}>
+            </div>
+          </div>
+
+          <div className={css.right}>
+            <div className={css.teams}>
+              <Teams roomId={roomId} userId={userId} users={room.users}/>
             </div>
 
-            <div className={css.right}>
-              <div className={css.teams}>
-                <Teams roomId={roomId} userId={userId} users={room.users}/>
-              </div>
+            <div className={css.chat}>
+            </div>
 
-              <div className={css.chat}>
-              </div>
-
-              <div className={css.controls}>
-              </div>
+            <div className={css.controls}>
             </div>
           </div>
         </div>
-
-        <div style={{position: "fixed", bottom: "10px", right:"10px", opacity: "0.4"}}>
-          Room: {roomId} <br/>
-          User: {userId} <br/><br/>
-          All users: <br/>
-          {Object.entries(room.users).map(([userId, user]) => 
-            <div key={userId}>{user.name} {user.team} | {userId}</div>
-          )}
-        </div>
-        </React.Fragment>
-      }
+      </div>}
     </React.Fragment>
   );  
 }
