@@ -1,7 +1,9 @@
 const admin = require('firebase-admin');
 const crypto = require('crypto');
-const pouchDb = require('pouchdb');
+const PouchDb = require('pouchdb');
 const serviceAccount = require("./secrets/firebase_admin_key.json");
+
+PouchDb.plugin(require('pouchdb-upsert'));
 
 class Database {
   constructor() {
@@ -12,7 +14,7 @@ class Database {
 
     this.firestore = admin.firestore();
 
-    this.pouchDb = new pouchDb('rooms');
+    this.pouchDb = new PouchDb('rooms');
   }
 
   getFirestore() {

@@ -63,12 +63,11 @@ router.post('/create/:roomId', async (req, res) => {
   res.json({'status': room ? 'created' : 'failed'});
 });
 
-async function handleGetRoom (req, res) {
+router.get('/:roomId', async (req, res) => {
   const room = await getRoom(req.params);
-  res.json({room});
-}
-router.get('/:roomId', handleGetRoom);
+  res.json({room});  
+});
 
 router.use('/:roomId/users', usersRouter);
 
-module.exports = {roomsRouter: router, handleGetRoom};
+module.exports = {roomsRouter: router, getRoom};

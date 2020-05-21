@@ -1,22 +1,25 @@
 import Join from './join';
 import React, {useEffect, useState} from 'react';
 import styles from './room.module.scss';
-import {serverUrl} from '../common/util';
+import {isDev, serverUrl} from '../common/util';
 import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
+
+const PERSIST_USER = false;
 
 export default function Room() {
   const {roomId} = useParams();
   const history = useHistory();
 
-  const [userId, setUserId] = useState(null);
+  const sessionUserId = sessionStorage.getItem(roomId);
+
+  const [userId, setUserId] = useState((isDev && PERSIST_USER) ? sessionUserId: null);
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Initial room fetch.
   useEffect(() => {
-    if (!roomId) return;
-
-    async function fetchRoom() {
+    (async () => {
       const url = `${serverUrl}/rooms/${roomId}`;
       const data = await (await fetch(url)).json();
 
@@ -27,24 +30,33 @@ export default function Room() {
       }
 
       setRoom(data.room);
-    };
-    fetchRoom();
+    })();
+  }, [roomId, history]);
 
+  // Subscribe to room updates.
+  useEffect(() => {
     if (!userId) return;
 
-    function longPollRoom() {
-      const url = `${serverUrl}/long-poll/${roomId}/${userId}`;
-      fetch(url)
-          .then(response => response.json())
-          .then(data => {
-            console.log(data);
-            setRoom(data.room);
-            longPollRoom();
-          });
+    const url = `${serverUrl}/subscribe/${roomId}/${userId}`;
+    const eventSource = new EventSource(url, {withCredentials: true});
+    eventSource.onmessage = (event) => {
+      const room = JSON.parse(event.data);
+      console.log(room);
+      setRoom(room);
     };
-    longPollRoom();
+
+    return () => {
+      eventSource.close();
+    };
+  }, [roomId, userId]);
+
+  // Delete user when leaving the page.
+  useEffect(() => {
+    if (!userId) return;
 
     function deleteUser() {
+      if (isDev && PERSIST_USER) return;
+
       navigator.beacon = navigator.beacon || ((url) => {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', url, false);
@@ -56,20 +68,19 @@ export default function Room() {
     };
 
     window.addEventListener('beforeunload', deleteUser);
-
     return () => {
-      deleteUser();
       window.removeEventListener('beforeunload', deleteUser);
+      deleteUser();
     }
-  }, [roomId, userId, history]);
+  }, [roomId, userId]);
 
+  // Set loading state.
   useEffect(() => {
     if (!room || !roomId || !userId) return;
     setLoading(false);
   }, [room, roomId, userId]);
 
   if (!room) return (<div></div>);
-
   return (
     <React.Fragment>
       {!userId &&
@@ -81,6 +92,10 @@ export default function Room() {
         <div style={styles.room}>
           <div style={styles.board}>
             Board
+          </div>
+
+          <div style={styles.controls}>
+            Controls
           </div>
 
           <div style={styles.teams}>

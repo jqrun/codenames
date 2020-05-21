@@ -29,15 +29,25 @@ async function createUser({roomId, name}) {
       spymaster: false,
   };
   room.timestamps.lastUpdate = Number(new Date());
-  await db.put(room);
+  try {
+    await db.put(room);
+  } catch(err) {
+    createUser({roomId, name});
+  }
   return userId;
 }
 
 async function deleteUser({roomId, userId}) {
   const room = await db.get(roomId);
+  if (!room.users[userId]) return;
+
   delete room.users[userId];
   room.timestamps.lastUpdate = Number(new Date());
-  await db.put(room);
+  try {
+    await db.put(room);
+  } catch(err) {
+    deleteUser({roomId, userId});
+  }
 }
 
 async function cleanUpIfLastuser({roomId}) {

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styles from './join.module.scss';
 import {serverUrl} from '../common/util';
 
@@ -7,11 +7,6 @@ const Join = React.memo(props => {
 
   const [name, setName] = useState('');
   const [nameTakenError, setNameTakenError] = useState(false);
-
-  const sessionUserName = sessionStorage.getItem(roomId);
-  if (sessionUserName) {
-    createUser(sessionUserName);
-  }
 
   function handleNameInput(event) {
     let name = event.target.value;
@@ -29,8 +24,8 @@ const Join = React.memo(props => {
         setNameTakenError(true);
         break;
       case 'created':
+        sessionStorage.setItem(roomId, userId);
         setUserId(userId);
-        sessionStorage.setItem(roomId, name);
         break;
       default:
     }
