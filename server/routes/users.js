@@ -1,4 +1,4 @@
-const database = require('../database');
+const database = require('../common/database');
 const express = require('express');
 
 const db = database.getPouchDb();

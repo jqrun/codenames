@@ -1,5 +1,6 @@
-const database = require('../database');
+const database = require('../common/database');
 const express = require('express');
+const logger = require('../common/logger');
 const {getRoom} = require('./rooms');
 
 const db = database.getPouchDb();

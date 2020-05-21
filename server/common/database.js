@@ -1,7 +1,7 @@
 const admin = require('firebase-admin');
 const crypto = require('crypto');
 const PouchDb = require('pouchdb');
-const serviceAccount = require("./secrets/firebase_admin_key.json");
+const serviceAccount = require("../secrets/firebase_admin_key.json");
 
 PouchDb.plugin(require('pouchdb-upsert'));
 

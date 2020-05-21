@@ -1,4 +1,4 @@
-const database = require('../database');
+const database = require('../common/database');
 const express = require('express');
 const hridWords = require('../assets/human_readable_id_words.json');
 const {generateNewGame} = require('./game');

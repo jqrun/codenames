@@ -17,7 +17,8 @@ const Teams = React.memo((props) => {
 
   function getUserClasses(user) {
     const classes = [
-      user.team, 'user',
+      'user',
+      user.team,
       user.current ? 'current': '', 
       user.spymaster ? 'spymaster': '',
     ];

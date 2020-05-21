@@ -1,5 +1,6 @@
 const cors = require('cors');
 const express = require('express');
+const logger = require('./common/logger');
 const process = require('process');
 const {roomsRouter} = require('./routes/rooms');
 const {subscribeRouter} = require('./routes/subscribe');
@@ -24,6 +25,10 @@ const corsOptions = {
 };
 
 server.use(cors(corsOptions));
+server.use((req, res, next) => {
+  logger.reqInfo(req);
+  next();
+});
 
 server.get('/', (req, res) => {
   res.send('Hello world! This is the codenames server.');
@@ -33,11 +38,13 @@ server.use('/rooms', roomsRouter);
 server.use('/subscribe', subscribeRouter);
 
 const listener = server.listen(port, () => {
-  console.log('Comenames server is listening...');
+  logger.info('Comenames server is listening...');
 });
 
 process.on('unhandledRejection', (reason, p) => {
-  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+  logger.error(
+      `Unhandled Rejection at: Promise ${JSON.stringify(p)} `+ 
+      `reason: ${JSON.stringify(reason)}`);
 });
 
 

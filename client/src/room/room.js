@@ -27,8 +27,8 @@ export default function Room() {
     if (room.users[userId]) {
       room.users[userId].current = true;
     }
-    setRoom(room);
-  }, []);
+    setRoom({...room});
+  }, [userId]);
 
   // Initial room fetch.
   useEffect(() => {
