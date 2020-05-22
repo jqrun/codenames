@@ -2,6 +2,7 @@ const cors = require('cors');
 const express = require('express');
 const logger = require('./common/logger');
 const process = require('process');
+const {adminRouter} = require('./routes/admin');
 const {roomsRouter} = require('./routes/rooms');
 const {subscribeRouter} = require('./routes/subscribe');
 
@@ -34,6 +35,7 @@ server.get('/', (req, res) => {
   res.send('Hello world! This is the codenames server.');
 });
 
+server.use('/admin', adminRouter);
 server.use('/rooms', roomsRouter);
 server.use('/subscribe', subscribeRouter);
 
@@ -42,7 +44,7 @@ const listener = server.listen(process.env.PORT || 8080, () => {
 });
 
 process.on('unhandledRejection', (reason, p) => {
-  logger.error('Unhandled Rejection at:', {reason, p});
+  logger.error('Unhandled Rejection reason:', reason);
 });
 
 

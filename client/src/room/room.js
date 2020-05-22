@@ -14,11 +14,6 @@ export default function Room() {
   const {roomId} = useParams();
   const history = useHistory();
 
-  function initialUserId() {
-    if (!isDev || !PERSIST_USER) return null;
-    return sessionStorage.getItem(roomId);
-  };
-
   const [userId, setUserId] = useState(initialUserId);
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,6 +24,11 @@ export default function Room() {
     }
     setRoom({...room});
   }, [userId]);
+
+  function initialUserId() {
+    if (!isDev || !PERSIST_USER) return null;
+    return sessionStorage.getItem(roomId);
+  };
 
   // Initial room fetch.
   useEffect(() => {

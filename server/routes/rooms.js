@@ -38,12 +38,11 @@ async function createRoom({roomId}) {
     timestamps: {
       created: now,
       lastUpdate: now,
-      lastFirebaseCommit: now,
+      lastFirebaseCommit: null,
     },
   };
   try {
     const response = await db.put(room);
-    database.commitToFirebase(room);
     return room;
   } catch (err) {
     throw Error(err);

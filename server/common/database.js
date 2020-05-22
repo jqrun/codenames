@@ -18,7 +18,7 @@ class Database {
   }
 
   getFirestore() {
-    return this.firestoreDb;
+    return this.firestore;
   }
 
   getPouchDb() {

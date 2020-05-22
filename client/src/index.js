@@ -1,7 +1,8 @@
 import './base.scss';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import Home from './home/home.js';
+import Admin from './admin/admin';
+import Home from './home/home';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Room from './room/room.js';
@@ -21,6 +22,10 @@ function App() {
 
         <Route exact path="/room/:roomId/">
           <Room />
+        </Route>
+
+        <Route exact path="/admin">
+          <Admin />
         </Route>
 
          <Route path="*">
