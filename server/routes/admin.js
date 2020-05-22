@@ -1,8 +1,7 @@
-const database = require('../common/database');
+const db = require('../common/database');
 const express = require('express');
 
-const db = database.getPouchDb();
-const fs = database.getFirestore();
+const fs = db.getFirestore();
 const router = express.Router({mergeParams: true});
 router.use(express.json());
 

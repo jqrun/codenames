@@ -1,8 +1,7 @@
-const database = require('../common/database');
+const db = require('../common/database');
 const express = require('express');
 const gameWords = require('../assets/game_words.json');
 
-const db = database.getPouchDb();
 const router = express.Router({mergeParams: true});
 
 
@@ -66,7 +65,4 @@ function generateNewGame() {
 // });
 
 
-module.exports = {
-  gameRouter: router,
-  generateNewGame,
-}
+module.exports.gameRouter = router;

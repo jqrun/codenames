@@ -1,32 +1,33 @@
-const database = require('../common/database');
+const db = require('../common/database');
 const express = require('express');
 const logger = require('../common/logger');
-const {getRoom} = require('./rooms');
 
-const db = database.getPouchDb();
 const router = express.Router({mergeParams: true});
 
 const subscribers = {};
 
 function notifySubscribers(room) {
   if (!room) return;
-  if (!subscribers[room._id]) return;
-  Object.values(subscribers[room._id]).forEach(res => {
+  if (!subscribers[room.roomId]) return;
+  Object.values(subscribers[room.roomId]).forEach(res => {
     res.write(`data: ${JSON.stringify(room)}\n\n`);
   });
 }
 
-db.changes({
-  since: 'now', 
-  live: true, 
-  include_docs: true
-}).on('change', (change) => {
-  const room = change.doc;
-  logger.warn('Change?', room);
+db.watchUpdates((room) => {
   notifySubscribers(room);
 });
 
-/** ROUTES **/
+
+// db.changes({
+//   since: 'now', 
+//   live: true, 
+//   include_docs: true
+// }).on('change', (change) => {
+//   const room = change.doc;
+//   notifySubscribers(room);
+// });
+// /** ROUTES **/
 
 router.get('/:roomId/:userId', async (req, res) => {
   const {roomId, userId} = req.params;
@@ -38,20 +39,12 @@ router.get('/:roomId/:userId', async (req, res) => {
   };
   res.writeHead(200, headers);
 
-  logger.warn('Trying to subscribe');
-
-  try {
-    const room = await getRoom(req.params);
-    logger.warn('First room', room);
-    res.write(`data: ${JSON.stringify(room)}\n\n`);
-  } catch (err){
-    logger.warn(err);
-  }
+  const room = db.getRoom(req.params);
+  res.write(`data: ${JSON.stringify(room)}\n\n`);
 
   const subscriber = {userId, res};
   subscribers[roomId] = subscribers[roomId] || {};
   subscribers[roomId][userId] = res;
-  logger.warn('Subscribers', subscribers);
 
   req.on('close', () => {
     subscribers[roomId] = subscribers[roomId] || {};

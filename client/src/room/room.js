@@ -8,7 +8,7 @@ import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
 // Toggle for ease of local development.
-const PERSIST_USER = true;
+const PERSIST_USER = false;
 
 export default function Room() {
   const {roomId} = useParams();

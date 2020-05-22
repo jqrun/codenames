@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {serverUrl} from '../common/util';
 
 export default function Admin() {
-  const [key, setKey] = useState(initializeKey);
+  const [key] = useState(initializeKey);
   const [rooms, setRooms]  = useState([]);
 
   function initializeKey() {
