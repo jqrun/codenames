@@ -44,22 +44,26 @@ class Database {
     return room;
   }
 
-  nameExists({roomId, name}) {
-    return Object.values(this.db[roomId].users).some(user => user.name === name);
-  }
+  async addUser({roomId, name}) {
+    const userId = await lock.acquire(`${roomId}-users`, release => {
+      if (Users.nameExists(this.db[roomId], name)) {
+        release();
+        return null;
+      }
 
-  addUser({roomId, name}) {
-
-    const team = User.getNextBalancedTeam(this.db[roomId]);
-    const userId = this.getUniqueId();
-    const user = {
-      userId,
-      name,
-      team,
-      spymaster: false,
-    };
-    this.db[roomId].users[userId] = user;
-    this.triggerUpdate(roomId);
+      const team = Users.getNextBalancedTeam(this.db[roomId]);
+      const userId = this.getUniqueId();
+      const user = {
+        userId,
+        name,
+        team,
+        spymaster: false,
+      };
+      this.db[roomId].users[userId] = user;
+      this.triggerUpdate(roomId);
+      release();
+      return userId;
+    });
     return userId;
   }
 
@@ -94,7 +98,11 @@ class Database {
   }
 }
 
-class User {
+class Users {
+  static nameExists(room, name) {
+    return Object.values(room.users).some(user => user.name === name);
+  }
+
   static getNextBalancedTeam(room) {
     const users = Object.values(room.users);
     const numBlue = users.filter(user => user.team === 'blue').length;

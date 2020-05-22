@@ -5,18 +5,6 @@ const {usersRouter} = require('./users');
 
 const router = express.Router();
 
-// async function getRoom({roomId}) {
-//   const room = db.get(roomId);
-//   return room;
-// }
-
-// async function createRoom({roomId}) {
-//   const room =  db.put(room);
-//   return room;
-// }
-
-/** ROUTES **/
-
 router.post('/create/:roomId', async (req, res) => {
   const {roomId} = req.params;
 
@@ -25,7 +13,7 @@ router.post('/create/:roomId', async (req, res) => {
     return;
   }
 
-  const room = db.createRoom(req.params);
+  const room = await db.createRoom(req.params);
   res.json({'status': 'created'});
 });
 
