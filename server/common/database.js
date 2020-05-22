@@ -1,6 +1,7 @@
 const admin = require('firebase-admin');
 const crypto = require('crypto');
 const gameWords = require('../assets/game_words.json');
+const lock = require('./lock');
 const serviceAccount = require("../secrets/firebase_admin_key.json");
 
 class Database {
@@ -11,9 +12,7 @@ class Database {
     });
 
     this.firestore = admin.firestore();
-
     this.db = {};
-
     this.watchers = [];
   }
 
@@ -45,6 +44,7 @@ class Database {
   }
 
   addUser({roomId, name}) {
+
     const team = User.getNextBalancedTeam(this.db[roomId]);
     const userId = this.getUniqueId();
     const user = {
