@@ -45,6 +45,7 @@ const listener = server.listen(process.env.PORT || 8080, () => {
 
 process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection reason:', reason);
+  logger.error('Unhandled Rejection p:', p);
 });
 
 

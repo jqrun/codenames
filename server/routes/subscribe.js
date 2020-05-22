@@ -8,7 +8,6 @@ const router = express.Router({mergeParams: true});
 
 const subscribers = {};
 
-
 function notifySubscribers(room) {
   if (!room) return;
   if (!subscribers[room._id]) return;
@@ -23,6 +22,7 @@ db.changes({
   include_docs: true
 }).on('change', (change) => {
   const room = change.doc;
+  logger.warn('Change?', room);
   notifySubscribers(room);
 });
 
@@ -38,12 +38,20 @@ router.get('/:roomId/:userId', async (req, res) => {
   };
   res.writeHead(200, headers);
 
-  const room = await getRoom(req.params);
-  res.write(`data: ${JSON.stringify(room)}\n\n`);
+  logger.warn('Trying to subscribe');
+
+  try {
+    const room = await getRoom(req.params);
+    logger.warn('First room', room);
+    res.write(`data: ${JSON.stringify(room)}\n\n`);
+  } catch (err){
+    logger.warn(err);
+  }
 
   const subscriber = {userId, res};
   subscribers[roomId] = subscribers[roomId] || {};
   subscribers[roomId][userId] = res;
+  logger.warn('Subscribers', subscribers);
 
   req.on('close', () => {
     subscribers[roomId] = subscribers[roomId] || {};

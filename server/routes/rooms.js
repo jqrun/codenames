@@ -67,7 +67,6 @@ router.post('/create/:roomId', async (req, res) => {
     const room = await createRoom(req.params);
     res.json({'status': 'created'});
   } catch (err) {
-    logger.reqError(req, err);
     res.json({'status': 'failed'});
   }
 });

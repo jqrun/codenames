@@ -32,7 +32,9 @@ async function createUser({roomId, name}) {
   try {
     await db.put(room);
   } catch(err) {
-    createUser({roomId, name});
+    if (err.name === 'conflict') {
+      createUser({roomId, name});
+    } else throw Error(err);
   }
   return userId;
 }
@@ -46,7 +48,9 @@ async function deleteUser({roomId, userId}) {
   try {
     await db.put(room);
   } catch(err) {
-    deleteUser({roomId, userId});
+    if (err.name === 'conflict') {
+      deleteUser({roomId, userId});
+    } else throw Error(err);
   }
 }
 
