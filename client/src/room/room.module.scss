@@ -1,26 +1,26 @@
+@import '../base.scss';
+
 .inner {
   display: flex;
   justify-content: space-between;
-  margin: 0 auto;
-  padding: 5vw 0;
-  width: 95vw;
+  padding: 2.5vw;
 
   & > div {
-    border: 1px solid #0af;
+    border: 0.1em solid #0af;
   }
 }
 
 .left {
-  width: 60%;
-  height: 400px;
+  width: 65%;
 }
 
 .right {
-  width: 35%;
+  width: 30%;
 }
 
-@media (max-width: 800px) {
+@media (max-width: $media-small-max-width) {
   .inner {
+    padding: 5vw;
     flex-direction: column;
   }
 

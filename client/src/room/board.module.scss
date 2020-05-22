@@ -1,10 +1,19 @@
+@import '../base.scss';
+
 .row {
   display: flex;
 }
 
-.word {
+.card {
   align-items: center;
+  align-items: center;
+  box-sizing: border-box;
   display: flex;
+  font-size: calc(12px + 0.5vw);
+  height: 9vmax;
   justify-content: center;
   width: 20%;
+}
+
+@media (max-width: $media-small-max-width) {
 }

@@ -7,7 +7,6 @@ export default function Home() {
   const history = useHistory();
 
   const [roomId, setRoomId] = useState(undefined);
-  const [roomExistsError, setRoomExistsError] = useState(false);
 
   async function generateRoomId() {
     const response = await fetch(`${serverUrl}/rooms/generate-random`);
@@ -25,7 +24,7 @@ export default function Home() {
     setRoomId(roomId);
   };
 
-  async function createRoom(event) {
+  async function createOrJoinRoom(event) {
     event.preventDefault();
     if (!roomId) return;
 
@@ -34,8 +33,6 @@ export default function Home() {
 
     switch (status) {
       case 'already_exists':
-        setRoomExistsError(true);
-        break;
       case 'created':
         history.push(`/room/${roomId}`);
         break;
@@ -51,7 +48,7 @@ export default function Home() {
 
   return (
     <div className={css.home}>
-      <form onSubmit={createRoom}>
+      <form onSubmit={createOrJoinRoom}>
         <input 
           type="text"
           className={css.input} 
@@ -60,9 +57,6 @@ export default function Home() {
           autoFocus
         />
       </form>
-      {roomExistsError && 
-        <div style={{color: "red"}}>This room already exists</div>
-      }
     </div>
   );  
 }

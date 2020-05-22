@@ -25,7 +25,9 @@ const Board = React.memo((props) => {
       {cards.map((row, index) => 
         <div key={index} className={css.row}>
           {row.map(card => 
-            <div key={card.word} className={css.word}>{card.word}</div>
+            <div key={card.word} className={css.card}>
+              {card.word.toUpperCase()}
+            </div>
           )}
         </div>
       )}
