@@ -7,11 +7,10 @@ export default function Admin() {
   const [rooms, setRooms]  = useState([]);
 
   function initializeKey() {
-    const sessionStorageItem = 'codenames-admin-key';
-    const sessionKey = sessionStorage.getItem(sessionStorageItem);
+    const sessionKey = sessionStorage.getItem('codenames-admin-key');
     if (sessionKey) return sessionKey;
     const inputKey = prompt('');
-    sessionStorage.setItem(sessionStorageItem, inputKey);
+    sessionStorage.setItem('codenames-admin-key', inputKey);
     return inputKey;   
   }
 
@@ -26,7 +25,7 @@ export default function Admin() {
       const method = 'POST';
       try {
         const data = await (await fetch(url, {method, headers, body})).json();
-        const rooms = data.rooms.rows.map(room => room.doc);
+        const {rooms} = data;
         rooms.sort((a, b) => b.timestamps.lastUpdate - a.timestamps.lastUpdate);
         console.log(rooms);
         setRooms(rooms);
@@ -39,8 +38,8 @@ export default function Admin() {
     <div className={css.admin}>
       <div className={css.inner}>
         {rooms && rooms.map(room => 
-          <div key={room._id} className={css.room}>
-            {room._id}&nbsp;
+          <div key={room.roomId} className={css.room}>
+            {room.roomId}&nbsp;
             (Users: {Object.keys(room.users).length})&nbsp;
             (Last: {new Date(room.timestamps.lastUpdate).toLocaleString()})
           </div>

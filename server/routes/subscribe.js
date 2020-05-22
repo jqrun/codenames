@@ -18,17 +18,6 @@ db.watchUpdates((room) => {
   notifySubscribers(room);
 });
 
-
-// db.changes({
-//   since: 'now', 
-//   live: true, 
-//   include_docs: true
-// }).on('change', (change) => {
-//   const room = change.doc;
-//   notifySubscribers(room);
-// });
-// /** ROUTES **/
-
 router.get('/:roomId/:userId', async (req, res) => {
   const {roomId, userId} = req.params;
 

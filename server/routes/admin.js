@@ -15,7 +15,7 @@ async function checkKey({key}) {
 
 router.post('/rooms', async (req, res) => {
   if (await checkKey(req.body)) {
-    const rooms = await db.allDocs({include_docs: true});
+    const rooms = db.getRooms();
     res.json({rooms});
   } else {
     res.status(403).send();

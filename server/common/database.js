@@ -16,6 +16,10 @@ class Database {
     this.watchers = [];
   }
 
+  getRooms() {
+    return Object.values(this.db);
+  }
+
   getRoom({roomId}) {
     return this.db[roomId];
   }
@@ -35,7 +39,7 @@ class Database {
         game: Game.generateNewGame(),
         timestamps: {
           created: now,
-          lastUpdated: now,
+          lastUpdate: now,
           lastDataStore: null,
         }
       };
