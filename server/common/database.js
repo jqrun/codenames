@@ -14,7 +14,7 @@ class Database {
 
     this.firestore = admin.firestore();
 
-    this.pouchDb = new PouchDb('rooms');
+    this.pouchDb = new PouchDb('/tmp/rooms');
   }
 
   getFirestore() {

@@ -17,18 +17,28 @@ class Logger {
     }
   }
 
-  reqInfo(req, log = '') {
-    this.logger.info(`[${req.method} ${req.originalUrl}]: ${log}`);
+  reqInfo(req, ...args) {
+    args[0] = `[${req.method} ${req.originalUrl}]: ` + (args[0] ? args[0] : ''); 
+    this.info(...args);
   }
 
-  reqError(req, log = '') {
-    this.logger.error(`[${req.method} ${req.originalUrl}]: ${log}`);
+  reqError(req, ...args) {
+    args[0] = `[${req.method} ${req.originalUrl}]: ` + (args[0] ? args[0] : ''); 
+    this.error(...args);
   }
 
 
-  info(...args) {this.logger.info(...args)}
-  warn(...args) {this.logger.warn(...args)}
-  error(...args) {this.logger.error(...args)}
+  info(...args) {
+    if (IS_PROD) return;
+    this.logger.info(...args);
+  }
+
+  warn(...args) {
+    this.logger.warn(...args);
+  }
+  error(...args) {
+    this.logger.error(...args);
+  }
 }
 
 module.exports = new Logger();

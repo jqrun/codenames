@@ -37,14 +37,12 @@ server.get('/', (req, res) => {
 server.use('/rooms', roomsRouter);
 server.use('/subscribe', subscribeRouter);
 
-const listener = server.listen(port, () => {
+const listener = server.listen(process.env.PORT || 8080, () => {
   logger.info('Comenames server is listening...');
 });
 
 process.on('unhandledRejection', (reason, p) => {
-  logger.error(
-      `Unhandled Rejection at: Promise ${JSON.stringify(p)} `+ 
-      `reason: ${JSON.stringify(reason)}`);
+  logger.error('Unhandled Rejection at:', {reason, p});
 });
 
 

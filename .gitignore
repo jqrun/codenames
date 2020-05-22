@@ -111,3 +111,4 @@ server/secrets/
 
 # PouchDB
 server/rooms/
+server/tmp/

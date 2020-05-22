@@ -1,4 +1,5 @@
 const database = require('../common/database');
+const logger = require('../common/logger');
 const express = require('express');
 const hridWords = require('../assets/human_readable_id_words.json');
 const {generateNewGame} = require('./game');
@@ -22,7 +23,7 @@ async function getRoom({roomId}) {
   try {
     const room = await db.get(roomId);
     return room;
-  } catch {
+  } catch(err) {
     return null;
   }
 }
@@ -40,9 +41,13 @@ async function createRoom({roomId}) {
       lastFirebaseCommit: now,
     },
   };
-  const response = await db.put(room);
-  database.commitToFirebase(room);
-  return room;
+  try {
+    const response = await db.put(room);
+    database.commitToFirebase(room);
+    return room;
+  } catch (err) {
+    throw Error(err);
+  }
 }
 
 /** ROUTES **/
@@ -59,8 +64,13 @@ router.post('/create/:roomId', async (req, res) => {
     return;
   }
 
-  const room = await createRoom(req.params);
-  res.json({'status': room ? 'created' : 'failed'});
+  try {
+    const room = await createRoom(req.params);
+    res.json({'status': 'created'});
+  } catch (err) {
+    logger.reqError(req, err);
+    res.json({'status': 'failed'});
+  }
 });
 
 router.get('/:roomId', async (req, res) => {
