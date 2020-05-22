@@ -20,22 +20,27 @@ class Database {
     return this.db[roomId];
   }
 
-  createRoom({roomId}) {
-    if (this.db[roomId]) return;
-
-    const now = Number(Date.now());
-    const room = {
-      roomId,
-      users: {},
-      messages: [],
-      game: Game.generateNewGame(),
-      timestamps: {
-        created: now,
-        lastUpdated: now,
-        lastDataStore: null,
+  async createRoom({roomId}) {
+    const room = await lock.acquire('rooms', release => {
+      if (this.db[roomId]) {
+        release();
+        return this.db[roomId];
       }
-    };
-    this.db[roomId] = room;
+
+      const now = Number(Date.now());
+      const room = {
+        roomId,
+        users: {},
+        messages: [],
+        game: Game.generateNewGame(),
+        timestamps: {
+          created: now,
+          lastUpdated: now,
+          lastDataStore: null,
+        }
+      };
+      this.db[roomId] = room;
+    });
     return room;
   }
 
