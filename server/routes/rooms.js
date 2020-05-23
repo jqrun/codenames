@@ -1,6 +1,7 @@
 const db = require('../common/database');
-const logger = require('../common/logger');
 const express = require('express');
+const logger = require('../common/logger');
+const {encrypt} = require('../common/util');
 const {usersRouter} = require('./users');
 
 const router = express.Router();
@@ -19,7 +20,7 @@ router.post('/create/:roomId', async (req, res) => {
 
 router.get('/:roomId', async (req, res) => {
   const room = db.getRoom(req.params);
-  res.json({room});  
+  res.json({data: encrypt({room})});  
 });
 
 router.use('/:roomId/users', usersRouter);

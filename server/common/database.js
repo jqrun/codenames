@@ -49,7 +49,7 @@ class Database {
     return room;
   }
 
-  async addUser({roomId, name}) {
+  async createUser({roomId, name}) {
     const userId = await lock.acquire(`${roomId}-users`, release => {
       if (Users.nameExists(this.db[roomId], name)) {
         release();
@@ -72,7 +72,7 @@ class Database {
     return userId;
   }
 
-  removeUser({roomId, userId}) {
+  deleteUser({roomId, userId}) {
     delete this.db[roomId].users[userId];
     this.triggerUpdate(roomId);
   }

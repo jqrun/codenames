@@ -3,12 +3,12 @@ import css from './room.module.scss'
 import Join from './join';
 import React, {useCallback, useEffect, useState} from 'react';
 import Teams from './teams';
-import {isDev, serverUrl} from '../common/util';
+import {decrypt, isDev, serverUrl} from '../common/util';
 import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
 // Toggle for local development.
-const PERSIST_USER = true;
+const PERSIST_USER = false;
 
 export default function Room() {
   const {roomId} = useParams();
@@ -34,7 +34,8 @@ export default function Room() {
   useEffect(() => {
     (async () => {
       const url = `${serverUrl}/rooms/${roomId}`;
-      const data = await (await fetch(url)).json();
+      const data = decrypt((await (await fetch(url)).json()).data);
+      console.log(data);
 
       // TODO: Switch to an explaining page.
       if (!data.room) {
@@ -63,7 +64,7 @@ export default function Room() {
       const response = await Promise.race([timeout, longPoll]);
 
       if (response !== 'timeout') {
-        const {room} = await response.json();
+        const {room} = decrypt((await response.json()).data);
         console.log(room);
         parseAndSetRoom(room);
       }

@@ -1,6 +1,7 @@
 const db = require('../common/database');
 const express = require('express');
 const logger = require('../common/logger');
+const {encrypt} = require('../common/util');
 
 const router = express.Router({mergeParams: true});
 
@@ -13,7 +14,7 @@ function notifySubscribers(room) {
   if (pollers[roomId]) {
     Object.entries(pollers[roomId]).forEach(([key, res]) => {
       delete pollers[roomId][key];
-      res.json({room});
+      res.json({data: encrypt({room})});
     });
   }
 

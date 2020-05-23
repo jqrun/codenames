@@ -1,7 +1,19 @@
 import css from './home.module.scss'
+import hridWords from '../assets/human_readable_id_words.json';
 import React, {useEffect, useState} from 'react';
-import {generateRandomId, serverUrl} from '../common/util';
+import {serverUrl} from '../common/util';
 import {useHistory} from "react-router-dom";
+
+function generateRandomId() {
+  const adjectives = hridWords.adjectives;
+  const nouns = hridWords.nouns;
+
+  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+  const randomNumber = Math.floor(Math.random() * 10);
+
+  return`${randomAdjective}-${randomNoun}-${randomNumber}`;
+}
 
 export default function Home() {
   const history = useHistory();
