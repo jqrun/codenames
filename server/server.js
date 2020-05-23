@@ -6,6 +6,8 @@ const {adminRouter} = require('./routes/admin');
 const {roomsRouter} = require('./routes/rooms');
 const {subscribeRouter} = require('./routes/subscribe');
 
+const ARTIFICIAL_LATENCY = true;
+
 const server = express();
 const port = 8080;
 
@@ -26,10 +28,17 @@ const corsOptions = {
 };
 
 server.use(cors(corsOptions));
-server.use((req, res, next) => {
+server.use(async (req, res, next) => {
   logger.reqInfo(req);
+
+  if (ARTIFICIAL_LATENCY && process.env.NODE_ENV !== 'production') {
+    await new Promise(resolve => setTimeout(resolve, 200 + (Math.random() * 100)));
+  }
+
   next();
 });
+
+
 
 server.get('/', (req, res) => {
   res.send('Hello world! This is the codenames server.');

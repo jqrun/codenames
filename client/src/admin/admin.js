@@ -18,7 +18,7 @@ export default function Admin() {
   useEffect(() => {
     if (!key) return;
 
-    (async () => {
+    const fetchRooms = async () => {
       const url = `${serverUrl}/admin/rooms`;
       const body = JSON.stringify({key});
       const headers =  {'Content-Type': 'application/json'}
@@ -29,8 +29,10 @@ export default function Admin() {
         rooms.sort((a, b) => b.timestamps.lastUpdate - a.timestamps.lastUpdate);
         console.log(rooms);
         setRooms(rooms);
+        setTimeout(fetchRooms, 2500);
       } catch {}
-    })();
+    };
+    fetchRooms();
   }, [key]);
 
 

@@ -7,6 +7,7 @@ const Join = React.memo(props => {
 
   const [name, setName] = useState('');
   const [nameTakenError, setNameTakenError] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   function handleNameInput(event) {
     let name = event.target.value;
@@ -15,9 +16,12 @@ const Join = React.memo(props => {
   };
 
   async function createUser (name) {
+    setCreating(true);
+
     const url = `${serverUrl}/rooms/${roomId}/users/create/${encodeURIComponent(name)}`;
     const response = await fetch(url, {method: 'POST'});
     const {status, userId} = await response.json();
+    setCreating(false);
 
     switch(status) {
       case 'name_taken':
@@ -46,6 +50,7 @@ const Join = React.memo(props => {
           className={css.input} 
           value={name}
           onChange={handleNameInput}
+          disabled={creating}
           autoFocus
         />
       </form>

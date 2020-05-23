@@ -44,6 +44,7 @@ class Database {
         }
       };
       this.db[roomId] = room;
+      release();
     });
     return room;
   }
@@ -81,6 +82,7 @@ class Database {
   }
 
   triggerUpdate(roomId) {
+    this.db[roomId].timestamps.lastUpdate = Number(Date.now());
     this.watchers.forEach(watcher => watcher(this.db[roomId]));
   }
 

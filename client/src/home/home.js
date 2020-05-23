@@ -7,6 +7,7 @@ export default function Home() {
   const history = useHistory();
 
   const [roomId, setRoomId] = useState(generateRandomId());
+  const [joining, setJoining] = useState(false);
 
   function handleRoomInput(event) {
     const originalValue = event.target.value 
@@ -21,9 +22,11 @@ export default function Home() {
   async function createOrJoinRoom(event) {
     event.preventDefault();
     if (!roomId) return;
+    setJoining(true);
 
     const response = await fetch(`${serverUrl}/rooms/create/${roomId}`, {method: 'POST'});
     const {status} = await response.json();
+    setJoining(false);
 
     switch (status) {
       case 'already_exists':
@@ -44,6 +47,7 @@ export default function Home() {
           className={css.input} 
           value={roomId}
           onChange={handleRoomInput}
+          disabled={joining}
           autoFocus
         />
       </form>

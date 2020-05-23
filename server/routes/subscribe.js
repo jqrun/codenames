@@ -4,18 +4,35 @@ const logger = require('../common/logger');
 
 const router = express.Router({mergeParams: true});
 
+const pollers = {};
 const subscribers = {};
 
 function notifySubscribers(room) {
   if (!room) return;
-  if (!subscribers[room.roomId]) return;
-  Object.values(subscribers[room.roomId]).forEach(res => {
-    res.write(`data: ${JSON.stringify(room)}\n\n`);
-  });
+  const {roomId} = room;
+  if (pollers[roomId]) {
+    Object.entries(pollers[roomId]).forEach(([key, res]) => {
+      delete pollers[roomId][key];
+      res.json({room});
+    });
+  }
+
+  if (subscribers[roomId]) {
+    Object.values(subscribers[roomId]).forEach(res => {
+      res.write(`data: ${JSON.stringify(room)}\n\n`);
+    });
+  };
 }
 
 db.watchUpdates((room) => {
   notifySubscribers(room);
+});
+
+router.get('/long-poll/:roomId/:userId', async (req, res) => {
+  const {roomId, userId} = req.params;
+  const poller = {userId, res};
+  pollers[roomId] = pollers[roomId] || {};
+  pollers[roomId][userId] = res;
 });
 
 router.get('/:roomId/:userId', async (req, res) => {

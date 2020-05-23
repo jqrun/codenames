@@ -7,8 +7,8 @@ import {isDev, serverUrl} from '../common/util';
 import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
-// Toggle for ease of local development.
-const PERSIST_USER = false;
+// Toggle for local development.
+const PERSIST_USER = true;
 
 export default function Room() {
   const {roomId} = useParams();
@@ -50,15 +50,30 @@ export default function Room() {
   useEffect(() => {
     if (!userId) return;
 
-    const url = `${serverUrl}/subscribe/${roomId}/${userId}`;
-    const eventSource = new EventSource(url, {withCredentials: true});
-    eventSource.onmessage = (event) => {
-      const room = JSON.parse(event.data);
-      parseAndSetRoom(room);
+    const pollController = new AbortController();
+    const signal = pollController.signal;
+    let timer;
+    const longPollRoom = async () => {
+      const timeout = new Promise(resolve => {
+        timer = setTimeout(() => resolve('timeout'), 30000);
+      });
+      const url = `${serverUrl}/subscribe/long-poll/${roomId}/${userId}`;
+      const longPoll = fetch(url, {signal});
+
+      const response = await Promise.race([timeout, longPoll]);
+
+      if (response !== 'timeout') {
+        const {room} = await response.json();
+        console.log(room);
+        parseAndSetRoom(room);
+      }
+      longPollRoom();
     };
+    longPollRoom();
 
     return () => {
-      eventSource.close();
+      clearTimeout(timer);
+      pollController.abort();
     };
   }, [roomId, userId, parseAndSetRoom]);
 
