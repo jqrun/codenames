@@ -1,6 +1,6 @@
 import css from './board.module.scss'
 import React, {useEffect, useState} from 'react';
-import {serverUrl} from '../common/util';
+import {getServerUrl} from '../common/util';
 
 const CARDS_PER_ROW = 5;
 

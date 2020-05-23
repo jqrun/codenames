@@ -1,10 +1,11 @@
-const cors = require('cors');
-const express = require('express');
-const logger = require('./common/logger');
-const process = require('process');
-const {adminRouter} = require('./routes/admin');
-const {roomsRouter} = require('./routes/rooms');
-const {subscribeRouter} = require('./routes/subscribe');
+  const compression = require('compression');
+  const cors = require('cors');
+  const express = require('express');
+  const logger = require('./common/logger');
+  const process = require('process');
+  const {adminRouter} = require('./routes/admin');
+  const {roomsRouter} = require('./routes/rooms');
+  const {subscribeRouter} = require('./routes/subscribe');
 
 const ARTIFICIAL_LATENCY = true;
 
@@ -28,6 +29,7 @@ const corsOptions = {
 };
 
 server.use(cors(corsOptions));
+server.use(compression());
 server.use(async (req, res, next) => {
   logger.reqInfo(req);
 

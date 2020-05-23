@@ -1,6 +1,6 @@
 import css from './admin.module.scss'
 import React, {useEffect, useState} from 'react';
-import {serverUrl} from '../common/util';
+import {getServerUrl} from '../common/util';
 
 export default function Admin() {
   const [key] = useState(initializeKey);
@@ -19,7 +19,7 @@ export default function Admin() {
     if (!key) return;
 
     const fetchRooms = async () => {
-      const url = `${serverUrl}/admin/rooms`;
+      const url = `${getServerUrl(String(Math.random()))}/admin/rooms`;
       const body = JSON.stringify({key});
       const headers =  {'Content-Type': 'application/json'}
       const method = 'POST';

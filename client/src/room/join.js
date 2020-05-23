@@ -1,6 +1,6 @@
 import css from './join.module.scss';
 import React, {useState} from 'react';
-import {serverUrl} from '../common/util';
+import {getServerUrl} from '../common/util';
 
 const Join = React.memo(props => {
   const {roomId, setUserId} = props;
@@ -18,7 +18,7 @@ const Join = React.memo(props => {
   async function createUser (name) {
     setCreating(true);
 
-    const url = `${serverUrl}/rooms/${roomId}/users/create/${encodeURIComponent(name)}`;
+    const url = `${getServerUrl(roomId)}/rooms/${roomId}/users/create/${encodeURIComponent(name)}`;
     const response = await fetch(url, {method: 'POST'});
     const {status, userId} = await response.json();
     setCreating(false);

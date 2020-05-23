@@ -3,7 +3,7 @@ import css from './room.module.scss'
 import Join from './join';
 import React, {useCallback, useEffect, useState} from 'react';
 import Teams from './teams';
-import {decrypt, isDev, serverUrl} from '../common/util';
+import {decrypt, getServerUrl, isDev} from '../common/util';
 import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
@@ -33,9 +33,8 @@ export default function Room() {
   // Initial room fetch.
   useEffect(() => {
     (async () => {
-      const url = `${serverUrl}/rooms/${roomId}`;
+      const url = `${getServerUrl(roomId)}/rooms/${roomId}`;
       const data = decrypt((await (await fetch(url)).json()).data);
-      console.log(data);
 
       // TODO: Switch to an explaining page.
       if (!data.room) {
@@ -58,14 +57,13 @@ export default function Room() {
       const timeout = new Promise(resolve => {
         timer = setTimeout(() => resolve('timeout'), 30000);
       });
-      const url = `${serverUrl}/subscribe/long-poll/${roomId}/${userId}`;
+      const url = `${getServerUrl(roomId)}/subscribe/long-poll/${roomId}/${userId}`;
       const longPoll = fetch(url, {signal});
 
       const response = await Promise.race([timeout, longPoll]);
 
       if (response !== 'timeout') {
         const {room} = decrypt((await response.json()).data);
-        console.log(room);
         parseAndSetRoom(room);
       }
       longPollRoom();
@@ -91,7 +89,7 @@ export default function Room() {
         xhr.send(); 
       });
 
-      const url = `${serverUrl}/rooms/${roomId}/users/delete/${userId}`;
+      const url = `${getServerUrl(roomId)}/rooms/${roomId}/users/delete/${userId}`;
       navigator.sendBeacon(url);
     };
 
