@@ -8,7 +8,7 @@ import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
 // Toggle for local development.
-const PERSIST_USER = false;
+const PERSIST_USER = true;
 
 export default function Room() {
   const {roomId} = useParams();
@@ -22,6 +22,7 @@ export default function Room() {
     if (room.users[userId]) {
       room.users[userId].current = true;
     }
+    if (isDev) console.log(room);
     setRoom({...room});
   }, [userId]);
 

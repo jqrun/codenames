@@ -2,6 +2,7 @@ const db = require('../common/database');
 const express = require('express');
 const logger = require('../common/logger');
 const {encrypt} = require('../common/util');
+const {gameRouter} = require('./game');
 const {usersRouter} = require('./users');
 
 const router = express.Router();
@@ -24,5 +25,6 @@ router.get('/:roomId', async (req, res) => {
 });
 
 router.use('/:roomId/users', usersRouter);
+router.use('/:roomId/game', gameRouter);
 
 module.exports.roomsRouter = router;

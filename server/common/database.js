@@ -25,7 +25,7 @@ class Database {
   }
 
   async createRoom({roomId}) {
-    const room = await lock.acquire('rooms', release => {
+    return await lock.acquire('rooms', release => {
       if (this.db[roomId]) {
         release();
         return this.db[roomId];
@@ -46,11 +46,10 @@ class Database {
       this.db[roomId] = room;
       release();
     });
-    return room;
   }
 
   async createUser({roomId, name}) {
-    const userId = await lock.acquire(`${roomId}-users`, release => {
+    return await lock.acquire(`${roomId}-users`, release => {
       if (Users.nameExists(this.db[roomId], name)) {
         release();
         return null;
@@ -69,12 +68,24 @@ class Database {
       release();
       return userId;
     });
-    return userId;
   }
 
   deleteUser({roomId, userId}) {
     delete this.db[roomId].users[userId];
     this.triggerUpdate(roomId);
+  }
+
+  async revealCard({roomId, userId, cardIndex}) {
+    return await lock.acquire(`${roomId}-card-${cardIndex}`, release => {
+      if (this.db[roomId].game.board[cardIndex].revealed) {
+        return false;
+      }
+
+      this.db[roomId].game.board[cardIndex].revealed = true;
+      this.triggerUpdate(roomId);
+      release();
+      return true;
+    });
   }
 
   watchUpdates(callback) {

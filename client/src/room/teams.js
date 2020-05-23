@@ -1,6 +1,6 @@
 import css from './teams.module.scss'
 import React, {useEffect, useState} from 'react';
-import {getServerUrl} from '../common/util';
+import {geterverUrl} from '../common/util';
 
 const Teams = React.memo((props) => {
   const {roomId, userId, users} = props;
@@ -16,13 +16,12 @@ const Teams = React.memo((props) => {
   }
 
   function getUserClasses(user) {
-    const classes = [
+    return [
       'user',
       user.team,
       user.current ? 'current': '', 
       user.spymaster ? 'spymaster': '',
-    ];
-    return classes.map(name => css[name]).join(' ');
+    ].filter(Boolean).map(name => css[name]).join(' ');
   }
 
   return (
