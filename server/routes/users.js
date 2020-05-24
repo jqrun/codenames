@@ -5,7 +5,7 @@ const router = express.Router({mergeParams: true});
 
 router.post('/create', async (req, res) => {
   const userId = await db.createUser(req.query);
-  // db.createTestUsers(req.query);
+  db.createTestUsers(req.query, 10);
   if (!userId) {
     res.json({'status': 'name_taken'});
   } else {

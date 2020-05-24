@@ -81,10 +81,10 @@ class Database {
     this.triggerUpdate(roomId);
   }
 
-  createTestUsers({roomId}) {
+  createTestUsers({roomId}, numUsers) {
     if (!this.db[roomId]) return;
-    Game.getRandomWords(gameWords.english.original, 50).forEach(word => {
-      this.createUser({roomId, word});
+    Game.getRandomWords(gameWords.english.original, numUsers).forEach(word => {
+      this.createUser({roomId, name: word});
     });
   }
 

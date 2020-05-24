@@ -5,7 +5,7 @@ import {getFetchUrl} from '../common/util';
 const CARDS_PER_ROW = 5;
 
 const Board = React.memo((props) => {
-  const {roomId, userId, board} = props;
+  const {roomId, userId, board, setPolling} = props;
 
   const [revealing, setRevealing] = useState(false);
 
@@ -33,10 +33,12 @@ const Board = React.memo((props) => {
     board[card.index].revealed = true;
     if (revealing) return;
     setRevealing(true);
+    setPolling(false);
 
     const url = getFetchUrl(roomId, '/game/reveal', {roomId, userId, cardIndex: card.index});
     await (await fetch(url, {method: 'POST'})).json();
     setRevealing(false);
+    setPolling(true);
   }
 
   return (
@@ -51,10 +53,10 @@ const Board = React.memo((props) => {
             >
               <div className={getCardInnerClasses(card)}>
                 <div className={css.cardFront}>
-                  {card.word.toUpperCase()}
+                  {card.word.toLowerCase()}
                 </div>
                 <div className={css.cardBack}>
-                  {card.word.toUpperCase()}
+                  {card.word.toLowerCase()}
                 </div>
               </div>
             </div>

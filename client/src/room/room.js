@@ -8,7 +8,7 @@ import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
 // Toggle for local development.
-const PERSIST_USER = false;
+const PERSIST_USER = true;
 
 export default function Room() {
   const {roomId} = useParams();
@@ -16,6 +16,7 @@ export default function Room() {
 
   const [userId, setUserId] = useState(initialUserId);
   const [room, setRoom] = useState(null);
+  const [polling, setPolling] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const lastUpdateRef = useRef();
@@ -52,17 +53,27 @@ export default function Room() {
 
   // Poll for room updates.
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !polling) return;
 
+    const pollController = new AbortController();
+    const signal = pollController.signal;
+    let pollTimer;
     const pollRoom = async () => {
-      const lastUpdate = lastUpdateRef.current || 0;
-      const url = getFetchUrl(roomId, '/subscribe/poll', {roomId, userId, lastUpdate});
-      const data = decrypt((await (await fetch(url)).json()).data);
-      if (data.updated) parseAndSetRoom(data.room);
-      setTimeout(pollRoom, 500);
+      try {
+        const lastUpdate = lastUpdateRef.current || 0;
+        const url = getFetchUrl(roomId, '/subscribe/poll', {roomId, userId, lastUpdate});
+        const data = decrypt((await (await fetch(url), {signal}).json()).data);
+        if (data.updated) parseAndSetRoom(data.room);
+      } catch (err) {}
+      pollTimer = setTimeout(pollRoom, 500);
     };
     pollRoom();
-  }, [roomId, userId, parseAndSetRoom]);
+
+    return () => {
+      clearTimeout(pollTimer);
+      pollController.abort();
+    };
+  }, [roomId, userId, polling, parseAndSetRoom]);
 
   // Delete user when leaving the page.
   useEffect(() => {
@@ -103,7 +114,10 @@ export default function Room() {
         <div className={css.inner}>
           <div className={css.left}>
             <div className={css.board}>
-              <Board roomId={roomId} userId={userId} board={room.game.board} />
+              <Board 
+                roomId={roomId} userId={userId} board={room.game.board}
+                setPolling={setPolling}
+              />
             </div>
           </div>
 

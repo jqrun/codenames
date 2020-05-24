@@ -6,9 +6,13 @@
 
 .card {
   box-sizing: border-box;
+  color: #333;
   cursor: pointer;
-  font-size: calc(12px + 0.5vw);
-  height: 9vmax;
+  font-family: 'Oswald', sans-serif;
+  font-size: calc(16px + 0.7vw);
+  height: 18vh;
+  padding: 0.3em;
+  perspective: 20em;
   width: 20%;
 
   .cardInner {
@@ -16,7 +20,7 @@
     height: 100%;
     position: relative;
     transform-style: preserve-3d;
-    transition: all 0.25s linear;
+    transition: all 1s ease-in-out;
     width: 100%;
 
     & > div {
@@ -29,6 +33,11 @@
       position: absolute;
       top: 0;
       width: 100%;
+      // box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    }
+
+    .cardFront {
+      background: #FCF9E8;
     }
 
     .cardBack {
@@ -40,22 +49,26 @@
     }
 
     &.blue .cardBack {
-      background: blue;
+      background: $blue-base;
     }
 
     &.red .cardBack {
-      background: red;
+      background: $red-base;
     }
 
     &.bystander .cardBack {
-      background: yellow;
+      background: $bystander-base;
     }
 
     &.assassin .cardBack {
-      background: black;
+      background: $assassin-base;
     }
   }
 }
 
 @media (max-width: $media-small-max-width) {
+  .card {
+    font-size: calc(8px + 0.3vw);
+    height: 12vw;
+  }
 }
