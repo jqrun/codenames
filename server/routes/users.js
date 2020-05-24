@@ -3,11 +3,9 @@ const express = require('express');
 
 const router = express.Router({mergeParams: true});
 
-router.post('/create/:name', async (req, res) => {
-  const {roomId} = req.params;
-
-  const userId = await db.createUser(req.params);
-  // db.createTestUsers(req.params);
+router.post('/create', async (req, res) => {
+  const userId = await db.createUser(req.query);
+  // db.createTestUsers(req.query);
   if (!userId) {
     res.json({'status': 'name_taken'});
   } else {
@@ -15,8 +13,8 @@ router.post('/create/:name', async (req, res) => {
   }
 });
 
-router.post('/delete/:userId', async (req, res) => {
-  db.deleteUser(req.params);
+router.post('/delete', async (req, res) => {
+  db.deleteUser(req.query);
   res.json({'status': 'deleted'});
 });
 

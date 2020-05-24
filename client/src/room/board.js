@@ -1,6 +1,6 @@
 import css from './board.module.scss'
 import React, {useEffect, useState} from 'react';
-import {getServerUrl} from '../common/util';
+import {getFetchUrl} from '../common/util';
 
 const CARDS_PER_ROW = 5;
 
@@ -34,8 +34,8 @@ const Board = React.memo((props) => {
     if (revealing) return;
     setRevealing(true);
 
-    const url = `${getServerUrl(roomId)}/rooms/${roomId}/game/${userId}/reveal/${card.index}`;
-    const {revealed} = await (await fetch(url, {method: 'POST'})).json();
+    const url = getFetchUrl(roomId, '/game/reveal', {roomId, userId, cardIndex: card.index});
+    await (await fetch(url, {method: 'POST'})).json();
     setRevealing(false);
   }
 

@@ -3,7 +3,7 @@ import css from './room.module.scss'
 import Join from './join';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import Teams from './teams';
-import {decrypt, getFetchUrl, getServerUrl, isDev} from '../common/util';
+import {decrypt, getFetchUrl, isDev} from '../common/util';
 import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
@@ -56,7 +56,7 @@ export default function Room() {
 
     const pollRoom = async () => {
       const lastUpdate = lastUpdateRef.current || 0;
-      const url = `${getServerUrl(roomId)}/subscribe/poll/${roomId}/${userId}/${lastUpdate}`;
+      const url = getFetchUrl(roomId, '/subscribe/poll', {roomId, userId, lastUpdate});
       const data = decrypt((await (await fetch(url)).json()).data);
       if (data.updated) parseAndSetRoom(data.room);
       setTimeout(pollRoom, 500);
@@ -77,7 +77,7 @@ export default function Room() {
         xhr.send(); 
       });
 
-      const url = `${getServerUrl(roomId)}/rooms/${roomId}/users/delete/${userId}`;
+      const url = getFetchUrl(roomId, '/users/delete', {roomId, userId});
       navigator.sendBeacon(url);
     };
 
@@ -87,27 +87,6 @@ export default function Room() {
       deleteUser();
     }
   }, [roomId, userId]);
-
-  // Long poll for room updates.
-  // DEPRECATED: Causes too many issues with concurrent open requests in prod.
-  useEffect(() => {
-    if (!userId) return;
-
-    const pollController = new AbortController();
-    const signal = pollController.signal;
-
-    const longPollRoom = async () => {
-      const url = `${getServerUrl(roomId)}/subscribe/long-poll/${roomId}/${userId}`;
-      const data = decrypt((await (await fetch(url)).json()).data);
-
-      parseAndSetRoom(data.room);
-      longPollRoom();
-    };
-
-    return () => {
-      pollController.abort();
-    };
-  }, [roomId, userId, parseAndSetRoom]);
 
   // Set loading state.
   useEffect(() => {
@@ -144,3 +123,27 @@ export default function Room() {
     </React.Fragment>
   );  
 }
+
+
+
+// DEPRECATED: Causes too many issues with concurrent open requests in prod.
+// Long poll for room updates.
+// useEffect(() => {
+//   if (!userId) return;
+
+//   const pollController = new AbortController();
+//   const signal = pollController.signal;
+
+//   const longPollRoom = async () => {
+//     const url = getFetchUrl(roomId, '/subscribe/long-poll', {roomId, userId});
+//     const data = decrypt((await (await fetch(url)).json()).data);
+
+//     parseAndSetRoom(data.room);
+//     longPollRoom();
+//   };
+//   longPollRoom();
+
+//   return () => {
+//     pollController.abort();
+//   };
+// }, [roomId, userId, parseAndSetRoom]);

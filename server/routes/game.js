@@ -3,8 +3,8 @@ const express = require('express');
 
 const router = express.Router({mergeParams: true});
 
-router.post('/:userId/reveal/:cardIndex', async (req, res) => {
-  const revealed = await db.revealCard(req.params);
+router.post('/reveal', async (req, res) => {
+  const revealed = await db.revealCard(req.query);
   res.json({revealed});
 });
 

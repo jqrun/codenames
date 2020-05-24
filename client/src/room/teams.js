@@ -1,6 +1,6 @@
 import css from './teams.module.scss'
 import React, {useEffect, useState} from 'react';
-import {geterverUrl} from '../common/util';
+import {getFetchUrl} from '../common/util';
 
 const Teams = React.memo((props) => {
   const {roomId, userId, users} = props;

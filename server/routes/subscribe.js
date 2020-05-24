@@ -47,23 +47,23 @@ db.watchUpdates((room, type) => {
   }
 });
 
-router.get('/poll/:roomId/:userId/:lastUpdate', async (req, res) => {
-  const {lastUpdate} = req.params;
-  const room = db.getRoom(req.params);
+router.get('/poll', async (req, res) => {
+  const {lastUpdate} = req.query;
+  const room = db.getRoom(req.query);
   const updated = Number(lastUpdate) !== room.timestamps.lastUpdate;
   res.json({data: encrypt({updated, room: updated ? room : null})});
 });
 
-router.get('/long-poll/:roomId/:userId', async (req, res) => {
-  const {roomId, userId} = req.params;
+router.get('/long-poll', async (req, res) => {
+  const {roomId, userId} = req.query;
   const poller = {userId, res};
   longPollers[roomId] = longPollers[roomId] || {};
   longPollers[roomId][userId] = res;
-  setTimeout(() => timeoutLongPoll(req.params), 30000);
+  setTimeout(() => timeoutLongPoll(req.query), 30000);
 });
 
-router.get('/:roomId/:userId', async (req, res) => {
-  const {roomId, userId} = req.params;
+router.get('/', async (req, res) => {
+  const {roomId, userId} = req.query;
 
   const headers = {
     'Content-Type': 'text/event-stream',
@@ -72,7 +72,7 @@ router.get('/:roomId/:userId', async (req, res) => {
   };
   res.writeHead(200, headers);
 
-  const room = db.getRoom(req.params);
+  const room = db.getRoom(req.query);
   res.write(`data: ${JSON.stringify(room)}\n\n`);
 
   const subscriber = {userId, res};

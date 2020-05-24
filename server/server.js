@@ -4,8 +4,10 @@
   const logger = require('./common/logger');
   const process = require('process');
   const {adminRouter} = require('./routes/admin');
+  const {gameRouter} = require('./routes/game');
   const {roomsRouter} = require('./routes/rooms');
   const {subscribeRouter} = require('./routes/subscribe');
+  const {usersRouter} = require('./routes/users');
 
 const ARTIFICIAL_LATENCY = true;
 
@@ -51,6 +53,8 @@ server.get('/_ah/warmup', (req, res) => {
 
 server.use('/admin', adminRouter);
 server.use('/rooms', roomsRouter);
+server.use('/users', usersRouter);
+server.use('/game', gameRouter);
 server.use('/subscribe', subscribeRouter);
 
 const listener = server.listen(process.env.PORT || 8080, () => {
