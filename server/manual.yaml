@@ -1,0 +1,5 @@
+runtime: nodejs10
+
+instance_class: B1
+manual_scaling:
+  instances: 5

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "deploy": "gcloud app deploy --version=1",
+    "deploy": "gcloud app deploy --version=1 auto.yaml",
     "local": "nodemon server.js",
     "start": "node server.js"
   },

@@ -14,7 +14,7 @@ function getServerUrl(roomId) {
 
   const numerical = roomId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const instance = (numerical % NUM_INSTANCES);
-  return `https://${instance}-dot-1-dot-default-dot-codenames-273814.uc.r.appspot.com`;
+  return `https://${instance}-dot-1-default-dot-codenames-273814.uc.r.appspot.com`;
 }
 export {getServerUrl};
 

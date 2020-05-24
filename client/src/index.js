@@ -28,7 +28,7 @@ function App() {
           <Admin />
         </Route>
 
-         <Route path="*">
+        <Route path="*">
           <NoRouteMatched />
         </Route>
       </Switch>
