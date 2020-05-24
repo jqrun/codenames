@@ -5,15 +5,15 @@ const {encrypt} = require('../common/util');
 
 const router = express.Router({mergeParams: true});
 
-const pollers = {};
+const longPollers = {};
 const subscribers = {};
 
 function notifySubscribers(room) {
   if (!room) return;
   const {roomId} = room;
-  if (pollers[roomId]) {
-    Object.entries(pollers[roomId]).forEach(([key, res]) => {
-      delete pollers[roomId][key];
+  if (longPollers[roomId]) {
+    Object.entries(longPollers[roomId]).forEach(([key, res]) => {
+      delete longPollers[roomId][key];
       res.json({data: encrypt({room})});
     });
   }
@@ -27,9 +27,9 @@ function notifySubscribers(room) {
 
 function timeoutLongPoll({roomId, userId}) {
   const room = db.getRoom({roomId});
-  if (pollers[roomId] && pollers[roomId][userId]) {
-    const res = pollers[roomId][userId];
-    delete pollers[roomId][userId];
+  if (longPollers[roomId] && longPollers[roomId][userId]) {
+    const res = longPollers[roomId][userId];
+    delete longPollers[roomId][userId];
     res.json({data: encrypt({room})});
   }
 }
@@ -40,18 +40,28 @@ db.watchUpdates((room, type) => {
       notifySubscribers(room);
       break;
     case 'delete':
-      delete pollers[room.roomId];
+      delete longPollers[room.roomId];
       delete subscribers[room.roomId];
       break;
     default:
   }
 });
 
+router.get('/poll/:roomId/:userId/:lastUpdate', async (req, res) => {
+  const {lastUpdate} = req.params;
+  const room = db.getRoom(req.params);
+  if (Number(lastUpdate) === room.timestamps.lastUpdate) {
+    res.json({data: encrypt({updated: false})});
+  } else {
+    res.json({data: encrypt({updated: true, room})});
+  }
+});
+
 router.get('/long-poll/:roomId/:userId', async (req, res) => {
   const {roomId, userId} = req.params;
   const poller = {userId, res};
-  pollers[roomId] = pollers[roomId] || {};
-  pollers[roomId][userId] = res;
+  longPollers[roomId] = longPollers[roomId] || {};
+  longPollers[roomId][userId] = res;
   setTimeout(() => timeoutLongPoll(req.params), 30000);
 });
 

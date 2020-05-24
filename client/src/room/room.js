@@ -1,7 +1,7 @@
 import Board from './board';
 import css from './room.module.scss'
 import Join from './join';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import Teams from './teams';
 import {decrypt, getServerUrl, isDev} from '../common/util';
 import {useHistory} from "react-router-dom";
@@ -18,12 +18,15 @@ export default function Room() {
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const parseAndSetRoom = useCallback((room) => {
-    if (room.users[userId]) {
-      room.users[userId].current = true;
+  const lastUpdateRef = useRef();
+
+  const parseAndSetRoom = useCallback((roomUpdate) => {
+    if (roomUpdate.users[userId]) {
+      roomUpdate.users[userId].current = true;
     }
-    if (isDev) console.log(room);
-    setRoom({...room});
+    if (isDev) console.log(roomUpdate);
+    lastUpdateRef.current = roomUpdate.timestamps.lastUpdate;
+    setRoom({...roomUpdate});
   }, [userId]);
 
   function initialUserId() {
@@ -47,25 +50,19 @@ export default function Room() {
     })();
   }, [roomId, history, parseAndSetRoom]);
 
-  // Subscribe to room updates.
+  // Poll for room updates.
   useEffect(() => {
     if (!userId) return;
 
-    const pollController = new AbortController();
-    const signal = pollController.signal;
-
-    const longPollRoom = async () => {
-      const url = `${getServerUrl(roomId)}/subscribe/long-poll/${roomId}/${userId}`;
-      const {room} = decrypt((await (await fetch(url)).json()).data);
-
-      parseAndSetRoom(room);
-      longPollRoom();
+    const pollRoom = async () => {
+      console.log('polling...');
+      const lastUpdate = lastUpdateRef.current || 0;
+      const url = `${getServerUrl(roomId)}/subscribe/poll/${roomId}/${userId}/${lastUpdate}`;
+      const data = decrypt((await (await fetch(url)).json()).data);
+      if (data.updated) parseAndSetRoom(data.room);
+      setTimeout(pollRoom, 500);
     };
-    longPollRoom();
-
-    return () => {
-      pollController.abort();
-    };
+    pollRoom();
   }, [roomId, userId, parseAndSetRoom]);
 
   // Delete user when leaving the page.
@@ -91,6 +88,27 @@ export default function Room() {
       deleteUser();
     }
   }, [roomId, userId]);
+
+  // Long poll for room updates.
+  // DEPRECATED: Causes too many issues with concurrent open requests in prod.
+  useEffect(() => {
+    if (!userId) return;
+
+    const pollController = new AbortController();
+    const signal = pollController.signal;
+
+    const longPollRoom = async () => {
+      const url = `${getServerUrl(roomId)}/subscribe/long-poll/${roomId}/${userId}`;
+      const data = decrypt((await (await fetch(url)).json()).data);
+
+      parseAndSetRoom(data.room);
+      longPollRoom();
+    };
+
+    return () => {
+      pollController.abort();
+    };
+  }, [roomId, userId, parseAndSetRoom]);
 
   // Set loading state.
   useEffect(() => {

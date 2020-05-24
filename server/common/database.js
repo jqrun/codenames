@@ -53,6 +53,7 @@ class Database {
   }
 
   async createUser({roomId, name}) {
+    if (!this.db[roomId]) return;
     return await lock.acquire(`${roomId}-users`, release => {
       if (Users.nameExists(this.db[roomId], name)) {
         release();
@@ -75,25 +76,30 @@ class Database {
   }
 
   deleteUser({roomId, userId}) {
+    if (!this.db[roomId]) return;
     delete this.db[roomId].users[userId];
     this.triggerUpdate(roomId);
   }
 
   createTestUsers({roomId}) {
+    if (!this.db[roomId]) return;
     Game.getRandomWords(gameWords.english.original, 50).forEach(word => {
       this.createUser({roomId, word});
     });
   }
 
   switchTeams({roomId, userId}) {
+    if (!this.db[roomId]) return;
 
   }
 
   setSpymater({roomId, userId}) {
+    if (!this.db[roomId]) return;
 
   }
 
   async revealCard({roomId, userId, cardIndex}) {
+    if (!this.db[roomId]) return;
     return await lock.acquire(`${roomId}-card-${cardIndex}`, release => {
       if (this.db[roomId].game.board[cardIndex].revealed) {
         release();
@@ -108,18 +114,22 @@ class Database {
   }
 
   async endTurn({roomId, userId}) {
+    if (!this.db[roomId]) return;
 
   }
 
   startNewGame({roomId, userId}) {
+    if (!this.db[roomId]) return;
 
   }
 
   sendChatMessage({roomId, userId, message}) {
+    if (!this.db[roomId]) return;
 
   }
 
   sendGameMessage({roomId, message}) {
+    if (!this.db[roomId]) return;
 
   }
 
