@@ -8,7 +8,7 @@ import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
 // Toggle for local development.
-const PERSIST_USER = true;
+const PERSIST_USER = false;
 
 export default function Room() {
   const {roomId} = useParams();
@@ -53,26 +53,17 @@ export default function Room() {
 
     const pollController = new AbortController();
     const signal = pollController.signal;
-    let timer;
+
     const longPollRoom = async () => {
-      const timeout = new Promise(resolve => {
-        timer = setTimeout(() => resolve('timeout'), 30000);
-      });
       const url = `${getServerUrl(roomId)}/subscribe/long-poll/${roomId}/${userId}`;
-      const longPoll = fetch(url, {signal});
+      const {room} = decrypt((await (await fetch(url)).json()).data);
 
-      const response = await Promise.race([timeout, longPoll]);
-
-      if (response !== 'timeout') {
-        const {room} = decrypt((await response.json()).data);
-        parseAndSetRoom(room);
-      }
+      parseAndSetRoom(room);
       longPollRoom();
     };
     longPollRoom();
 
     return () => {
-      clearTimeout(timer);
       pollController.abort();
     };
   }, [roomId, userId, parseAndSetRoom]);

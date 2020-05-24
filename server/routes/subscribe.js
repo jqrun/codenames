@@ -25,8 +25,26 @@ function notifySubscribers(room) {
   };
 }
 
-db.watchUpdates((room) => {
-  notifySubscribers(room);
+function timeoutLongPoll({roomId, userId}) {
+  const room = db.getRoom({roomId});
+  if (pollers[roomId] && pollers[roomId][userId]) {
+    const res = pollers[roomId][userId];
+    delete pollers[roomId][userId];
+    res.json({data: encrypt({room})});
+  }
+}
+
+db.watchUpdates((room, type) => {
+  switch (type) {
+    case 'update':
+      notifySubscribers(room);
+      break;
+    case 'delete':
+      delete pollers[room.roomId];
+      delete subscribers[room.roomId];
+      break;
+    default:
+  }
 });
 
 router.get('/long-poll/:roomId/:userId', async (req, res) => {
@@ -34,6 +52,7 @@ router.get('/long-poll/:roomId/:userId', async (req, res) => {
   const poller = {userId, res};
   pollers[roomId] = pollers[roomId] || {};
   pollers[roomId][userId] = res;
+  setTimeout(() => timeoutLongPoll(req.params), 30000);
 });
 
 router.get('/:roomId/:userId', async (req, res) => {

@@ -48,6 +48,10 @@ class Database {
     });
   }
 
+  deleteRoom({roomId}) {
+
+  }
+
   async createUser({roomId, name}) {
     return await lock.acquire(`${roomId}-users`, release => {
       if (Users.nameExists(this.db[roomId], name)) {
@@ -75,6 +79,20 @@ class Database {
     this.triggerUpdate(roomId);
   }
 
+  createTestUsers({roomId}) {
+    Game.getRandomWords(gameWords.english.original, 50).forEach(word => {
+      this.createUser({roomId, word});
+    });
+  }
+
+  switchTeams({roomId, userId}) {
+
+  }
+
+  setSpymater({roomId, userId}) {
+
+  }
+
   async revealCard({roomId, userId, cardIndex}) {
     return await lock.acquire(`${roomId}-card-${cardIndex}`, release => {
       if (this.db[roomId].game.board[cardIndex].revealed) {
@@ -89,13 +107,33 @@ class Database {
     });
   }
 
+  async endTurn({roomId, userId}) {
+
+  }
+
+  startNewGame({roomId, userId}) {
+
+  }
+
+  sendChatMessage({roomId, userId, message}) {
+
+  }
+
+  sendGameMessage({roomId, message}) {
+
+  }
+
   watchUpdates(callback) {
     this.watchers.push(callback);
   }
 
   triggerUpdate(roomId) {
     this.db[roomId].timestamps.lastUpdate = Number(Date.now());
-    this.watchers.forEach(watcher => watcher(this.db[roomId]));
+    this.watchers.forEach(watcher => watcher(this.db[roomId], 'update'));
+  }
+
+  triggerDelete(roomId) {
+    this.watchers.forEach(watcher => watcher(this.db[roomId], 'delete'));
   }
 
   getFirestore() {
@@ -132,6 +170,13 @@ class Users {
 }
 
 class Game {
+  static setCurrentTurn(game) {
+    // Blue
+    // Red
+    // Win [Blue, Red]
+  }
+
+
   static getRandomWords(words, numWords) {
     const randomWords = [];
     const picked = new Set();
