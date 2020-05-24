@@ -78,6 +78,7 @@ class Database {
   async revealCard({roomId, userId, cardIndex}) {
     return await lock.acquire(`${roomId}-card-${cardIndex}`, release => {
       if (this.db[roomId].game.board[cardIndex].revealed) {
+        release();
         return false;
       }
 

@@ -7,8 +7,6 @@ const CARDS_PER_ROW = 5;
 const Board = React.memo((props) => {
   const {roomId, userId, board} = props;
 
-  const cards = getCards(board);
-
   const [revealing, setRevealing] = useState(false);
 
   function getCards(board) {
@@ -22,16 +20,20 @@ const Board = React.memo((props) => {
     return cards;
   }
 
-  function getCardClasses(card) {
+  function getCardInnerClasses(card) {
     return [
-      'card',
+      'cardInner',
       card.revealed ? 'revealed' : '',
       card.revealed ? card.type : '',
     ].filter(Boolean).map(name => css[name]).join(' ');
   }
 
   async function revealCard(card) {
+    if (board[card.index].revealed) return;
+    board[card.index].revealed = true;
+    if (revealing) return;
     setRevealing(true);
+
     const url = `${getServerUrl(roomId)}/rooms/${roomId}/game/${userId}/reveal/${card.index}`;
     const {revealed} = await (await fetch(url, {method: 'POST'})).json();
     setRevealing(false);
@@ -39,15 +41,22 @@ const Board = React.memo((props) => {
 
   return (
     <div className={css.board}>
-      {cards.map((row, index) => 
+      {getCards(board).map((row, index) => 
         <div key={index} className={css.row}>
           {row.map(card => 
             <div 
               key={card.word} 
-              className={getCardClasses(card)}
+              className={css.card}
               onClick={() => revealCard(card)}
             >
-              {card.word.toUpperCase()}
+              <div className={getCardInnerClasses(card)}>
+                <div className={css.cardFront}>
+                  {card.word.toUpperCase()}
+                </div>
+                <div className={css.cardBack}>
+                  {card.word.toUpperCase()}
+                </div>
+              </div>
             </div>
           )}
         </div>
