@@ -3,7 +3,7 @@ import css from './room.module.scss'
 import Join from './join';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import Teams from './teams';
-import {decrypt, getServerUrl, isDev} from '../common/util';
+import {decrypt, getFetchUrl, getServerUrl, isDev} from '../common/util';
 import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
@@ -37,7 +37,7 @@ export default function Room() {
   // Initial room fetch.
   useEffect(() => {
     (async () => {
-      const url = `${getServerUrl(roomId)}/rooms/${roomId}`;
+      const url = getFetchUrl(roomId, '/rooms', {roomId});
       const data = decrypt((await (await fetch(url)).json()).data);
 
       // TODO: Switch to an explaining page.
@@ -55,7 +55,6 @@ export default function Room() {
     if (!userId) return;
 
     const pollRoom = async () => {
-      console.log('polling...');
       const lastUpdate = lastUpdateRef.current || 0;
       const url = `${getServerUrl(roomId)}/subscribe/poll/${roomId}/${userId}/${lastUpdate}`;
       const data = decrypt((await (await fetch(url)).json()).data);

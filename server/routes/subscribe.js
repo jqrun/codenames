@@ -50,11 +50,8 @@ db.watchUpdates((room, type) => {
 router.get('/poll/:roomId/:userId/:lastUpdate', async (req, res) => {
   const {lastUpdate} = req.params;
   const room = db.getRoom(req.params);
-  if (Number(lastUpdate) === room.timestamps.lastUpdate) {
-    res.json({data: encrypt({updated: false})});
-  } else {
-    res.json({data: encrypt({updated: true, room})});
-  }
+  const updated = Number(lastUpdate) !== room.timestamps.lastUpdate;
+  res.json({data: encrypt({updated, room: updated ? room : null})});
 });
 
 router.get('/long-poll/:roomId/:userId', async (req, res) => {

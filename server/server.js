@@ -40,10 +40,13 @@ server.use(async (req, res, next) => {
   next();
 });
 
-
-
 server.get('/', (req, res) => {
   res.send('Hello world! This is the codenames server.');
+});
+
+server.get('/_ah/warmup', (req, res) => {
+  // Warmup for Google App Engine.
+  res.status(200).send();
 });
 
 server.use('/admin', adminRouter);

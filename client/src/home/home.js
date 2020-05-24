@@ -1,7 +1,7 @@
 import css from './home.module.scss'
 import hridWords from '../assets/human_readable_id_words.json';
 import React, {useEffect, useState} from 'react';
-import {getServerUrl} from '../common/util';
+import {getFetchUrl} from '../common/util';
 import {useHistory} from "react-router-dom";
 
 function generateRandomId() {
@@ -36,7 +36,8 @@ export default function Home() {
     if (!roomId) return;
     setJoining(true);
 
-    const response = await fetch(`${getServerUrl(roomId)}/rooms/create/${roomId}`, {method: 'POST'});
+    const url = getFetchUrl(roomId, '/rooms/create', {roomId});
+    const response = await fetch(url, {method: 'POST'});
     const {status} = await response.json();
     setJoining(false);
 

@@ -7,20 +7,20 @@ const {usersRouter} = require('./users');
 
 const router = express.Router();
 
-router.post('/create/:roomId', async (req, res) => {
-  const {roomId} = req.params;
+router.post('/create', async (req, res) => {
+  const {roomId} = req.query;
 
-  if (db.getRoom(req.params)) {
+  if (db.getRoom(req.query)) {
     res.json({'status': 'already_exists'});
     return;
   }
 
-  const room = await db.createRoom(req.params);
+  const room = await db.createRoom(req.query);
   res.json({'status': 'created'});
 });
 
-router.get('/:roomId', async (req, res) => {
-  const room = db.getRoom(req.params);
+router.get('/', async (req, res) => {
+  const room = db.getRoom(req.query);
   res.json({data: encrypt({room})});  
 });
 
