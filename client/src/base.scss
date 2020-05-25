@@ -1,9 +1,13 @@
 $media-small-max-width: 800px;
 
-$blue-base: blue;
-$red-base: red;
-$bystander-base: yellow;
-$assassin-base: black;
+$blue-base: #99c2ff;
+$red-base: #ff9999;
+$bystander-base: #ffffb3;
+$assassin-base: #222;
+
+$blue-text: #003380;
+$red-text: #800000;
+$bystander-text: #805500;
 
 .centeredFlex {
   align-items: center;
