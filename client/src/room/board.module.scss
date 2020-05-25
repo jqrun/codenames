@@ -9,8 +9,8 @@
   color: #222;
   cursor: pointer;
   font-family: 'Oswald', sans-serif;
-  font-size: calc(16px + 0.7vw);
-  height: 18vh;
+  font-size: calc(110% + 0.5vw);
+  height: 17vh;
   padding: 0.3em;
   perspective: 20em;
   width: 20%;
@@ -91,7 +91,12 @@
 
 @media (max-width: $media-small-max-width) {
   .card {
-    font-size: calc(10px + 1vw);
-    height: 12vw;
+    height: 11vh;
+  }
+}
+
+@media (max-width: 600px) {
+  .card {
+    font-size: calc(70% + 0.3vw);
   }
 }

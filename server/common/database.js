@@ -219,14 +219,15 @@ class Game {
       numAgents--;
     }
 
-    return {...cards};
+    return {cards, firstAgent};
   }
 
   static generateNewGame() {
     const randomWords =  Game.getRandomWords(gameWords.english.original, 25);
-    const cards = Game.assignRandomCards(randomWords, 17);
+    const {card, firstAgent} = Game.assignRandomCards(randomWords, 17);
     return {
       board: cards,
+      currentTurn: firstAgent,
     };
   }
 }
