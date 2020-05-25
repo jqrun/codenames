@@ -5,7 +5,9 @@ import {getFetchUrl} from '../common/util';
 const CARDS_PER_ROW = 5;
 
 const Board = React.memo((props) => {
-  const {roomId, userId, board, setPolling} = props;
+  const {roomId, userId, game, setPolling} = props;
+  const {board} = game;
+  const typesLeft = getTypesLeft();
 
   const [revealing, setRevealing] = useState(false);
 
@@ -18,6 +20,16 @@ const Board = React.memo((props) => {
       cards.push(raw.slice(i, i + CARDS_PER_ROW));
     }
     return cards;
+  }
+
+  function getTypesLeft() {
+    const types = Object.values(board).filter(card => !card.revealed).map(card => card.type);
+    return {
+      blue: types.filter(type => type === 'blue').length,
+      red: types.filter(type => type === 'red').length,
+      bystander: types.filter(type => type === 'bystander').length,
+      assassin: types.filter(type => type === 'assassin').length,
+    };
   }
 
   function getCardInnerClasses(card) {
@@ -63,6 +75,14 @@ const Board = React.memo((props) => {
           )}
         </div>
       )}
+      <div className={css.bottomBar}>
+        <div className={css.status}>
+          {game.currentTurn} | {JSON.stringify(typesLeft)}
+        </div>
+        <div className={css.controls}>
+          Some buttons I guess
+        </div>
+      </div>
     </div>
   );
 });

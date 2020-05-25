@@ -66,7 +66,8 @@ export default function Room() {
           const data = decrypt((await (await fetch(url, {signal})).json()).data);
           if (data.updated) parseAndSetRoom(data.room);
         } catch (err) {
-          console.log(err);
+          if (err.name === 'AbortError') return;
+          console.error(err);
         }
       }
       pollTimer = setTimeout(pollRoom, 500);
@@ -119,7 +120,7 @@ export default function Room() {
           <div className={css.left}>
             <div className={css.board}>
               <Board 
-                roomId={roomId} userId={userId} board={room.game.board}
+                roomId={roomId} userId={userId} game={room.game}
                 setPolling={setPolling}
               />
             </div>

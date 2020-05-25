@@ -103,13 +103,15 @@ class Database {
 
   async revealCard({roomId, userId, cardIndex}) {
     if (!this.db[roomId]) return;
-    return await lock.acquire(`${roomId}-card-${cardIndex}`, release => {
+    return await lock.acquire(`${roomId}-game`, release => {
       if (this.db[roomId].game.board[cardIndex].revealed) {
         release();
         return false;
       }
 
       this.db[roomId].game.board[cardIndex].revealed = true;
+      const [room, revealedType] = [this.db[roomId], this.db[roomId].game.board[cardIndex].type];
+      Game.setCurrentTurn({room, revealedType});
       this.triggerUpdate(roomId);
       release();
       return true;
@@ -119,6 +121,18 @@ class Database {
   async endTurn({roomId, userId}) {
     if (!this.db[roomId]) return;
 
+    return await lock.acquire(`${roomId}-game`, release => {
+      const {currentTurn} = this.db[roomId].game.currentTurn;
+      if (!['blue', 'red'].includes(currentTurn)) {
+        release();
+        return false;
+      }
+
+      this.db[roomId].game.currentTurn = currentTurn === 'blue' ? 'red' : 'blue';
+      this.triggerUpdate(roomId);
+      release()
+      return true;
+    });
   }
 
   startNewGame({roomId, userId}) {
@@ -193,7 +207,7 @@ class Users {
 }
 
 class Game {
-  static setCurrentTurn(game) {
+  static setCurrentTurn({room, revealedType}) {
     // Blue
     // Red
     // Win [Blue, Red]
