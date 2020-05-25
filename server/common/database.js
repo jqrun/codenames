@@ -2,6 +2,7 @@ const admin = require('firebase-admin');
 const crypto = require('crypto');
 const gameWords = require('../assets/game_words.json');
 const lock = require('./lock');
+const logger = require('./logger');
 const serviceAccount = require("../secrets/firebase_admin_key.json");
 
 class Database {
@@ -14,6 +15,8 @@ class Database {
     this.firestore = admin.firestore();
     this.db = {};
     this.watchers = [];
+
+    this.deleteStaleRooms();
   }
 
   getRooms() {
@@ -49,7 +52,7 @@ class Database {
   }
 
   deleteRoom({roomId}) {
-
+    delete this.db[roomId];
   }
 
   async createUser({roomId, name}) {
@@ -162,6 +165,16 @@ class Database {
   getUniqueId() {
     return crypto.randomBytes(16).toString('hex');
   }
+
+  deleteStaleRooms() {
+    setInterval(() => {
+      Object.entries(this.db).forEach(([roomId, room]) => {
+        if (Date.now() - room.timestamps.lastUpdate > 60 * 60000) {
+          this.deleteRoom({roomId});
+        }
+      });
+    }, 10 * 10000);
+  }
 }
 
 class Users {
@@ -219,12 +232,12 @@ class Game {
       numAgents--;
     }
 
-    return {cards, firstAgent};
+    return {cards: {...cards}, firstAgent};
   }
 
   static generateNewGame() {
     const randomWords =  Game.getRandomWords(gameWords.english.original, 25);
-    const {card, firstAgent} = Game.assignRandomCards(randomWords, 17);
+    const {cards, firstAgent} = Game.assignRandomCards(randomWords, 17);
     return {
       board: cards,
       currentTurn: firstAgent,

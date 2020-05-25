@@ -59,12 +59,16 @@ export default function Room() {
     const signal = pollController.signal;
     let pollTimer;
     const pollRoom = async () => {
-      try {
-        const lastUpdate = lastUpdateRef.current || 0;
-        const url = getFetchUrl(roomId, '/subscribe/poll', {roomId, userId, lastUpdate});
-        const data = decrypt((await (await fetch(url), {signal}).json()).data);
-        if (data.updated) parseAndSetRoom(data.room);
-      } catch (err) {}
+      const lastUpdate = lastUpdateRef.current;
+      if (lastUpdate) {
+        try {
+          const url = getFetchUrl(roomId, '/subscribe/poll', {roomId, userId, lastUpdate});
+          const data = decrypt((await (await fetch(url, {signal})).json()).data);
+          if (data.updated) parseAndSetRoom(data.room);
+        } catch (err) {
+          console.log(err);
+        }
+      }
       pollTimer = setTimeout(pollRoom, 500);
     };
     pollRoom();

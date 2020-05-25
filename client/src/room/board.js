@@ -30,8 +30,8 @@ const Board = React.memo((props) => {
 
   async function revealCard(card) {
     if (board[card.index].revealed) return;
-    board[card.index].revealed = true;
     if (revealing) return;
+    board[card.index].revealed = true;
     setRevealing(true);
     setPolling(false);
 
