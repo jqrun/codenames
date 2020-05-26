@@ -8,6 +8,7 @@ const Board = React.memo((props) => {
   const {roomId, userId, game, setPolling} = props;
   const {board} = game;
   const typesLeft = getTypesLeft();
+  const gameOver = game.currentTurn.includes('win');
 
   const [revealing, setRevealing] = useState(false);
 
@@ -32,6 +33,16 @@ const Board = React.memo((props) => {
     };
   }
 
+  function getCurrentTurn() {
+    const {currentTurn} = game;
+    if (['blue', 'red'].includes(currentTurn)) {
+      return `${currentTurn}'s turn`;
+    }
+
+    const winner = currentTurn.split('_win')[0];
+    return `${winner} wins`;
+  }
+
   function getCardInnerClasses(card) {
     return [
       'cardInner',
@@ -41,17 +52,19 @@ const Board = React.memo((props) => {
   }
 
   async function revealCard(card) {
-    if (board[card.index].revealed) return;
-    if (revealing) return;
+    if (board[card.index].revealed || revealing || gameOver) return;
     board[card.index].revealed = true;
     setRevealing(true);
     setPolling(false);
 
     const url = getFetchUrl(roomId, '/game/reveal', {roomId, userId, cardIndex: card.index});
     await (await fetch(url, {method: 'POST'})).json();
-    setRevealing(false);
     setPolling(true);
   }
+
+  useEffect(() => {
+    setRevealing(false);
+  }, [game]);
 
   return (
     <div className={css.board}>
@@ -77,10 +90,13 @@ const Board = React.memo((props) => {
       )}
       <div className={css.bottomBar}>
         <div className={css.status}>
-          {game.currentTurn} | {JSON.stringify(typesLeft)}
+          <div className={css.currentTurn} data-turn={game.currentTurn}>
+            {getCurrentTurn()}
+          </div>
+          {JSON.stringify(typesLeft)}
         </div>
         <div className={css.controls}>
-          Some buttons I guess
+          Buttons
         </div>
       </div>
     </div>

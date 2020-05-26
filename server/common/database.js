@@ -103,6 +103,8 @@ class Database {
 
   async revealCard({roomId, userId, cardIndex}) {
     if (!this.db[roomId]) return;
+    if (Game.isGameOver(this.db[roomId])) return;
+
     return await lock.acquire(`${roomId}-game`, release => {
       if (this.db[roomId].game.board[cardIndex].revealed) {
         release();
@@ -112,6 +114,20 @@ class Database {
       this.db[roomId].game.board[cardIndex].revealed = true;
       const [room, revealedType] = [this.db[roomId], this.db[roomId].game.board[cardIndex].type];
       Game.setCurrentTurn({room, revealedType});
+      if (Game.isGameOver(this.db[roomId])) {
+        setTimeout(() => this.revealAll({roomId}), 1000);
+      }
+      this.triggerUpdate(roomId);
+      release();
+      return true;
+    });
+  }
+
+  async revealAll({roomId}) {
+    if (!this.db[roomId]) return;
+
+    return await lock.acquire(`${roomId}-game`, release => {
+      Object.values(this.db[roomId].game.board).forEach(card => card.revealed = true);
       this.triggerUpdate(roomId);
       release();
       return true;
@@ -120,6 +136,7 @@ class Database {
 
   async endTurn({roomId, userId}) {
     if (!this.db[roomId]) return;
+    if (Game.isGameOver(this.db[roomId])) return;
 
     return await lock.acquire(`${roomId}-game`, release => {
       const {currentTurn} = this.db[roomId].game.currentTurn;
@@ -208,11 +225,34 @@ class Users {
 
 class Game {
   static setCurrentTurn({room, revealedType}) {
-    // Blue
-    // Red
-    // Win [Blue, Red]
+    const swap = {blue: 'red', red: 'blue'};
+    const previousTurn = room.game.currentTurn;
+    const advanceTurn = previousTurn === revealedType;
+    const typesLeft = Game.getTypesLeft({room});
+
+    if (revealedType === 'assassin') {
+      room.game.currentTurn = `${swap[previousTurn]}_win`;
+    } else if (!typesLeft.blue || !typesLeft.red) {
+      room.game.currentTurn = `${previousTurn}_win`;
+    } else if (!advanceTurn) {
+      room.game.currentTurn = swap[previousTurn];
+    }
   }
 
+  static isGameOver(room) {
+    return room.game.currentTurn.includes('win');
+  }
+
+  static getTypesLeft({room}) {
+    const {board} = room.game;
+    const types = Object.values(board).filter(card => !card.revealed).map(card => card.type);
+    return {
+      blue: types.filter(type => type === 'blue').length,
+      red: types.filter(type => type === 'red').length,
+      bystander: types.filter(type => type === 'bystander').length,
+      assassin: types.filter(type => type === 'assassin').length,
+    };
+  }
 
   static getRandomWords(words, numWords) {
     const randomWords = [];
