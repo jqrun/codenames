@@ -1,14 +1,18 @@
 import css from './board.module.scss'
 import React, {useEffect, useState} from 'react';
-import {getFetchUrl} from '../common/util';
+import {getFetchUrl, isDev} from '../common/util';
+
+// Toggle for local development.
+const ALWAYS_ALLOW_REVEAL = false;
 
 const CARDS_PER_ROW = 5;
 
 const Board = React.memo((props) => {
-  const {roomId, userId, game, setPolling} = props;
+  const {roomId, userId, user, game, setPolling} = props;
   const {board} = game;
-  const typesLeft = getTypesLeft();
+  const canReveal = getCanReveal();
   const gameOver = game.currentTurn.includes('win');
+  const typesLeft = getTypesLeft();
 
   const [revealing, setRevealing] = useState(false);
 
@@ -21,6 +25,12 @@ const Board = React.memo((props) => {
       cards.push(raw.slice(i, i + CARDS_PER_ROW));
     }
     return cards;
+  }
+
+  function getCanReveal() {
+    if (isDev && ALWAYS_ALLOW_REVEAL) return true;
+    if (!user || user.spymaster) return false;
+    return game.currentTurn.includes(user.team);
   }
 
   function getTypesLeft() {
@@ -52,7 +62,7 @@ const Board = React.memo((props) => {
   }
 
   async function revealCard(card) {
-    if (board[card.index].revealed || revealing || gameOver) return;
+    if (board[card.index].revealed || revealing || !canReveal || gameOver) return;
     board[card.index].revealed = true;
     setRevealing(true);
     setPolling(false);

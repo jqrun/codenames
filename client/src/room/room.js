@@ -120,7 +120,7 @@ export default function Room() {
           <div className={css.left}>
             <div className={css.board}>
               <Board 
-                roomId={roomId} userId={userId} game={room.game}
+                roomId={roomId} userId={userId} game={room.game} user={room.users[userId]}
                 setPolling={setPolling}
               />
             </div>
