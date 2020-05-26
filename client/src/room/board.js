@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {getFetchUrl, isDev} from '../common/util';
 
 // Toggle for local development.
-const ALWAYS_ALLOW_REVEAL = false;
+const ALWAYS_ALLOW_REVEAL = true;
 
 const CARDS_PER_ROW = 5;
 
@@ -72,6 +72,10 @@ const Board = React.memo((props) => {
     setPolling(true);
   }
 
+  async function endTurn() {
+
+  }
+
   useEffect(() => {
     setRevealing(false);
   }, [game]);
@@ -103,10 +107,19 @@ const Board = React.memo((props) => {
           <div className={css.currentTurn} data-turn={game.currentTurn}>
             {getCurrentTurn()}
           </div>
-          {JSON.stringify(typesLeft)}
+          <div className={css.remaining}>
+            (<span className={css.blueLeft}>{typesLeft.blue}</span>-
+            <span className={css.redLeft}>{typesLeft.red}</span>)
+          </div>
         </div>
         <div className={css.controls}>
-          Buttons
+          <div className={css.newGameButton}>
+            Hold for New Game
+            <div className={css.newGameHold}></div>
+          </div>
+          <div className={css.endTurnButton} data-disabled={!canReveal} onClick={endTurn}>
+            End Turn
+          </div>
         </div>
       </div>
     </div>

@@ -70,7 +70,7 @@ export default function Room() {
           console.error(err);
         }
       }
-      pollTimer = setTimeout(pollRoom, 500);
+      pollTimer = setTimeout(pollRoom, 333);
     };
     pollRoom();
 

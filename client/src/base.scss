@@ -10,10 +10,13 @@ $red-foreground: #800000;
 $bystander-foreground: #805500;
 $assassin-foreground: #eee;
 
-$blue-text: blue;
-$red-text: red;
+$blue-text: #3385ff;
+$red-text: #ff4d4d;
 $bystander-text: yellow;
 $assassin-text: black;
+
+$accent-text: #339966;
+$accent-shadow: #2d8659;
 
 .centeredFlex {
   align-items: center;

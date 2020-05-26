@@ -1,7 +1,16 @@
 @import '../base.scss';
 
+.board {
+  font-size: calc(110% + 0.5vw);
+}
+
 .row {
   display: flex;
+  justify-content: space-between;
+
+  &:not(:last-child) {
+    margin-bottom: 0.5em;
+  }
 }
 
 .card {
@@ -9,12 +18,10 @@
   color: #555;
   cursor: pointer;
   font-family: 'Oswald', sans-serif;
-  font-size: calc(110% + 0.5vw);
   font-weight: 500;
-  height: 17vh;
-  padding: 0.3em;
+  height: 15vh;
   perspective: 20em;
-  width: 20%;
+  width: calc(20% - 0.5em);
 
   .cardInner {
     $shadow-color: #222;
@@ -27,12 +34,12 @@
     transform-style: preserve-3d;
     width: 100%;
 
-    &:hover {
+    &:not(.revealed):hover {
       bottom: 0.3em;
       box-shadow: 0 0.3em 0 $shadow-color;
     }
 
-    &:active {
+    &:not(.revealed):active {
      bottom: 0.2em;  
      box-shadow: 0 0.2em 0 $shadow-color;
     }
@@ -62,7 +69,7 @@
     }
 
     &.revealed {
-      bottom: 0;
+      bottom: 0.1em;
       box-shadow: none;
       transform: rotateY(180deg);
       transition: transform 1s cubic-bezier(0.68, -0.6, 0.32, 1.6);
@@ -94,22 +101,20 @@
   align-items: center;
   box-sizing: border-box;
   display: flex;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.8em;
+  font-weight: 500;
   justify-content: space-between;
-  padding: 0 0.5em;
   width: 100%;
 }
 
 .status {
-  margin-top: 1vh;
   display: flex;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 500;
-  justify-content: space-between;
-  width: 70%;
-  font-size: calc(100% + 0.25vw);
+  margin-top: 1vh;
 
   .currentTurn {
-    text-transform: capitalize;;
+    width: 5em;
+    text-transform: capitalize;
 
     &[data-turn='blue'], &[data-turn='blue_win'] {
       color: $blue-text;
@@ -123,16 +128,64 @@
       text-transform: uppercase;
     }
   }
+
+  .remaining {
+    color: #777;
+    display: flex;
+
+    .blueLeft {
+      color: $blue-text;
+      margin-right: 0.1em;
+    }
+
+    .redLeft   {
+      color: $red-text;
+      margin-left: 0.1em;
+    }
+  }
+}
+
+.controls {
+  display: flex;
+
+  & > div {
+    background: #c7cbd1;
+    box-shadow: 0 0.15em 0 $accent-shadow;
+    color: $accent-text;
+    cursor: pointer;
+    padding: 0.5em;
+    position: relative;
+
+    &:last-child {
+      margin-left: 0.5em;
+    }
+
+    &:not([data-disabled='true']):hover {
+      bottom: 0.1em;
+      box-shadow: 0 0.25em 0 $accent-shadow
+    }
+
+    &:not([data-disabled='true']):active {
+      bottom: 0;
+      box-shadow: 0 0.15em 0 $accent-shadow
+    }
+
+    &[data-disabled='true'] {
+      color: #999;
+      box-shadow: 0 0.15em 0 #999;
+      cursor: not-allowed;
+    }
+  }
 }
 
 @media (max-width: $media-small-max-width) {
   .card {
-    height: 11vh;
+    height: 9.5vh;
   }
 }
 
-@media (max-width: 600px) {
-  .card {
-    font-size: calc(70% + 0.3vw);
+@media (max-width: 700px) {
+  .board {
+    font-size: calc(75% + 0.3vw);
   }
 }
