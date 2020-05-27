@@ -15,7 +15,7 @@ async function checkKey({key}) {
 
 router.post('/rooms', async (req, res) => {
   if (await checkKey(req.body)) {
-    const rooms = db.getRooms();
+    const rooms = await db.getRooms();
     res.json({rooms});
   } else {
     res.status(403).send();

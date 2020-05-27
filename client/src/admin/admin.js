@@ -4,7 +4,7 @@ import {getServerUrl} from '../common/util';
 
 export default function Admin() {
   const [key] = useState(initializeKey);
-  const [rooms, setRooms]  = useState([]);
+  const [rooms, setRooms] = useState([]);
 
   function initializeKey() {
     const sessionKey = sessionStorage.getItem('codenames-admin-key');
@@ -25,12 +25,14 @@ export default function Admin() {
       const method = 'POST';
       try {
         const data = await (await fetch(url, {method, headers, body})).json();
-        const {rooms} = data;
-        rooms.sort((a, b) => b.timestamps.lastUpdate - a.timestamps.lastUpdate);
-        console.log(rooms);
-        setRooms(rooms);
+        const updatedRooms = data.rooms;
+        console.log(updatedRooms);
+        updatedRooms.sort((a, b) => b.timestamps.lastUpdate - a.timestamps.lastUpdate);
+        setRooms([...updatedRooms]);
         setTimeout(fetchRooms, 2500);
-      } catch {}
+      } catch(err) {
+        console.error(err);
+      }
     };
     fetchRooms();
   }, [key]);
@@ -42,7 +44,7 @@ export default function Admin() {
         {rooms && rooms.map(room => 
           <div key={room.roomId} className={css.room}>
             {room.roomId}&nbsp;
-            (Users: {Object.keys(room.users).length})&nbsp;
+            (Users: {(room.users || 0) && Object.keys(room.users).length})&nbsp;
             (Last: {new Date(room.timestamps.lastUpdate).toLocaleString()})
           </div>
         )}

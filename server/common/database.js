@@ -20,6 +20,10 @@ class FirebaseRealtimeDatabase {
     this.deleteStaleRooms();
   }
 
+  async getRooms() {
+    return Object.values((await this.db.ref('rooms').once('value')).val());
+  }
+
   async createRoom({roomId}) {
     const room = this.db.ref(`rooms/${roomId}`);
     const exists = (await room.once('value')).exists();
@@ -57,18 +61,22 @@ class FirebaseRealtimeDatabase {
       spymaster: false,
     };
     room.users[userId] = user;
+    room.timestamps.lastUpdate = ServerValue.TIMESTAMP
     await roomRef.set(room);
     return userId;
   }
 
-  deleteUser({roomId, userId}) {
-    if (!this.db[roomId]) return;
-    delete this.db[roomId].users[userId];
-    this.triggerUpdate(roomId);
+  async deleteUser({roomId, userId}) {
+    const roomRef = this.db.ref(`rooms/${roomId}`);
+    const room = (await roomRef.once('value')).val();
+    if (!room.users) return;
+
+    delete room.users[userId];
+    room.timestamps.lastUpdate = ServerValue.TIMESTAMP
+    await roomRef.set(room);
   }
 
   createTestUsers({roomId}, numUsers) {
-    if (!this.db[roomId]) return;
     Game.getRandomWords(gameWords.english.original, numUsers).forEach(word => {
       this.createUser({roomId, name: word});
     });
@@ -85,54 +93,46 @@ class FirebaseRealtimeDatabase {
   }
 
   async revealCard({roomId, userId, cardIndex}) {
-    if (!this.db[roomId]) return;
-    if (Game.isGameOver(this.db[roomId])) return;
+    const roomRef = this.db.ref(`rooms/${roomId}`);
+    const room = (await roomRef.once('value')).val();
+    if (room.game.board[cardIndex].revealed) return false;
 
-    return await lock.acquire(`${roomId}-game`, release => {
-      if (this.db[roomId].game.board[cardIndex].revealed) {
-        release();
-        return false;
-      }
+    const {type: revealedType} = room.game.board[cardIndex];
+    room.game.board[cardIndex].revealed = true;
+    Game.setCurrentTurn({room, revealedType});
 
-      this.db[roomId].game.board[cardIndex].revealed = true;
-      const [room, revealedType] = [this.db[roomId], this.db[roomId].game.board[cardIndex].type];
-      Game.setCurrentTurn({room, revealedType});
-      if (Game.isGameOver(this.db[roomId])) {
-        setTimeout(() => this.revealAll({roomId}), 1000);
-      }
-      this.triggerUpdate(roomId);
-      release();
-      return true;
-    });
+    if (Game.isGameOver(room)) {
+      setTimeout(() => this.revealAll({roomId}), 1000);
+    }
+
+    room.timestamps.lastUpdate = ServerValue.TIMESTAMP
+    await roomRef.set(room);
+    return true;
   }
 
   async revealAll({roomId}) {
-    if (!this.db[roomId]) return;
+    const roomRef = this.db.ref(`rooms/${roomId}`);
+    const room = (await roomRef.once('value')).val();
 
-    return await lock.acquire(`${roomId}-game`, release => {
-      Object.values(this.db[roomId].game.board).forEach(card => card.revealed = true);
-      this.triggerUpdate(roomId);
-      release();
-      return true;
-    });
+    Object.values(room.game.board).forEach(card => card.revealed = true);
+    room.timestamps.lastUpdate = ServerValue.TIMESTAMP
+    await roomRef.set(room);
+    return true;
   }
 
   async endTurn({roomId, userId}) {
-    if (!this.db[roomId]) return;
-    if (Game.isGameOver(this.db[roomId])) return;
+    const swap = {blue: 'red', red: 'blue'};
+    const roomRef = this.db.ref(`rooms/${roomId}`);
+    const room = (await roomRef.once('value')).val();
+    if (Game.isGameOver(room)) return;
 
-    return await lock.acquire(`${roomId}-game`, release => {
-      const {currentTurn} = this.db[roomId].game.currentTurn;
-      if (!['blue', 'red'].includes(currentTurn)) {
-        release();
-        return false;
-      }
+    const {currentTurn} = room.game;
+    if (!['blue', 'red'].includes(currentTurn)) return false;
+    room.game.currentTurn = swap[currentTurn];
 
-      this.db[roomId].game.currentTurn = currentTurn === 'blue' ? 'red' : 'blue';
-      this.triggerUpdate(roomId);
-      release()
-      return true;
-    });
+    room.timestamps.lastUpdate = ServerValue.TIMESTAMP
+    await roomRef.set(room);
+    return true;
   }
 
   startNewGame({roomId, userId}) {
