@@ -8,5 +8,15 @@ router.post('/reveal', async (req, res) => {
   res.json({revealed});
 });
 
+router.post('/end-turn', async (req, res) => {
+  const ended = await db.endTurn(req.query);
+  res.json({ended});
+});
+
+router.post('/new-game', async (req, res) => {
+  const started = await db.startNewGame(req.query);
+  res.json({started});
+});
+
 
 module.exports.gameRouter = router;

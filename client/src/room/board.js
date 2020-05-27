@@ -1,5 +1,5 @@
 import css from './board.module.scss'
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {getFetchUrl, isDev} from '../common/util';
 
 // Toggle for local development.
@@ -10,11 +10,23 @@ const CARDS_PER_ROW = 5;
 const Board = React.memo((props) => {
   const {roomId, userId, user, game} = props;
   const {board} = game;
-  const canReveal = getCanReveal();
   const gameOver = game.currentTurn.includes('win');
+  const canReveal = getCanReveal();
   const typesLeft = getTypesLeft();
 
   const [revealing, setRevealing] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+  const [endingTurn, setEndingTurn] = useState(false);
+  const [startingNewGame, setStartingNewGame] = useState(false);
+  const [holdingNewGame, setHoldingNewGame] = useState(false);
+
+  const newGameTimerRef = useRef();
+
+  if (gameOver && !showAll) {
+    setTimeout(() => setShowAll(true), 1000);
+  } else if (!gameOver && showAll) {
+    setShowAll(false);
+  }
 
   function getCards(board) {
     const cards = [];
@@ -28,6 +40,7 @@ const Board = React.memo((props) => {
   }
 
   function getCanReveal() {
+    if (gameOver) return false
     if (isDev && ALWAYS_ALLOW_REVEAL) return true;
     if (!user || user.spymaster) return false;
     return game.currentTurn.includes(user.team);
@@ -53,16 +66,8 @@ const Board = React.memo((props) => {
     return `${winner} wins`;
   }
 
-  function getCardInnerClasses(card) {
-    return [
-      'cardInner',
-      card.revealed ? 'revealed' : '',
-      card.revealed ? card.type : '',
-    ].filter(Boolean).map(name => css[name]).join(' ');
-  }
-
   async function revealCard(card) {
-    if (board[card.index].revealed || revealing || !canReveal || gameOver) return;
+    if (board[card.index].revealed || revealing || !canReveal) return;
     board[card.index].revealed = true;
     setRevealing(true);
 
@@ -71,12 +76,34 @@ const Board = React.memo((props) => {
   }
 
   async function endTurn() {
+    if (endingTurn) return;
+    setEndingTurn(true);
+    const url = getFetchUrl(roomId, '/game/end-turn', {roomId, userId});
+    await fetch(url, {method: 'POST'});
+  }
 
+  function startNewGame() {
+    setHoldingNewGame(true);
+    newGameTimerRef.current = setTimeout(() => {
+      setStartingNewGame(true);
+      const url = getFetchUrl(roomId, '/game/new-game', {roomId, userId});
+      fetch(url, {method: 'POST'});
+    }, 1000);
+  }
+
+  function cancelNewGame() {
+    clearTimeout(newGameTimerRef.current);
+    setHoldingNewGame(false);
   }
 
   useEffect(() => {
     setRevealing(false);
+    setStartingNewGame(false);
   }, [game]);
+
+  useEffect(() => {
+    setEndingTurn(false);
+  }, [game.currentTurn]);
 
   return (
     <div className={css.board}>
@@ -88,7 +115,11 @@ const Board = React.memo((props) => {
               className={css.card}
               onClick={() => revealCard(card)}
             >
-              <div className={getCardInnerClasses(card)}>
+              <div 
+                className={css.cardInner}
+                data-revealed={card.revealed || (gameOver && showAll)}
+                data-type={card.type}
+              >
                 <div className={css.cardFront}>
                   {card.word.toLowerCase()}
                 </div>
@@ -111,11 +142,27 @@ const Board = React.memo((props) => {
           </div>
         </div>
         <div className={css.controls}>
-          <div className={css.newGameButton}>
+          <div 
+            className={css.newGameButton} 
+            data-disabled={startingNewGame}
+            onMouseDown={startNewGame}
+            onTouchStart={e => {e.preventDefault(); startNewGame()}}
+            onMouseUp={cancelNewGame}
+            onTouchEnd={cancelNewGame}
+            onContextMenu={e => e.preventDefault()}
+          >
             Hold for New Game
-            <div className={css.newGameHold}></div>
+            <div 
+              className={css.holdIndicator} 
+              data-holding={holdingNewGame}
+              data-complete={startingNewGame}
+            ></div>
           </div>
-          <div className={css.endTurnButton} data-disabled={!canReveal} onClick={endTurn}>
+          <div 
+            className={css.endTurnButton} 
+            data-disabled={!canReveal || endingTurn} 
+            onClick={endTurn}
+          >
             End Turn
           </div>
         </div>

@@ -1,7 +1,7 @@
 @import '../base.scss';
 
 .board {
-  font-size: calc(110% + 0.33vw);
+  font-size: calc(55% + 1vw);
 }
 
 .row {
@@ -34,12 +34,12 @@
     transform-style: preserve-3d;
     width: 100%;
 
-    &:not(.revealed):hover {
+    &:not([data-revealed='true']):hover {
       bottom: 0.3em;
       box-shadow: 0 0.3em 0 $shadow-color;
     }
 
-    &:not(.revealed):active {
+    &:not([data-revealed='true']):active {
      bottom: 0.2em;  
      box-shadow: 0 0.2em 0 $shadow-color;
     }
@@ -68,29 +68,30 @@
       transform: rotateY(180deg);
     }
 
-    &.revealed {
+    &[data-revealed='true'] {
       bottom: 0.1em;
       box-shadow: none;
+      cursor: default;
       transform: rotateY(180deg);
       transition: transform 1s cubic-bezier(0.68, -0.6, 0.32, 1.6);
     }
 
-    &.blue .cardBack {
+    &[data-type='blue'] .cardBack {
       background: $blue-background;
       color: $blue-foreground;
     }
 
-    &.red .cardBack {
+    &[data-type='red'] .cardBack {
       background: $red-background;
       color: $red-foreground;
     }
 
-    &.bystander .cardBack {
+    &[data-type='bystander'] .cardBack {
       background: $bystander-background;
       color: $bystander-foreground;
     }
 
-    &.assassin .cardBack {
+    &[data-type='assassin'] .cardBack {
       background: $assassin-background;
       color: $assassin-foreground;
     }
@@ -176,22 +177,40 @@
       cursor: not-allowed;
     }
   }
+
+  .newGameButton {
+    position: relative;
+
+    .holdIndicator {
+      background: rgba(45, 134, 89, 0.2);
+      height: 100%;
+      left: 0;
+      position: absolute;
+      top: 0;
+      transition: width 0.1s linear;
+      width: 0;
+
+      &[data-holding='true'] {
+        transition: width 1s cubic-bezier(0.5, 1, 0.89, 1);
+        width: 100%;
+      }
+
+      &[data-complete='true'] {
+        transition: none;
+        width: 0;
+      }
+    }
+  }
 }
 
 @media (max-width: $media-small-max-width) {
   .card {
-    height: 9.5vh;
-  }
-}
-
-@media (max-width: 800px) {
-  .board {
-    font-size: calc(90% + 0.3vw);
+    height: 9vh;
   }
 }
 
 @media (max-width: 600px) {
   .board {
-    font-size: calc(75% + 0.3vw);
+    font-size: calc(50% + 1vw);
   }
 }

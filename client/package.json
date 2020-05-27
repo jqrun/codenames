@@ -14,7 +14,7 @@
     "react-scripts": "3.4.1"
   },
   "scripts": {
-    "build": "react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "deploy": "yarn build && firebase deploy --only hosting",
     "eject": "react-scripts eject",
     "emulator": "firebase emulators:start --only hosting",

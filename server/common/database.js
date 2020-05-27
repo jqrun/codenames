@@ -105,29 +105,15 @@ class Database {
     const gameRef = this.db.ref(`games/${roomId}`);
     const game = (await gameRef.once('value')).val();
     if (game.board[cardIndex].revealed) return false;
+    if (Game.isGameOver(game)) return false;
 
     const {type: revealedType} = game.board[cardIndex];
     game.board[cardIndex].revealed = true;
     Game.setCurrentTurn({game, revealedType});
 
-    if (Game.isGameOver(game)) {
-      setTimeout(() => this.revealAll({roomId}), 1000);
-    }
-
     const revealCard = await gameRef.set(game);
     const updateRoom = this.updateRoomTimestamp({roomId});
     await Promise.all([revealCard, updateRoom]);
-    return true;
-  }
-
-  async revealAll({roomId}) {
-    const gameRef = this.db.ref(`games/${roomId}`);
-    const game = (await gameRef.once('value')).val();
-    Object.values(game.board).forEach(card => card.show = true);
-
-    const revealAll = await gameRef.set(game);
-    const updateRoom = this.updateRoomTimestamp({roomId});
-    await Promise.all([revealAll, updateRoom]);
     return true;
   }
 
@@ -145,9 +131,9 @@ class Database {
     return true;
   }
 
-  startNewGame({roomId, userId}) {
-    if (!this.db[roomId]) return;
-
+  async startNewGame({roomId, userId}) {
+    await this.db.ref(`games/${roomId}`).set(Game.generateNewGame());
+    return true;
   }
 
   sendChatMessage({roomId, userId, message}) {
@@ -179,7 +165,7 @@ class Database {
           }
         });
       });
-    }, 10 * 60 * 1000);
+    }, 60 * 60 * 1000);
   }
 }
 
@@ -244,8 +230,8 @@ class Game {
   }
 
   static assignRandomCards(words, numAgents) {
-    const cards = words.map(word => {
-      return {word, type: 'bystander', revealed :false, show: false}
+    const cards = words.map((word, index) => {
+      return {index, word, type: 'bystander', revealed :false}
     });
     const firstAgent = Math.random() < 0.5 ? 'blue' : 'red';
     const secondAgent = firstAgent === 'blue' ? 'red' : 'blue';

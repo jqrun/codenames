@@ -17,9 +17,9 @@ export default function Room() {
 
   const [userId, setUserId] = useState(initialUserId);
   const [room, setRoom] = useState(null);
-  const [users, setUsers] = useState(null);
+  const [users, setUsers] = useState({});
   const [game, setGame] = useState(null);
-  const [messages, setMessages] = useState(null);
+  const [messages, setMessages] = useState({});
   const [loading, setLoading] = useState(true);
 
   function initialUserId() {
@@ -27,46 +27,62 @@ export default function Room() {
     return sessionStorage.getItem(roomId);
   };
 
-  // Check if room exists.
+  // Fetch initial room.
   useEffect(() => {
     if (!roomId) return;
-    db.getRoom(roomId, snapshot => {
+    db.get(`rooms/${roomId}`, snapshot => {
       // TODO: Switch to an explaining page.
       if (!snapshot) {
         history.push('/room-not-found');
         return;
       }
-      if (isDev) console.log('Room fetch', snapshot);
+      if (isDev) console.log('Initial room', snapshot);
       setRoom(snapshot);
     });
-
-    return () => db.unwatch('rooms', roomId);
   }, [roomId, history]);
 
   // Watch for users, game, and messages updates.
   useEffect(() => {
     if (!userId) return;
-    db.watch('users', roomId, snapshot => {
-      if (isDev) console.log('Users update', snapshot);
-      if (snapshot && snapshot[userId]) snapshot[userId].current = true;
-      setUsers(snapshot);
-    });
 
-    db.watch('games', roomId, snapshot => {
-      if (isDev) console.log('Game update', snapshot);
-      setGame(snapshot);
-    });
-
-   db.watch('messages', roomId, snapshot => {
-      if (isDev) console.log('Messages update', snapshot);
-      setMessages(snapshot);
-    });
-
-    return () => {
-      ['users', 'games', 'messages'].forEach(path => {
-        db.unwatch(path, roomId);
+    db.watch(`users/${roomId}`, 'child_added', snapshot => {
+      if (isDev) console.log('Users add', snapshot);
+      setUsers(prevUsers => {
+        if (snapshot.userId === userId) snapshot.current = true;
+        prevUsers[snapshot.userId] = snapshot;
+        return {...prevUsers};
       });
-    };
+    });
+
+    db.watch(`users/${roomId}`, 'child_removed', snapshot => {
+      setUsers(prevUsers => {
+        delete prevUsers[snapshot.userId];
+        return {...prevUsers};
+      });
+    });
+
+    db.get(`games/${roomId}`, snapshot => {
+      if (isDev) console.log('Initial game', snapshot);
+      setGame(snapshot);
+
+      db.watch(`games/${roomId}/currentTurn`, 'value', snapshot => {
+        if (isDev) console.log('CurrentTurn update', snapshot);
+        setGame(prevGame => {
+          prevGame.currentTurn = snapshot;
+          return {...prevGame};
+        });
+      });
+
+      db.watch(`games/${roomId}/board`, 'child_changed', snapshot => {
+        if (isDev) console.log('Board change', snapshot);
+        setGame(prevGame => {
+          prevGame.board[snapshot.index] = snapshot;
+          return {...prevGame};
+        });
+      });
+    });
+
+    return () => db.unwatchAll();
   }, [roomId, userId]);
 
   // Delete user when leaving the page.
