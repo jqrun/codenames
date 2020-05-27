@@ -23,12 +23,3 @@ export function getQueryParams(params) {
     `${key}=${value}`
   ).join('&');
 }
-
-// Extremely dumb cipher just to discourage cheating the game by looking at the network tab.
-export function decrypt(data) {
-  return JSON.parse(data.split('').map((char, i) => {
-    let charCode = char.charCodeAt(0) - 5 - i;
-    charCode= charCode < 32 ? 127 - (32 - charCode) : charCode;
-    return String.fromCharCode(charCode);
-  }).join(''));
-} 

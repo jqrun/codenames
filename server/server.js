@@ -6,7 +6,6 @@
   const {adminRouter} = require('./routes/admin');
   const {gameRouter} = require('./routes/game');
   const {roomsRouter} = require('./routes/rooms');
-  const {subscribeRouter} = require('./routes/subscribe');
   const {usersRouter} = require('./routes/users');
 
 const ARTIFICIAL_LATENCY = true;
@@ -55,7 +54,6 @@ server.use('/admin', adminRouter);
 server.use('/rooms', roomsRouter);
 server.use('/users', usersRouter);
 server.use('/game', gameRouter);
-server.use('/subscribe', subscribeRouter);
 
 const listener = server.listen(process.env.PORT || 8080, () => {
   logger.info('Comenames server is listening...');

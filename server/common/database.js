@@ -29,51 +29,60 @@ class FirebaseRealtimeDatabase {
     const exists = (await room.once('value')).exists();
     if (exists) return false;
 
-    await this.db.ref(`rooms/${roomId}`).set({
+    const roomCreate = this.db.ref(`rooms/${roomId}`).set({
       roomId,
-      users: {},
-      messages: [],
-      game: Game.generateNewGame(),
       timestamps: {
         created: ServerValue.TIMESTAMP,
         lastUpdate: ServerValue.TIMESTAMP,
       }
     });
+    const gameCreate = this.db.ref(`games/${roomId}`).set(Game.generateNewGame());
+    await Promise.all([roomCreate, gameCreate]);
     return true;
   }
 
+  async updateRoomTimestamp({roomId}) {
+    const roomRef = this.db.ref(`rooms/${roomId}`);
+    const room = (await roomRef.once('value')).val();
+    room.timestamps.lastUpdate = ServerValue.TIMESTAMP;
+    await roomRef.set(room);
+  }
+
   deleteRoom({roomId}) {
-    this.db.ref(`rooms/${roomId}`).remove();
+    ['rooms', 'users', 'games', 'messages'].forEach(path => {
+      this.db.ref(`${path}/${roomId}`).remove();
+    })
   }
 
   async createUser({roomId, name}) {
-    const roomRef = this.db.ref(`rooms/${roomId}`);
-    const room = (await roomRef.once('value')).val();
+    const usersRef = this.db.ref(`users/${roomId}`);
+    const users = (await usersRef.once('value')).val() || {};
     const userId = this.getUniqueId();
-    room.users = room.users || {};
-    if (Users.nameExists(room, name)) return null;
+    if (Users.nameExists(users, name)) return null;
 
-    const team = Users.getNextBalancedTeam(room);
+    const team = Users.getNextBalancedTeam(users);
     const user = {
       userId,
       name,
       team,
       spymaster: false,
     };
-    room.users[userId] = user;
-    room.timestamps.lastUpdate = ServerValue.TIMESTAMP
-    await roomRef.set(room);
+    users[userId] = user;
+    const createUser = usersRef.set(users);
+    const updateRoom = this.updateRoomTimestamp({roomId});
+    await Promise.all([createUser, updateRoom]);
     return userId;
   }
 
   async deleteUser({roomId, userId}) {
-    const roomRef = this.db.ref(`rooms/${roomId}`);
-    const room = (await roomRef.once('value')).val();
-    if (!room.users) return;
+    const usersRef = this.db.ref(`users/${roomId}`);
+    const users = (await usersRef.once('value')).val() || {};
 
-    delete room.users[userId];
-    room.timestamps.lastUpdate = ServerValue.TIMESTAMP
-    await roomRef.set(room);
+    delete users[userId];
+    const deleteUser = usersRef.set(users);
+    const updateRoom = this.updateRoomTimestamp({roomId});
+    await Promise.all([deleteUser, updateRoom]);
+    return userId;
   }
 
   createTestUsers({roomId}, numUsers) {
@@ -93,20 +102,21 @@ class FirebaseRealtimeDatabase {
   }
 
   async revealCard({roomId, userId, cardIndex}) {
-    const roomRef = this.db.ref(`rooms/${roomId}`);
-    const room = (await roomRef.once('value')).val();
-    if (room.game.board[cardIndex].revealed) return false;
+    const gameRef = this.db.ref(`games/${roomId}`);
+    const game = (await gameRef.once('value')).val();
+    if (game.board[cardIndex].revealed) return false;
 
-    const {type: revealedType} = room.game.board[cardIndex];
-    room.game.board[cardIndex].revealed = true;
-    Game.setCurrentTurn({room, revealedType});
+    const {type: revealedType} = game.board[cardIndex];
+    game.board[cardIndex].revealed = true;
+    Game.setCurrentTurn({game, revealedType});
 
-    if (Game.isGameOver(room)) {
+    if (Game.isGameOver(game)) {
       setTimeout(() => this.revealAll({roomId}), 1000);
     }
 
-    room.timestamps.lastUpdate = ServerValue.TIMESTAMP
-    await roomRef.set(room);
+    const revealCard = await gameRef.set(game);
+    const updateRoom = this.updateRoomTimestamp({roomId});
+    await Promise.all([revealCard, updateRoom]);
     return true;
   }
 
@@ -174,12 +184,12 @@ class FirebaseRealtimeDatabase {
 }
 
 class Users {
-  static nameExists(room, name) {
-    return Object.values(room.users).some(user => user.name.toLowerCase() === name.toLowerCase());
+  static nameExists(users, name) {
+    return Object.values(users).some(user => user.name.toLowerCase() === name.toLowerCase());
   }
 
-  static getNextBalancedTeam(room) {
-    const users = Object.values(room.users);
+  static getNextBalancedTeam(users) {
+    users = Object.values(users);
     const numBlue = users.filter(user => user.team === 'blue').length;
     const numRed = users.filter(user => user.team === 'red').length;
 
@@ -189,27 +199,27 @@ class Users {
 }
 
 class Game {
-  static setCurrentTurn({room, revealedType}) {
+  static setCurrentTurn({game, revealedType}) {
     const swap = {blue: 'red', red: 'blue'};
-    const previousTurn = room.game.currentTurn;
+    const previousTurn = game.currentTurn;
     const advanceTurn = previousTurn === revealedType;
-    const typesLeft = Game.getTypesLeft({room});
+    const typesLeft = Game.getTypesLeft(game);
 
     if (revealedType === 'assassin') {
-      room.game.currentTurn = `${swap[previousTurn]}_win`;
+      game.currentTurn = `${swap[previousTurn]}_win`;
     } else if (!typesLeft.blue || !typesLeft.red) {
-      room.game.currentTurn = `${previousTurn}_win`;
+      game.currentTurn = `${previousTurn}_win`;
     } else if (!advanceTurn) {
-      room.game.currentTurn = swap[previousTurn];
+      game.currentTurn = swap[previousTurn];
     }
   }
 
-  static isGameOver(room) {
-    return room.game.currentTurn.includes('win');
+  static isGameOver(game) {
+    return game.currentTurn.includes('win');
   }
 
-  static getTypesLeft({room}) {
-    const {board} = room.game;
+  static getTypesLeft(game) {
+    const {board} = game;
     const types = Object.values(board).filter(card => !card.revealed).map(card => card.type);
     return {
       blue: types.filter(type => type === 'blue').length,

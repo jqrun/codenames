@@ -1,7 +1,7 @@
 @import '../base.scss';
 
 .board {
-  font-size: calc(110% + 0.5vw);
+  font-size: calc(110% + 0.33vw);
 }
 
 .row {
@@ -184,7 +184,13 @@
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 800px) {
+  .board {
+    font-size: calc(90% + 0.3vw);
+  }
+}
+
+@media (max-width: 600px) {
   .board {
     font-size: calc(75% + 0.3vw);
   }

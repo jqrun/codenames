@@ -4,7 +4,7 @@ import css from './room.module.scss'
 import Join from './join';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import Teams from './teams';
-import {decrypt, getFetchUrl, isDev} from '../common/util';
+import {getFetchUrl, isDev} from '../common/util';
 import {useHistory} from "react-router-dom";
 import {useParams} from 'react-router-dom';
 
@@ -17,36 +17,57 @@ export default function Room() {
 
   const [userId, setUserId] = useState(initialUserId);
   const [room, setRoom] = useState(null);
+  const [users, setUsers] = useState(null);
+  const [game, setGame] = useState(null);
+  const [messages, setMessages] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const parseAndSetRoom = useCallback((roomUpdate) => {
-    if (roomUpdate.users && roomUpdate.users[userId]) {
-      roomUpdate.users[userId].current = true;
-    }
-    if (isDev) console.log('Parsing update', roomUpdate);
-    setRoom({...roomUpdate});
-  }, [userId]);
 
   function initialUserId() {
     if (!isDev || !PERSIST_USER) return null;
     return sessionStorage.getItem(roomId);
   };
 
-  // Watch for room updates.
+  // Check if room exists.
   useEffect(() => {
-    db.watchRoom(roomId, snapshot => {
+    if (!roomId) return;
+    db.getRoom(roomId, snapshot => {
       // TODO: Switch to an explaining page.
       if (!snapshot) {
         history.push('/room-not-found');
         return;
       }
-      parseAndSetRoom(snapshot);
+      if (isDev) console.log('Room fetch', snapshot);
+      setRoom(snapshot);
+    });
+
+    return () => db.unwatch('rooms', roomId);
+  }, [roomId]);
+
+  // Watch for users, game, and messages updates.
+  useEffect(() => {
+    if (!userId) return;
+    db.watch('users', roomId, snapshot => {
+      if (isDev) console.log('Users update', snapshot);
+      if (snapshot && snapshot[userId]) snapshot[userId].current = true;
+      setUsers(snapshot);
+    });
+
+    db.watch('games', roomId, snapshot => {
+      if (isDev) console.log('Game update', snapshot);
+      setGame(snapshot);
+    });
+
+   db.watch('messages', roomId, snapshot => {
+      if (isDev) console.log('Messages update', snapshot);
+      setMessages(snapshot);
     });
 
     return () => {
-      db.unwatchRoom(roomId);
+      ['users', 'games', 'messages'].forEach(path => {
+        db.unwatch(path, roomId);
+      });
     };
-  }, [roomId, parseAndSetRoom]);
+  }, [roomId, userId]);
 
   // Delete user when leaving the page.
   useEffect(() => {
@@ -74,9 +95,9 @@ export default function Room() {
 
   // Set loading state.
   useEffect(() => {
-    if (!room || !roomId || !userId) return;
+    if (!roomId || !userId || !room || !users || !game) return;
     setLoading(false);
-  }, [room, roomId, userId]);
+  }, [roomId, userId, room, users, game]);
 
   if (!room) return (<div></div>);
   return (
@@ -87,13 +108,13 @@ export default function Room() {
         <div className={css.inner}>
           <div className={css.left}>
             <div className={css.board}>
-              <Board roomId={roomId} userId={userId} game={room.game} user={room.users[userId]} />
+              <Board roomId={roomId} userId={userId} game={game} user={users[userId]} />
             </div>
           </div>
 
           <div className={css.right}>
             <div className={css.teams}>
-              <Teams roomId={roomId} userId={userId} users={room.users} />
+              <Teams roomId={roomId} userId={userId} users={users} />
             </div>
 
             <div className={css.chat}>
