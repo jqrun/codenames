@@ -65,11 +65,9 @@ const Board = React.memo((props) => {
     if (board[card.index].revealed || revealing || !canReveal || gameOver) return;
     board[card.index].revealed = true;
     setRevealing(true);
-    setPolling(false);
 
     const url = getFetchUrl(roomId, '/game/reveal', {roomId, userId, cardIndex: card.index});
     await (await fetch(url, {method: 'POST'})).json();
-    setPolling(true);
   }
 
   async function endTurn() {

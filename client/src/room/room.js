@@ -17,7 +17,6 @@ export default function Room() {
 
   const [userId, setUserId] = useState(initialUserId);
   const [room, setRoom] = useState(null);
-  const [polling, setPolling] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const parseAndSetRoom = useCallback((roomUpdate) => {
@@ -88,10 +87,7 @@ export default function Room() {
         <div className={css.inner}>
           <div className={css.left}>
             <div className={css.board}>
-              <Board 
-                roomId={roomId} userId={userId} game={room.game} user={room.users[userId]}
-                setPolling={setPolling}
-              />
+              <Board roomId={roomId} userId={userId} game={room.game} user={room.users[userId]} />
             </div>
           </div>
 
