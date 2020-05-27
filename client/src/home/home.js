@@ -1,6 +1,7 @@
 import css from './home.module.scss'
+import db from '../common/database';
 import hridWords from '../assets/human_readable_id_words.json';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {getFetchUrl} from '../common/util';
 import {useHistory} from "react-router-dom";
 
@@ -10,16 +11,25 @@ function generateRandomId() {
 
   const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
   const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
-  const randomNumber = Math.floor(Math.random() * 10);
 
-  return`${randomAdjective}-${randomNoun}-${randomNumber}`;
+  return`${randomAdjective}-${randomNoun}`;
+}
+
+async function getNonCollisionId(callback) {
+  let id;
+  do {
+    id = generateRandomId();
+  } while (await db.roomExists(id));
+  callback(id);
 }
 
 export default function Home() {
   const history = useHistory();
 
-  const [roomId, setRoomId] = useState(generateRandomId());
+  const [roomId, setRoomId] = useState();
   const [joining, setJoining] = useState(false);
+
+  if (!roomId) getNonCollisionId(setRoomId);
 
   function handleRoomInput(event) {
     const originalValue = event.target.value 

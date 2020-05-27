@@ -12,7 +12,7 @@ admin.initializeApp({
   databaseURL: "https://codenames-273814.firebaseio.com"
 });
 
-class FirebaseRealtimeDatabase {
+class Database {
   constructor() {
     this.firestore = admin.firestore();
     this.db = admin.database();
@@ -121,27 +121,27 @@ class FirebaseRealtimeDatabase {
   }
 
   async revealAll({roomId}) {
-    const roomRef = this.db.ref(`rooms/${roomId}`);
-    const room = (await roomRef.once('value')).val();
+    const gameRef = this.db.ref(`games/${roomId}`);
+    const game = (await gameRef.once('value')).val();
+    Object.values(game.board).forEach(card => card.show = true);
 
-    Object.values(room.game.board).forEach(card => card.revealed = true);
-    room.timestamps.lastUpdate = ServerValue.TIMESTAMP
-    await roomRef.set(room);
+    const revealAll = await gameRef.set(game);
+    const updateRoom = this.updateRoomTimestamp({roomId});
+    await Promise.all([revealAll, updateRoom]);
     return true;
   }
 
   async endTurn({roomId, userId}) {
     const swap = {blue: 'red', red: 'blue'};
-    const roomRef = this.db.ref(`rooms/${roomId}`);
-    const room = (await roomRef.once('value')).val();
-    if (Game.isGameOver(room)) return;
-
-    const {currentTurn} = room.game;
+    const gameRef = this.db.ref(`games/${roomId}`);
+    const game = (await gameRef.once('value')).val();
+    const {currentTurn} = game;
     if (!['blue', 'red'].includes(currentTurn)) return false;
-    room.game.currentTurn = swap[currentTurn];
+    game.currentTurn = swap[currentTurn];
 
-    room.timestamps.lastUpdate = ServerValue.TIMESTAMP
-    await roomRef.set(room);
+    const endTurn = await gameRef.set(game);
+    const updateRoom = this.updateRoomTimestamp({roomId});
+    await Promise.all([endTurn, updateRoom]);
     return true;
   }
 
@@ -245,7 +245,7 @@ class Game {
 
   static assignRandomCards(words, numAgents) {
     const cards = words.map(word => {
-      return {word, type: 'bystander', revealed :false}
+      return {word, type: 'bystander', revealed :false, show: false}
     });
     const firstAgent = Math.random() < 0.5 ? 'blue' : 'red';
     const secondAgent = firstAgent === 'blue' ? 'red' : 'blue';
@@ -274,7 +274,7 @@ class Game {
   }
 }
 
-module.exports = new FirebaseRealtimeDatabase();
+module.exports = new Database();
 
 
 

@@ -8,7 +8,7 @@ const ALWAYS_ALLOW_REVEAL = true;
 const CARDS_PER_ROW = 5;
 
 const Board = React.memo((props) => {
-  const {roomId, userId, user, game, setPolling} = props;
+  const {roomId, userId, user, game} = props;
   const {board} = game;
   const canReveal = getCanReveal();
   const gameOver = game.currentTurn.includes('win');

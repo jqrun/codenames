@@ -2,7 +2,7 @@ import db from '../common/database';
 import Board from './board';
 import css from './room.module.scss'
 import Join from './join';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Teams from './teams';
 import {getFetchUrl, isDev} from '../common/util';
 import {useHistory} from "react-router-dom";
@@ -41,7 +41,7 @@ export default function Room() {
     });
 
     return () => db.unwatch('rooms', roomId);
-  }, [roomId]);
+  }, [roomId, history]);
 
   // Watch for users, game, and messages updates.
   useEffect(() => {

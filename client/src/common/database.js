@@ -9,6 +9,10 @@ class Database {
     this.db = firebase.database();
   }
 
+  async roomExists(roomId) {
+    return (await this.db.ref(`rooms/${roomId}`).once('value')).exists();
+  }
+
   async getRoom(roomId, callback) {
     this.db.ref(`rooms/${roomId}`).once('value', snapshot => callback(snapshot.val()));
   }
