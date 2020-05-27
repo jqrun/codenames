@@ -8,13 +8,8 @@ const router = express.Router();
 router.post('/create', async (req, res) => {
   const {roomId} = req.query;
 
-  if (db.getRoom(req.query)) {
-    res.json({'status': 'already_exists'});
-    return;
-  }
-
-  const room = await db.createRoom(req.query);
-  res.json({'status': 'created'});
+  const created = await db.createRoom(req.query);
+  res.json({'status': created ? 'created': 'already_exists'});
 });
 
 router.get('/', async (req, res) => {

@@ -34,18 +34,18 @@ function timeoutLongPoll({roomId, userId}) {
   }
 }
 
-db.watchUpdates((room, type) => {
-  switch (type) {
-    case 'update':
-      notifySubscribers(room);
-      break;
-    case 'delete':
-      delete longPollers[room.roomId];
-      delete subscribers[room.roomId];
-      break;
-    default:
-  }
-});
+// db.watchUpdates((room, type) => {
+//   switch (type) {
+//     case 'update':
+//       notifySubscribers(room);
+//       break;
+//     case 'delete':
+//       delete longPollers[room.roomId];
+//       delete subscribers[room.roomId];
+//       break;
+//     default:
+//   }
+// });
 
 router.get('/poll', async (req, res) => {
   const {lastUpdate} = req.query;

@@ -107,7 +107,7 @@ dist
 client/.firebase*
 
 # Secrets
-client/secrets/
+client/src/secrets/
 server/secrets/
 
 # PouchDB

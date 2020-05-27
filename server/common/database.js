@@ -3,7 +3,9 @@ const crypto = require('crypto');
 const gameWords = require('../assets/game_words.json');
 const lock = require('./lock');
 const logger = require('./logger');
-const serviceAccount = require("../secrets/firebase_admin_key.json");
+const serviceAccount = require("../secrets/firebase_service_account.json");
+
+const {ServerValue} = admin.database;
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -22,27 +24,29 @@ class FirebaseRealtimeDatabase {
   }
 
   getRoom({roomId}) {
+    
   }
 
   async createRoom({roomId}) {
+    const room = this.db.ref(`rooms/${roomId}`);
+    const exists = (await room.once('value')).exists();
+    if (exists) return false;
 
-
-    const now = Number(Date.now());
-    const room = {
+    await this.db.ref(`rooms/${roomId}`).set({
       roomId,
       users: {},
       messages: [],
       game: Game.generateNewGame(),
       timestamps: {
-        created: now,
-        lastUpdate: now,
-        lastDataStore: null,
+        created: ServerValue.TIMESTAMP,
+        lastUpdate: ServerValue.TIMESTAMP,
       }
-    };
+    });
+    return true;
   }
 
   deleteRoom({roomId}) {
-    delete this.db[roomId];
+    this.db.ref(`rooms/${roomId}`).remove();
   }
 
   async createUser({roomId, name}) {
@@ -159,10 +163,6 @@ class FirebaseRealtimeDatabase {
 
   getFirestore() {
     return this.firestore;
-  }
-
-  getUniqueId() {
-    return crypto.randomBytes(16).toString('hex');
   }
 
   deleteStaleRooms() {
