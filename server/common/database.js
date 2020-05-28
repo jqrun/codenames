@@ -57,8 +57,10 @@ class Database {
   async createUser({roomId, name}) {
     const usersRef = this.db.ref(`users/${roomId}`);
     const users = (await usersRef.once('value')).val() || {};
-    const userId = this.getUniqueId();
     if (Users.nameExists(users, name)) return null;
+
+    const newUser = usersRef.push();
+    const userId = newUser.key;
 
     const team = Users.getNextBalancedTeam(users);
     const user = {
@@ -67,8 +69,7 @@ class Database {
       team,
       spymaster: false,
     };
-    users[userId] = user;
-    const createUser = usersRef.set(users);
+    const createUser = newUser.set(user);
     const updateRoom = this.updateRoomTimestamp({roomId});
     await Promise.all([createUser, updateRoom]);
     return userId;
@@ -82,23 +83,43 @@ class Database {
     const deleteUser = usersRef.set(users);
     const updateRoom = this.updateRoomTimestamp({roomId});
     await Promise.all([deleteUser, updateRoom]);
+    if (!Object.values(users).length) this.deleteRoom({roomId});
     return userId;
   }
 
-  createTestUsers({roomId}, numUsers) {
-    Game.getRandomWords(gameWords.english.original, numUsers).forEach(word => {
-      this.createUser({roomId, name: word});
+  async createTestUsers({roomId}, numUsers) {
+    const randomNames = Game.getRandomWords(gameWords.english.original, numUsers);
+    for (let i = 0; i < randomNames.length; i++) {
+      await this.createUser({roomId, name: randomNames[i]});
+    }
+  }
+
+  async switchTeam({roomId, userId}) {
+    const swap = {blue: 'red', red: 'blue'};
+    const usersRef = this.db.ref(`users/${roomId}`);
+    const users = (await usersRef.once('value')).val() || {};
+    if (!users[userId]) return false;
+
+    users[userId].team = swap[users[userId].team];
+    const switchTeam = usersRef.set(users);
+    const updateRoom = this.updateRoomTimestamp({roomId});
+    await Promise.all([switchTeam, updateRoom]);
+    return true;
+  }
+
+  async setSpymater({roomId, userId}) {
+    const usersRef = this.db.ref(`users/${roomId}`);
+    const users = (await usersRef.once('value')).val() || {};
+    if (!users[userId]) return false;
+
+    Object.values(users).forEach(user => {
+      if (user.team === users[userId].team) user.spymaster = false;
     });
-  }
-
-  switchTeams({roomId, userId}) {
-    if (!this.db[roomId]) return;
-
-  }
-
-  setSpymater({roomId, userId}) {
-    if (!this.db[roomId]) return;
-
+    users[userId].spymaster = true;
+    const setSpymaster = usersRef.set(users);
+    const updateRoom = this.updateRoomTimestamp({roomId});
+    await Promise.all([setSpymaster, updateRoom]);
+    return true;
   }
 
   async revealCard({roomId, userId, cardIndex}) {

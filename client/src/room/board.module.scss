@@ -1,16 +1,15 @@
 @import '../base.scss';
 
 .board {
+  height: 100%;
+  width: 100%;
   font-size: calc(55% + 1vw);
 }
 
 .row {
   display: flex;
   justify-content: space-between;
-
-  &:not(:last-child) {
-    margin-bottom: 0.5em;
-  }
+  margin-bottom: 0.5em;
 }
 
 .card {
@@ -26,7 +25,7 @@
   .cardInner {
     $shadow-color: #222;
 
-    bottom: 0.2em;
+    bottom: 0;
     box-shadow: 0 0.2em 0 $shadow-color;
     height: 100%;
     perspective: 50em;
@@ -35,12 +34,12 @@
     width: 100%;
 
     &:not([data-revealed='true']):hover {
-      bottom: 0.3em;
+      bottom: 0.1em;
       box-shadow: 0 0.3em 0 $shadow-color;
     }
 
     &:not([data-revealed='true']):active {
-     bottom: 0.2em;  
+     bottom: 0em;  
      box-shadow: 0 0.2em 0 $shadow-color;
     }
 
@@ -69,7 +68,7 @@
     }
 
     &[data-revealed='true'] {
-      bottom: 0.1em;
+      bottom: -0.1em;
       box-shadow: none;
       cursor: default;
       transform: rotateY(180deg);
@@ -106,12 +105,12 @@
   font-size: 0.8em;
   font-weight: 500;
   justify-content: space-between;
+  margin-top: 1em;
   width: 100%;
 }
 
 .status {
   display: flex;
-  margin-top: 1vh;
 
   .currentTurn {
     width: 5em;

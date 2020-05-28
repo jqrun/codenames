@@ -28,7 +28,7 @@
 
 .right {
   display: flex;
-  width: 25%;
+  width: 27%;
 
   .teams {
     width: 100%;
@@ -37,8 +37,8 @@
 
 @media (max-width: $media-small-max-width) {
   .inner {
-    padding: 5vw;
     flex-direction: column;
+    padding: 3vw;
   }
 
   .left {
@@ -46,7 +46,6 @@
   }
 
   .right {
-    margin-top: 3vw;
     width: 100%;
 
     .teams {

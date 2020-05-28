@@ -11,7 +11,7 @@ const Join = React.memo(props => {
 
   function handleNameInput(event) {
     let name = event.target.value;
-    name = name.slice(0, 25);
+    name = name.slice(0, 15);
     setName(name);
   };
 

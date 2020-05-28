@@ -5,35 +5,49 @@ import {getFetchUrl} from '../common/util';
 const Teams = React.memo((props) => {
   const {roomId, userId, users} = props;
 
-  const blueTeam = getTeam('blue');
-  const redTeam = getTeam('red');
+  const blueTeam = {spymaster: getSpymaster('blue'), players: getTeam('blue'), team: 'blue'};
+  const redTeam = {spymaster: getSpymaster('red'), players: getTeam('red'), team: 'red'};
   const teams = [blueTeam, redTeam];
 
+  function getSpymaster(color) {
+    return Object.values(users).filter(user => user.spymaster && (user.team === color))[0];
+  }
+
   function getTeam(color) {
-    const team = Object.values(users).filter(user => user.team === color);
-    team.sort();
+    const team = Object.values(users).filter(user => !user.spymaster && (user.team === color));
+    team.sort((a, b) => {
+      const nameA = a.name.toUpperCase();
+      const nameB = b.name.toUpperCase();
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    });
     return team;
   }
 
-  function getUserClasses(user) {
-    return [
-      'user',
-      user.team,
-      user.current ? 'current': '', 
-      user.spymaster ? 'spymaster': '',
-    ].filter(Boolean).map(name => css[name]).join(' ');
+  function switchTeam() {
+
+  }
+
+  function setSpymaster() {
+
   }
 
   return (
     <div className={css.teams}>
-      Teams <br/><br/>
-
       <div className={css.inner}>
         {teams.map((team, index) =>
-          <div key={index} className={css.teamList}>
-            {team.map(user => 
-              <div key={user.name} className={getUserClasses(user)}>
-                {user.name}
+          <div key={index} className={css.teamList} data-team={team.team}>
+            <div className={css.teamTitle}>{`${team.team} team`}</div>
+            {team.players.map(user => 
+              <div 
+                key={user.name} 
+                className={css.user}
+                data-team={user.team}
+                data-current={user.current}
+                data-spymaster={user.current}
+              >
+                <div className={css.userName}>{user.name}</div>
               </div>
             )}
           </div> 
