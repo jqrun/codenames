@@ -46,7 +46,7 @@ export default function Room() {
     if (!userId) return;
 
     db.watch(`users/${roomId}`, 'child_added', snapshot => {
-      if (isDev) console.log('Users add', snapshot);
+      if (isDev) console.log('User add', snapshot);
       setUsers(prevUsers => {
         if (snapshot.userId === userId) snapshot.current = true;
         prevUsers[snapshot.userId] = snapshot;
@@ -55,11 +55,22 @@ export default function Room() {
     });
 
     db.watch(`users/${roomId}`, 'child_removed', snapshot => {
+      if (isDev) console.log('User remove', snapshot);
       setUsers(prevUsers => {
         delete prevUsers[snapshot.userId];
         return {...prevUsers};
       });
     });
+
+
+    db.watch(`users/${roomId}`, 'child_changed', snapshot => {
+      if (isDev) console.log('User change', snapshot);
+      setUsers(prevUsers => {
+        prevUsers[snapshot.userId] = snapshot;
+        return {...prevUsers};
+      });
+    });
+
 
     db.get(`games/${roomId}`, snapshot => {
       if (isDev) console.log('Initial game', snapshot);

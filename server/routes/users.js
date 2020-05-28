@@ -5,7 +5,7 @@ const router = express.Router({mergeParams: true});
 
 router.post('/create', async (req, res) => {
   const userId = await db.createUser(req.query);
-  db.createTestUsers(req.query, 20);
+  if (process.env.NODE_ENV !== 'production') db.createTestUsers(req.query, 2);
   if (!userId) {
     res.json({'status': 'name_taken'});
   } else {
@@ -23,9 +23,9 @@ router.post('/switch-team', async (req, res) => {
   res.json({switched});
 });
 
-router.post('/set-spymaster', async (req, res) => {
-  const set = await db.setSpymaster(req.query);
-  res.json({set});
+router.post('/toggle-spymaster', async (req, res) => {
+  const toggled = await db.toggleSpymaster(req.query);
+  res.json({toggled});
 });
 
 module.exports.usersRouter = router;

@@ -94,29 +94,24 @@ class Database {
     }
   }
 
-  async switchTeam({roomId, userId}) {
+async switchTeam({roomId, userId}) {
+    console.log('switch team');
     const swap = {blue: 'red', red: 'blue'};
-    const usersRef = this.db.ref(`users/${roomId}`);
-    const users = (await usersRef.once('value')).val() || {};
-    if (!users[userId]) return false;
+    const teamRef = this.db.ref(`users/${roomId}/${userId}/team`);
+    const team = (await teamRef.once('value')).val();
+    if (!team) return false;
 
-    users[userId].team = swap[users[userId].team];
-    const switchTeam = usersRef.set(users);
+    const switchTeam = teamRef.set(swap[team]);
     const updateRoom = this.updateRoomTimestamp({roomId});
     await Promise.all([switchTeam, updateRoom]);
     return true;
   }
 
-  async setSpymater({roomId, userId}) {
-    const usersRef = this.db.ref(`users/${roomId}`);
-    const users = (await usersRef.once('value')).val() || {};
-    if (!users[userId]) return false;
+  async toggleSpymaster({roomId, userId}) {
+    const spymasterRef = this.db.ref(`users/${roomId}/${userId}/spymaster`);
+    const spymaster = (await spymasterRef.once('value')).val();
 
-    Object.values(users).forEach(user => {
-      if (user.team === users[userId].team) user.spymaster = false;
-    });
-    users[userId].spymaster = true;
-    const setSpymaster = usersRef.set(users);
+    const setSpymaster = spymasterRef.set(!spymaster);
     const updateRoom = this.updateRoomTimestamp({roomId});
     await Promise.all([setSpymaster, updateRoom]);
     return true;

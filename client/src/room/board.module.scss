@@ -3,7 +3,6 @@
 .board {
   height: 100%;
   width: 100%;
-  font-size: calc(55% + 1vw);
 }
 
 .row {
@@ -31,6 +30,7 @@
     perspective: 50em;
     position: relative;
     transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.68, -0.6, 0.32, 1.6);
     width: 100%;
 
     &:not([data-revealed='true']):hover {
@@ -72,7 +72,6 @@
       box-shadow: none;
       cursor: default;
       transform: rotateY(180deg);
-      transition: transform 1s cubic-bezier(0.68, -0.6, 0.32, 1.6);
     }
 
     &[data-type='blue'] .cardBack {
@@ -102,7 +101,6 @@
   box-sizing: border-box;
   display: flex;
   font-family: 'Oswald', sans-serif;
-  font-size: 0.8em;
   font-weight: 500;
   justify-content: space-between;
   margin-top: 1em;
@@ -111,6 +109,7 @@
 
 .status {
   display: flex;
+  font-size: 0.8em;
 
   .currentTurn {
     width: 5em;
@@ -147,6 +146,7 @@
 
 .controls {
   display: flex;
+  font-size: 0.8em;
 
   & > div {
     background: #c7cbd1;
@@ -205,11 +205,5 @@
 @media (max-width: $media-small-max-width) {
   .card {
     height: 9vh;
-  }
-}
-
-@media (max-width: 600px) {
-  .board {
-    font-size: calc(50% + 1vw);
   }
 }

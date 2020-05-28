@@ -2,6 +2,7 @@
 
 .room {
   background: #e0ebeb;
+  font-size: calc(55% + 1vw);
 }
 
 .inner {
@@ -51,5 +52,11 @@
     .teams {
       width: 40%;
     }
+  }
+}
+
+@media (max-width: 600px) {
+  .room {
+    font-size: calc(50% + 1vw);
   }
 }

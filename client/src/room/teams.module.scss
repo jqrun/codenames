@@ -1,34 +1,30 @@
 @import '../base.scss';
 
-.inner {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
+.players {
+  background: rgba(255, 255, 255, 0.5);
+  box-sizing: border-box;
   display: flex;
   font-family: 'Roboto Condensed', sans-serif;
-  font-size: calc(60% + 0.5vw);
+  font-size: 0.7em;
   font-weight: 600;
-  height: 30vh;
+  height: 25vh;
   overflow: scroll;
+  padding: 0.5em 1em;
   position: relative;
   width: 100%;
+  box-shadow: 0 0.2em 0 #aaa;
 
   .teamList {
     box-sizing: border-box;
-    padding: 0.5em 1em;
-    width: 50%;
     position: relative;
-  }
-
-  .teamTitle {
-    position: fixed;
-    text-transform: capitalize;
-    font-size: 1.2em;
+    width: 50%;
+    z-index: 7;
   }
 }
 
 .user { 
   display: flex;
-  padding-top: 0.2em;
+  padding-top: 0.25em;
   white-space: nowrap;
   width: 100%;
 
@@ -40,11 +36,6 @@
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-
-  &:nth-child(2) {
-    margin-top: 1.5em;
   }
 
   &:last-child {
@@ -76,8 +67,16 @@
   }
 }
 
+.controls {
+  display: flex;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
+  justify-content: flex-end;
+  margin-top: 0.8em;
+}
+
 @media (max-width: $media-small-max-width) {
   .inner {
-    height: 35vh;
+    height: 37vh;
   }
 }

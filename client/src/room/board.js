@@ -9,10 +9,11 @@ const CARDS_PER_ROW = 5;
 
 const Board = React.memo((props) => {
   const {roomId, userId, user, game} = props;
-  const {board} = game;
-  const gameOver = game.currentTurn.includes('win');
+  const {board, currentTurn} = game;
+  const gameOver = currentTurn.includes('win');
   const canReveal = getCanReveal();
   const typesLeft = getTypesLeft();
+  const isSpymaster = user.spymaster;
 
   const [revealing, setRevealing] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -103,7 +104,7 @@ const Board = React.memo((props) => {
 
   useEffect(() => {
     setEndingTurn(false);
-  }, [game.currentTurn]);
+  }, [currentTurn]);
 
   return (
     <div className={css.board}>
@@ -117,7 +118,7 @@ const Board = React.memo((props) => {
             >
               <div 
                 className={css.cardInner}
-                data-revealed={card.revealed || (gameOver && showAll)}
+                data-revealed={card.revealed || isSpymaster || (gameOver && showAll)}
                 data-type={card.type}
               >
                 <div className={css.cardFront}>
@@ -160,7 +161,7 @@ const Board = React.memo((props) => {
           </div>
           <div 
             className={css.endTurnButton} 
-            data-disabled={!canReveal || endingTurn} 
+            data-disabled={!canReveal || endingTurn || isSpymaster} 
             onClick={endTurn}
           >
             End Turn
