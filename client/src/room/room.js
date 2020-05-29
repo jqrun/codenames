@@ -1,6 +1,7 @@
-import db from '../common/database';
 import Board from './board';
+import Chat from './chat';
 import css from './room.module.scss'
+import db from '../common/database';
 import Join from './join';
 import React, {useEffect, useState} from 'react';
 import Teams from './teams';
@@ -145,6 +146,7 @@ export default function Room() {
             </div>
 
             <div className={css.chat}>
+              <Chat roomId={roomId} userId={userId} messages={messages} />
             </div>
           </div>
         </div>

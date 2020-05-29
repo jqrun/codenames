@@ -86,7 +86,7 @@ const Teams = React.memo((props) => {
           onClick={switchTeam}
           data-disabled={switchingTeam}
         >
-          Switch Team
+          Switch Teams
         </div>
       </div>
     </div>

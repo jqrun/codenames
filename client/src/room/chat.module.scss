@@ -1,0 +1,11 @@
+@import '../base.scss';
+
+.chat {
+  background: rgba(255, 255, 255, 0.5);
+  bottom: 0.2em;
+  box-shadow: 0 0.2em 0 #aaa;
+  font-size: 0.7em;
+  height: 100%;
+  position: relative;
+  width: 100%;
+}
