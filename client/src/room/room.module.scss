@@ -29,9 +29,18 @@
 
 .right {
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   width: 27%;
 
   .teams {
+    height: 30%;
+    width: 100%;
+  }
+
+  .chat {
+    background: rgba(255, 255, 255, 0.3);
+    height: 65%;
     width: 100%;
   }
 }
@@ -43,14 +52,23 @@
   }
 
   .left {
+    height: 55%;
     width: 100%;
   }
 
   .right {
+    flex-direction: row;
+    height: 43%;
     width: 100%;
 
     .teams {
+      height: 100%;
       width: 40%;
+    }
+
+    .chat {
+      height: 100%;
+      width: 55%;
     }
   }
 }

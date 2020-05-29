@@ -146,9 +146,6 @@ export default function Room() {
 
             <div className={css.chat}>
             </div>
-
-            <div className={css.controls}>
-            </div>
           </div>
         </div>
       </div>}
