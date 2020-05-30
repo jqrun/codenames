@@ -1,7 +1,6 @@
 const admin = require('firebase-admin');
 const crypto = require('crypto');
 const gameWords = require('../assets/game_words.json');
-const lock = require('./lock');
 const logger = require('./logger');
 const serviceAccount = require("../secrets/firebase_service_account.json");
 

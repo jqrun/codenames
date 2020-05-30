@@ -1,12 +1,9 @@
+  const api = require('./src/api');
   const compression = require('compression');
   const cors = require('cors');
   const express = require('express');
-  const logger = require('./common/logger');
+  const logger = require('./src/logger');
   const process = require('process');
-  const {adminRouter} = require('./routes/admin');
-  const {gameRouter} = require('./routes/game');
-  const {roomsRouter} = require('./routes/rooms');
-  const {usersRouter} = require('./routes/users');
 
 const ARTIFICIAL_LATENCY = true;
 
@@ -50,10 +47,7 @@ server.get('/_ah/warmup', (req, res) => {
   res.status(200).send();
 });
 
-server.use('/admin', adminRouter);
-server.use('/rooms', roomsRouter);
-server.use('/users', usersRouter);
-server.use('/game', gameRouter);
+server.use('/', api);
 
 const listener = server.listen(process.env.PORT || 8080, () => {
   logger.info('Comenames server is listening...');
