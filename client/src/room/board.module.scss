@@ -111,11 +111,12 @@
 
 .status {
   display: flex;
-  font-size: 0.8em;
+  font-family: 'Teko', sans-serif;
+  font-size: 1.2em;
+  text-transform: uppercase;
 
   .currentTurn {
     width: 5em;
-    text-transform: capitalize;
 
     &[data-turn='blue'], &[data-turn='blue_win'] {
       color: $blue-text;
