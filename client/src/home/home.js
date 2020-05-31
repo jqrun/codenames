@@ -1,3 +1,4 @@
+import commonCss from '../common/common.module.scss'
 import css from './home.module.scss'
 import db from '../common/database';
 import hridWords from '../assets/human_readable_id_words.json';
@@ -26,10 +27,15 @@ async function getNonCollisionId(callback) {
 export default function Home() {
   const history = useHistory();
 
+  const [title, setTitle] = useState(initTitle);
   const [roomId, setRoomId] = useState();
   const [joining, setJoining] = useState(false);
 
-  if (!roomId) getNonCollisionId(setRoomId);
+  if (typeof roomId === 'undefined') getNonCollisionId(setRoomId);
+
+  function initTitle() {
+    
+  }
 
   function handleRoomInput(event) {
     const originalValue = event.target.value 
@@ -37,11 +43,11 @@ export default function Home() {
     roomId = roomId.toLowerCase();
     roomId = roomId.replace(/ /g, '-');
     roomId = roomId.split('-').map(id => id.replace(/\W/g, '')).join('-');
-    roomId = roomId.slice(0, 100);
+    roomId = roomId.slice(0, 50);
     setRoomId(roomId);
   };
 
-  async function createOrJoinRoom(event) {
+  async function createRoom(event) {
     event.preventDefault();
     if (!roomId) return;
     setJoining(true);
@@ -64,16 +70,28 @@ export default function Home() {
 
   return (
     <div className={css.home}>
-      <form onSubmit={createOrJoinRoom}>
-        <input 
-          type="text"
-          className={css.input} 
-          value={roomId}
-          onChange={handleRoomInput}
-          disabled={joining}
-          autoFocus
-        />
-      </form>
+      <div className={css.title}>
+
+      </div>
+
+
+      <div className={css.input}>
+        <form onSubmit={createRoom}>
+          <input 
+            type="text"
+            className={css.textInput} 
+            value={roomId}
+            onChange={handleRoomInput}
+            disabled={joining}
+            autoFocus
+          />
+        </form>
+        <div className={`${css.controls} ${commonCss.controls}`}>
+          <div onClick={createRoom} data-disabled={joining}>
+            Create
+          </div>
+        </div>  
+      </div>
     </div>
   );  
 }

@@ -1,0 +1,38 @@
+@import '../base.scss';
+
+.controls {
+  display: flex;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.8em;
+  font-weight: 500;
+
+  & > div {
+    background: #c7cbd1;
+    bottom: 0.15em;
+    box-shadow: 0 0.15em 0 $accent-shadow;
+    color: $accent-text;
+    cursor: pointer;
+    padding: 0.5em;
+    position: relative;
+
+    &:last-child {
+      margin-left: 0.5em;
+    }
+
+    &:not([data-disabled='true']):hover {
+      bottom: 0.25em;
+      box-shadow: 0 0.25em 0 $accent-shadow
+    }
+
+    &:not([data-disabled='true']):active {
+      bottom: 0.15em;
+      box-shadow: 0 0.15em 0 $accent-shadow
+    }
+
+    &[data-disabled='true'] {
+      color: #999;
+      box-shadow: 0 0.15em 0 #999;
+      cursor: not-allowed;
+    }
+  }
+}

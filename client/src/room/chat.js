@@ -1,5 +1,5 @@
 import * as crpyto from 'crypto'; 
-import boardCss from './board.module.scss'
+import commonCss from '../common/common.module.scss'
 import css from './chat.module.scss'
 import React, {useEffect, useRef, useState} from 'react';
 import {getFetchUrl} from '../common/util';
@@ -115,7 +115,7 @@ export default function Chat(props) {
           </div>
         )}
       </div>
-      <div className={`${css.messageInput} ${boardCss.controls}`}>
+      <div className={`${css.messageInput} ${commonCss.controls}`}>
         <form onSubmit={sendMessage}>
           <input 
             type="text"

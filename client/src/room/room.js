@@ -16,7 +16,7 @@ export default function Room() {
   const {roomId} = useParams();
   const history = useHistory();
 
-  const [userId, setUserId] = useState(initialUserId);
+  const [userId, setUserId] = useState(initUserId);
   const [room, setRoom] = useState(null);
   const [users, setUsers] = useState({});
   const [game, setGame] = useState(null);
@@ -25,7 +25,7 @@ export default function Room() {
 
   const user = users[userId];
 
-  function initialUserId() {
+  function initUserId() {
     if (!isDev || !PERSIST_USER) return null;
     return sessionStorage.getItem(roomId);
   };

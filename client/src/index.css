@@ -8,3 +8,12 @@ html, body, #root {
   padding: 0;
   width: 100%;
 }
+
+input {
+  border: none;
+  outline: none;
+}
+
+input:focus {
+  outline: none;
+}

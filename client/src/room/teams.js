@@ -1,4 +1,4 @@
-import boardCss from './board.module.scss'
+import commonCss from '../common/common.module.scss'
 import css from './teams.module.scss'
 import React, {useEffect, useState} from 'react';
 import {getFetchUrl} from '../common/util';
@@ -67,13 +67,13 @@ const Teams = React.memo((props) => {
                 data-current={user.current}
                 data-spymaster={user.spymaster}
               >
-                <div className={css.userName}>{user.name}</div>
+                <div className={css.userName} title={user.name}>{user.name}</div>
               </div>
             )}
           </div> 
         )}
       </div>
-      <div className={`${css.controls} ${boardCss.controls}`}>
+      <div className={`${css.controls} ${commonCss.controls}`}>
         <div 
           className={css.toggleSpymaster}
           onClick={toggleSpymaster}

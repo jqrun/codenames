@@ -1,4 +1,6 @@
+import commonCss from '../common/common.module.scss'
 import css from './join.module.scss';
+import homeCss from '../home/home.module.scss';
 import React, {useState} from 'react';
 import {getFetchUrl} from '../common/util';
 
@@ -44,16 +46,23 @@ const Join = React.memo(props => {
   return (
     <div className={css.join}>
       Enter a name to join!
-      <form onSubmit={joinRoom}>
-        <input 
-          type="text"
-          className={css.input} 
-          value={name}
-          onChange={handleNameInput}
-          disabled={creating}
-          autoFocus
-        />
-      </form>
+      <div className={homeCss.input}>
+        <form onSubmit={joinRoom}>
+          <input 
+            type="text"
+            className={homeCss.textInput} 
+            value={name}
+            onChange={handleNameInput}
+            disabled={creating}
+            autoFocus
+          />
+        </form>
+        <div className={`${css.controls} ${commonCss.controls}`}>
+          <div onClick={joinRoom} data-disabled={creating}>
+            Join
+          </div>
+        </div>
+      </div>
       {nameTakenError && 
         <div style={{color: "red"}}>This name is already taken!</div>
       }

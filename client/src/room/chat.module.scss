@@ -68,7 +68,6 @@ $message-base-color: #555;
   }
 
   .textInput {
-    border: none;
     box-sizing: border-box;
     caret-color: 577;
     color: $message-base-color;
@@ -76,24 +75,19 @@ $message-base-color: #555;
     font-size: 0.8em;
     font-weight: 600;
     margin: 0;
-    outline: none;
     padding: 0.75em 0.7em;
     width: 100%;
-
-    &:focus {
-      outline: none;
-    }
 
     &::placeholder {
       color: #aaa;
     }
 
+    &:disabled {
+      background: rgba(255, 255, 255, 0.7);
+    }
+
     &[data-spam-timeout='true']::placeholder {
       color: $red-text;
     }
-  }
-
-  .sendButton {
-
   }
 }

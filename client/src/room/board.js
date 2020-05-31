@@ -1,3 +1,4 @@
+import commonCss from '../common/common.module.scss'
 import css from './board.module.scss'
 import React, {useEffect, useRef, useState} from 'react';
 import {getFetchUrl, isDev} from '../common/util';
@@ -143,7 +144,7 @@ const Board = React.memo((props) => {
             <span className={css.redLeft}>{typesLeft.red}</span>)
           </div>
         </div>
-        <div className={css.controls}>
+        <div className={commonCss.controls}>
           <div 
             className={css.newGameButton} 
             data-disabled={startingNewGame}
