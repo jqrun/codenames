@@ -4,6 +4,8 @@ import css from './chat.module.scss'
 import React, {useEffect, useRef, useState} from 'react';
 import {getFetchUrl} from '../common/util';
 
+const DEFAULT_PLACEHOLDER = 'Send a chat message';
+
 export default function Chat(props) {
   const {roomId, user, messages, setMessages} = props;
 
@@ -11,8 +13,11 @@ export default function Chat(props) {
 
   const [messageText, setMessageText] = useState('');
   const [sentCounter, setSendCounter] = useState(0);
+  const [spamTimeout, setSpamTimeout] = useState(false);
+  const [placeholder, setPlaceholder] = useState(DEFAULT_PLACEHOLDER);
 
   const messagesRef = useRef();
+  const spamCounterRef = useRef(0);
 
   function getMessagesList() {
     const list = Object.values(messages);
@@ -61,7 +66,24 @@ export default function Chat(props) {
       team: user.team, 
       text: encodeURIComponent(messageText),
     });
-    await fetch(url, {method: 'POST'});
+    fetch(url, {method: 'POST'});
+
+    checkForSpam();
+  }
+
+  function checkForSpam() {
+    spamCounterRef.current++;
+    setTimeout(() => spamCounterRef.current-- , 2000);
+    if (spamCounterRef.current >= 6) {
+      setSpamTimeout(true);
+      setPlaceholder('Typing too fast... (3)');
+      setTimeout(() => setPlaceholder('Typing too fast... (2)'), 1000);
+      setTimeout(() => setPlaceholder('Typing too fast... (1)'), 2000);
+      setTimeout(() => {
+        setSpamTimeout(false);
+        setPlaceholder(DEFAULT_PLACEHOLDER);
+      }, 3000);
+    } 
   }
 
   function getMessageId() {
@@ -89,7 +111,7 @@ export default function Chat(props) {
                 {message.sender}:
               </span>
             }
-            {message.text}
+            <span className={css.text}>{message.text}</span>
           </div>
         )}
       </div>
@@ -97,13 +119,19 @@ export default function Chat(props) {
         <form onSubmit={sendMessage}>
           <input 
             type="text"
-            placeholder="Send a chat message"
+            placeholder={placeholder}
             className={css.textInput}
             value={messageText}
             onChange={handleTextInput}
+            disabled={spamTimeout}
+            data-spam-timeout={spamTimeout}
           />
         </form>
-        <div className={css.sendButton} onClick={sendMessage} data-disabled={!messageText}> 
+        <div 
+          className={css.sendButton} 
+          onClick={sendMessage} 
+          data-disabled={spamTimeout}
+        > 
           Send
         </div>
       </div>

@@ -46,7 +46,7 @@ export default function Room() {
 
   // Watch for users, game, and messages updates.
   useEffect(() => {
-    if (!userId) return;
+    if (!roomId) return;
 
     db.watch(`users/${roomId}`, 'child_added', snapshot => {
       if (isDev) console.log('User add', snapshot);
@@ -105,7 +105,7 @@ export default function Room() {
     });
 
     return () => db.unwatchAll();
-  }, [roomId, userId]);
+  }, [roomId]);
 
   // Delete user when leaving the page.
   useEffect(() => {
@@ -146,7 +146,7 @@ export default function Room() {
         <div className={css.inner}>
           <div className={css.left}>
             <div className={css.board}>
-              <Board roomId={roomId} userId={userId} game={game} user={users[userId]} />
+              <Board roomId={roomId} userId={userId} game={game} user={user} />
             </div>
           </div>
 

@@ -116,22 +116,27 @@ async switchTeam({roomId, userId}) {
     return true;
   }
 
-  async revealCard({roomId, userId, cardIndex}) {
+  async revealCard({roomId, name, cardIndex}) {
     const gameRef = this.db.ref(`games/${roomId}`);
     const game = (await gameRef.once('value')).val();
     if (game.board[cardIndex].revealed) return false;
     if (Game.isGameOver(game)) return false;
 
-    const {type: revealedType} = game.board[cardIndex];
+    const {type: revealedType, word} = game.board[cardIndex];
     game.board[cardIndex].revealed = true;
     Game.setCurrentTurn({game, revealedType});
 
     await gameRef.set(game);
     this.updateRoomTimestamp({roomId});
+    this.createMessage({roomId, text: `${name} revealed ${word} (${revealedType})`});
+    if (Game.isGameOver(game)) {
+      const winner = game.currentTurn.split('_win')[0];
+      this.createMessage({roomId, text: `${winner} wins!`.toUpperCase()});
+    }
     return true;
   }
 
-  async endTurn({roomId, userId}) {
+  async endTurn({roomId, name}) {
     const swap = {blue: 'red', red: 'blue'};
     const gameRef = this.db.ref(`games/${roomId}`);
     const game = (await gameRef.once('value')).val();
@@ -144,7 +149,7 @@ async switchTeam({roomId, userId}) {
     return true;
   }
 
-  async startNewGame({roomId, userId}) {
+  async startNewGame({roomId, name}) {
     await this.db.ref(`games/${roomId}`).set(Game.generateNewGame());
     return true;
   }
@@ -160,14 +165,6 @@ async switchTeam({roomId, userId}) {
     return messageId;
   }
 
-  getFirestore() {
-    return this.firestore;
-  }
-
-  getUniqueId() {
-    return crypto.randomBytes(16).toString('hex');
-  }
-
   deleteStaleRooms() {
     setInterval(() => {
       this.db.ref('rooms').once('value', snapshot => {
@@ -180,6 +177,14 @@ async switchTeam({roomId, userId}) {
         });
       });
     }, 60 * 60 * 1000);
+  }
+
+  getFirestore() {
+    return this.firestore;
+  }
+
+  getUniqueId() {
+    return crypto.randomBytes(16).toString('hex');
   }
 }
 

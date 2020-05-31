@@ -10,6 +10,7 @@ const CARDS_PER_ROW = 5;
 const Board = React.memo((props) => {
   const {roomId, userId, user, game} = props;
   const {board, currentTurn} = game;
+  const {name} = user;
   const gameOver = currentTurn.includes('win');
   const canReveal = getCanReveal();
   const typesLeft = getTypesLeft();
@@ -72,14 +73,14 @@ const Board = React.memo((props) => {
     board[card.index].revealed = true;
     setRevealing(true);
 
-    const url = getFetchUrl(roomId, '/game/reveal', {roomId, userId, cardIndex: card.index});
+    const url = getFetchUrl(roomId, '/game/reveal', {roomId, name, cardIndex: card.index});
     await (await fetch(url, {method: 'POST'})).json();
   }
 
   async function endTurn() {
     if (endingTurn) return;
     setEndingTurn(true);
-    const url = getFetchUrl(roomId, '/game/end-turn', {roomId, userId});
+    const url = getFetchUrl(roomId, '/game/end-turn', {roomId, name});
     await fetch(url, {method: 'POST'});
   }
 
@@ -87,7 +88,7 @@ const Board = React.memo((props) => {
     setHoldingNewGame(true);
     newGameTimerRef.current = setTimeout(() => {
       setStartingNewGame(true);
-      const url = getFetchUrl(roomId, '/game/new-game', {roomId, userId});
+      const url = getFetchUrl(roomId, '/game/new-game', {roomId, name});
       fetch(url, {method: 'POST'});
     }, 1000);
   }
