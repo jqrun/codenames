@@ -1,11 +1,112 @@
+import * as crpyto from 'crypto'; 
+import boardCss from './board.module.scss'
 import css from './chat.module.scss'
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {getFetchUrl} from '../common/util';
 
-export default function Chat() {
+export default function Chat(props) {
+  const {roomId, user, messages, setMessages} = props;
+
+  const messagesList = getMessagesList();
+
+  const [messageText, setMessageText] = useState('');
+  const [sentCounter, setSendCounter] = useState(0);
+
+  const messagesRef = useRef();
+
+  function getMessagesList() {
+    const list = Object.values(messages);
+    list.sort((a, b) => {
+      if (a.pending && !b.pending) return 1;
+      if (!a.pending && b.pending) return -1;
+
+      if (a.timestamp < b.timestamp) return -1;
+      if (a.timestamp > b.timestamp) return 1;
+      return 0;
+    });
+    return list;
+  }
+
+  function handleTextInput(event) {
+    let text = event.target.value;
+    text = text.slice(0, 500);
+    setMessageText(text);
+  }
+
+  async function sendMessage(event) {
+    event.preventDefault();
+    if (!messageText) return;
+
+    const text = messageText;
+    const messageId = getMessageId();
+    setMessageText('');
+
+    const pendingMessage = {
+      messageId,
+      pending: true,
+      sender: user.name,
+      team: user.team,      
+      text,
+      timestamp: Number(Date.now()),
+    };
+    setMessages(prevMessages => {
+      prevMessages[messageId] = pendingMessage;
+      return {...prevMessages};
+    });
+
+    const url = getFetchUrl(roomId, '/messages/create', {
+      messageId,
+      roomId, 
+      sender: encodeURIComponent(user.name),
+      team: user.team, 
+      text: encodeURIComponent(messageText),
+    });
+    await fetch(url, {method: 'POST'});
+  }
+
+  function getMessageId() {
+    const messageId = `${user.userId}-${sentCounter}`;
+    setSendCounter(prev => prev + 1);
+    return messageId;
+  }
+
+  useEffect(() => {
+    messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+  }, [messages]);
 
   return (
     <div className={css.chat}>
+      <div className={css.messages} ref={messagesRef}>
+        {messagesList.map(message => 
+          <div 
+            key={message.messageId}
+            className={css.message} 
+            data-team={message.team}
+            data-pending={message.pending}
+          >
+            {message.sender && 
+              <span className={css.sender} data-team={message.team}>
+                {message.sender}:
+              </span>
+            }
+            {message.text}
+          </div>
+        )}
+      </div>
+      <div className={`${css.messageInput} ${boardCss.controls}`}>
+        <form onSubmit={sendMessage}>
+          <input 
+            type="text"
+            placeholder="Send a chat message"
+            className={css.textInput}
+            value={messageText}
+            onChange={handleTextInput}
+          />
+        </form>
+        <div className={css.sendButton} onClick={sendMessage} data-disabled={!messageText}> 
+          Send
+        </div>
+      </div>
     </div>
   );
 }

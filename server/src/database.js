@@ -1,6 +1,7 @@
 const admin = require('firebase-admin');
 const crypto = require('crypto');
 const gameWords = require('../assets/game_words.json');
+const lock = require('./lock');
 const logger = require('./logger');
 const serviceAccount = require("../secrets/firebase_service_account.json");
 
@@ -37,6 +38,9 @@ class Database {
     });
     const gameCreate = this.db.ref(`games/${roomId}`).set(Game.generateNewGame());
     await Promise.all([roomCreate, gameCreate]);
+    const link = `https://codenames-273814.web.app/room/${roomId}`;
+    const text = `Welcome! Invite other players by sharing this page's link.`;
+    this.createMessage({roomId, text});
     return true;
   }
 
@@ -145,16 +149,11 @@ async switchTeam({roomId, userId}) {
     return true;
   }
 
-  async createMessage({roomId, name, text}) {
+  async createMessage({roomId, text, messageId, sender = null, team = 'game'}) {
     const messagesRef = this.db.ref(`messages/${roomId}`);
-
-    const usersRef = this.db.ref(`users/${roomId}`);
-    const users = (await usersRef.once('value')).val() || {};
-    if (Users.nameExists(users, name)) return null;
-
     const newMessage = messagesRef.push();
-    const messageId = messagesRef.key;
-    const message = {text, name};
+    messageId = messageId || newMessage.key;
+    const message = {messageId, text, sender, team, timestamp: ServerValue.TIMESTAMP};
 
     await newMessage.set(message);
     this.updateRoomTimestamp({roomId});

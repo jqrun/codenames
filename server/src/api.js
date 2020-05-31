@@ -57,6 +57,10 @@ router.post('/game/new-game', async (req, res) => {
 
 
 /*** messages ***/
+router.post('/messages/create', async (req, res) => {
+  const messageId = await db.createMessage(req.query);
+  res.json({messageId});
+});
 
 /*** admin ***/
 async function checkKey({key}) {

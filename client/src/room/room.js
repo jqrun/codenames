@@ -23,6 +23,8 @@ export default function Room() {
   const [messages, setMessages] = useState({});
   const [loading, setLoading] = useState(true);
 
+  const user = users[userId];
+
   function initialUserId() {
     if (!isDev || !PERSIST_USER) return null;
     return sessionStorage.getItem(roomId);
@@ -94,6 +96,14 @@ export default function Room() {
       });
     });
 
+    db.watch(`messages/${roomId}`, 'child_added', snapshot => {
+      if (isDev) console.log('Message add', snapshot);
+      setMessages(prevMessages => {
+        prevMessages[snapshot.messageId] = snapshot;
+        return {...prevMessages};
+      });
+    });
+
     return () => db.unwatchAll();
   }, [roomId, userId]);
 
@@ -123,9 +133,9 @@ export default function Room() {
 
   // Set loading state.
   useEffect(() => {
-    if (!roomId || !userId || !room || !users || !game) return;
+    if (!roomId || !userId || !user || !room || !users || !game) return;
     setLoading(false);
-  }, [roomId, userId, room, users, game]);
+  }, [roomId, userId, room, users, user, game]);
 
   if (!room) return (<div></div>);
   return (
@@ -146,7 +156,7 @@ export default function Room() {
             </div>
 
             <div className={css.chat}>
-              <Chat roomId={roomId} userId={userId} messages={messages} />
+              <Chat roomId={roomId} user={user} messages={messages} setMessages={setMessages} />
             </div>
           </div>
         </div>

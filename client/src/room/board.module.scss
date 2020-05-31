@@ -149,7 +149,9 @@
 
 .controls {
   display: flex;
+  font-family: 'Oswald', sans-serif;
   font-size: 0.8em;
+  font-weight: 500;
 
   & > div {
     background: #c7cbd1;
