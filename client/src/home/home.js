@@ -34,7 +34,13 @@ export default function Home() {
   if (typeof roomId === 'undefined') getNonCollisionId(setRoomId);
 
   function initTitle() {
-    
+    const letters = 'CODENAMES'.split('');
+    return letters.map((letter, index) => ({
+      index,
+      letter,
+      revealed: false,
+      color: index < 4 ? 'blue' : 'red',
+    }));
   }
 
   function handleRoomInput(event) {
@@ -71,7 +77,18 @@ export default function Home() {
   return (
     <div className={css.home}>
       <div className={css.title}>
-
+        {title.map(card =>
+          <div key={card.index} className={css.card}>
+            <div className={css.cardInner}>
+              <div className={css.cardFront}>
+                {card.letter}
+              </div>
+              <div className={css.cardBack}>
+                {card.letter}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
 

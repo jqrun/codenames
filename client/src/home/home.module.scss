@@ -5,14 +5,108 @@
   background: $background-color;
   display: flex;
   flex-direction: column;
-  font-size: calc(90% + 0.8vw);
   height: 100%;
   justify-content: center;
+}
+
+.title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: calc(100% + 2vw);
+  height: 30%; 
+  width: 100%;
+}
+
+.card {
+  box-sizing: border-box;
+  color: #555;
+  cursor: pointer;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
+  height: 15vh;
+  perspective: 20em;
+  width: 19%;
+
+  .cardInner {
+    $shadow-color: #222;
+
+    bottom: 0;
+    box-shadow: 0 0.2em 0 $shadow-color;
+    height: 100%;
+    perspective: 50em;
+    position: relative;
+    transform-style: preserve-3d;
+    width: 100%;
+
+    &:not([data-revealed='true']):hover {
+      bottom: 0.1em;
+      box-shadow: 0 0.3em 0 $shadow-color;
+    }
+
+    &:not([data-revealed='true']):active {
+     bottom: 0em;  
+     box-shadow: 0 0.2em 0 $shadow-color;
+    }
+
+    & > div {
+      align-items: center;
+      backface-visibility: hidden;
+      box-sizing: border-box;
+      display: flex;
+      height: 100%;
+      justify-content: center;
+      left: 0;
+      padding: 0.1em;
+      position: absolute;
+      text-align: center;
+      top: 0;
+      width: 100%;
+      word-break: break-word;
+    }
+
+    .cardFront {
+      background: #c7cbd1;
+    }
+
+    .cardBack {
+      transform: rotateY(180deg);
+    }
+
+    &[data-revealed='true'] {
+      bottom: -0.1em;
+      box-shadow: none;
+      cursor: default;
+      transform: rotateY(180deg);
+      transition: transform 1s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+    }
+
+    &[data-type='blue'] .cardBack {
+      background: $blue-background;
+      color: $blue-foreground;
+    }
+
+    &[data-type='red'] .cardBack {
+      background: $red-background;
+      color: $red-foreground;
+    }
+
+    &[data-type='bystander'] .cardBack {
+      background: $bystander-background;
+      color: $bystander-foreground;
+    }
+
+    &[data-type='assassin'] .cardBack {
+      background: $assassin-background;
+      color: $assassin-foreground;
+    }
+  }
 }
 
 .input {
   align-items: center;
   display: flex;
+  font-size: calc(90% + 0.8vw);
   justify-content: space-between;
   max-width: 15em;
   width: 90%;
@@ -37,5 +131,5 @@
       background: rgba(255, 255, 255, 0.7);
     }
   }
-
 }
+

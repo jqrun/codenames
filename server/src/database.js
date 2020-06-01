@@ -15,6 +15,9 @@ admin.initializeApp({
 class Database {
   constructor() {
     this.firestore = admin.firestore();
+
+    // The JSON data stored in Firebase Realtime DB will have extremely unreadable but short
+    // keys/values in order to optimize for download size (optimizing Firebase's pricing model).
     this.db = admin.database();
 
     this.deleteStaleRooms();
@@ -36,6 +39,13 @@ class Database {
         lastUpdate: ServerValue.TIMESTAMP,
       }
     });
+    // const roomCreate = this.db.ref(`rooms/${roomId}`).set({
+    //   i, // roomId
+    //   t: { // timestamps
+    //     c: ServerValue.TIMESTAMP, // created
+    //     l: ServerValue.TIMESTAMP, // lastUpdate
+    //   }
+    // });
     const gameCreate = this.db.ref(`games/${roomId}`).set(Game.generateNewGame());
     await Promise.all([roomCreate, gameCreate]);
     const link = `https://codenames-273814.web.app/room/${roomId}`;
@@ -72,6 +82,12 @@ class Database {
       team,
       spymaster: false,
     };
+    // const user = {
+    //   i, // userId
+    //   n, // name
+    //   t, // team []
+    //   s: 0,
+    // };
     await newUser.set(user);
     this.updateRoomTimestamp({roomId});
     return userId;
@@ -96,8 +112,8 @@ class Database {
   }
 
 async switchTeam({roomId, userId}) {
-    console.log('switch team');
     const swap = {blue: 'red', red: 'blue'};
+    // const swap = {b: 'r', r: 'b'};
     const teamRef = this.db.ref(`users/${roomId}/${userId}/team`);
     const team = (await teamRef.once('value')).val();
     if (!team) return false;

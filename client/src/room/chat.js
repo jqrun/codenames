@@ -87,7 +87,7 @@ export default function Chat(props) {
   }
 
   function getMessageId() {
-    const messageId = `${user.userId}-${sentCounter}`;
+    const messageId = `${user.userId}${sentCounter}`;
     setSendCounter(prev => prev + 1);
     return messageId;
   }
