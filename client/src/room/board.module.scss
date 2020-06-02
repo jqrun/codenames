@@ -19,7 +19,7 @@
   cursor: pointer;
   font-family: 'Oswald', sans-serif;
   font-weight: 500;
-  height: 15vh;
+  height: 14.2vh;
   perspective: 20em;
   width: 19%;
 
@@ -173,6 +173,6 @@
 
 @media (max-width: $media-small-max-width) {
   .card {
-    height: 8vh;
+    height: 7.7vh;
   }
 }

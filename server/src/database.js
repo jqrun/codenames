@@ -12,6 +12,10 @@ admin.initializeApp({
   databaseURL: "https://codenames-273814.firebaseio.com"
 });
 
+const convertTeam = {b: 'blue', r: 'red'};
+const convertType = {b: 'blue', r: 'red', y: 'bystander', a: 'assassin'};
+const convertCurrentTurn = {b: 'blue', r: 'red', bw: 'blue_win', rw: 'red_win'};
+
 class Database {
   constructor() {
     this.firestore = admin.firestore();
@@ -33,19 +37,12 @@ class Database {
     if (exists) return false;
 
     const roomCreate = this.db.ref(`rooms/${roomId}`).set({
-      roomId,
-      timestamps: {
-        created: ServerValue.TIMESTAMP,
-        lastUpdate: ServerValue.TIMESTAMP,
+      i: roomId, // roomId
+      t: {       // timestamps
+        c: ServerValue.TIMESTAMP, // created
+        l: ServerValue.TIMESTAMP, // lastUpdate
       }
     });
-    // const roomCreate = this.db.ref(`rooms/${roomId}`).set({
-    //   i, // roomId
-    //   t: { // timestamps
-    //     c: ServerValue.TIMESTAMP, // created
-    //     l: ServerValue.TIMESTAMP, // lastUpdate
-    //   }
-    // });
     const gameCreate = this.db.ref(`games/${roomId}`).set(Game.generateNewGame());
     await Promise.all([roomCreate, gameCreate]);
     const link = `https://codenames-273814.web.app/room/${roomId}`;
@@ -57,7 +54,7 @@ class Database {
   async updateRoomTimestamp({roomId}) {
     const roomRef = this.db.ref(`rooms/${roomId}`);
     const room = (await roomRef.once('value')).val();
-    room.timestamps.lastUpdate = ServerValue.TIMESTAMP;
+    room.t.l = ServerValue.TIMESTAMP;
     await roomRef.set(room);
   }
 
@@ -77,17 +74,11 @@ class Database {
 
     const team = Users.getNextBalancedTeam(users);
     const user = {
-      userId,
-      name,
-      team,
-      spymaster: false,
+      i: userId, // userId
+      n: name,   // name
+      t: team,   // team
+      s: 0,      // spymaster
     };
-    // const user = {
-    //   i, // userId
-    //   n, // name
-    //   t, // team []
-    //   s: 0,
-    // };
     await newUser.set(user);
     this.updateRoomTimestamp({roomId});
     return userId;
@@ -112,9 +103,8 @@ class Database {
   }
 
 async switchTeam({roomId, userId}) {
-    const swap = {blue: 'red', red: 'blue'};
-    // const swap = {b: 'r', r: 'b'};
-    const teamRef = this.db.ref(`users/${roomId}/${userId}/team`);
+    const swap = {b: 'r', r: 'b'};
+    const teamRef = this.db.ref(`users/${roomId}/${userId}/t`);
     const team = (await teamRef.once('value')).val();
     if (!team) return false;
 
@@ -124,10 +114,10 @@ async switchTeam({roomId, userId}) {
   }
 
   async toggleSpymaster({roomId, userId}) {
-    const spymasterRef = this.db.ref(`users/${roomId}/${userId}/spymaster`);
+    const spymasterRef = this.db.ref(`users/${roomId}/${userId}/s`);
     const spymaster = (await spymasterRef.once('value')).val();
 
-    await spymasterRef.set(!spymaster);
+    await spymasterRef.set(spymaster ? 0 : 1);
     this.updateRoomTimestamp({roomId});
     return true;
   }
@@ -135,30 +125,30 @@ async switchTeam({roomId, userId}) {
   async revealCard({roomId, name, cardIndex}) {
     const gameRef = this.db.ref(`games/${roomId}`);
     const game = (await gameRef.once('value')).val();
-    if (game.board[cardIndex].revealed) return false;
+    if (game.b[cardIndex].r) return false;
     if (Game.isGameOver(game)) return false;
 
-    const {type: revealedType, word} = game.board[cardIndex];
-    game.board[cardIndex].revealed = true;
+    const {t: revealedType, w: word} = game.b[cardIndex];
+    game.b[cardIndex].r = 1;
     Game.setCurrentTurn({game, revealedType});
 
     await gameRef.set(game);
     this.updateRoomTimestamp({roomId});
-    this.createMessage({roomId, text: `${name} revealed ${word} (${revealedType})`});
+    this.createMessage({roomId, text: `${name} revealed ${word} (${convertType[revealedType]})`});
     if (Game.isGameOver(game)) {
-      const winner = game.currentTurn.split('_win')[0];
-      this.createMessage({roomId, text: `${winner} wins!`.toUpperCase()});
+      const winner = game.c.split('w')[0];
+      this.createMessage({roomId, text: `${convertTeam[winner]} wins!`.toUpperCase()});
     }
     return true;
   }
 
   async endTurn({roomId, name}) {
-    const swap = {blue: 'red', red: 'blue'};
+    const swap = {b: 'r', r: 'b'};
     const gameRef = this.db.ref(`games/${roomId}`);
     const game = (await gameRef.once('value')).val();
-    const {currentTurn} = game;
-    if (!['blue', 'red'].includes(currentTurn)) return false;
-    game.currentTurn = swap[currentTurn];
+    const {c: currentTurn} = game;
+    if (!['b', 'r'].includes(currentTurn)) return false;
+    game.c = swap[currentTurn];
 
     await gameRef.set(game);
     this.updateRoomTimestamp({roomId});
@@ -171,10 +161,17 @@ async switchTeam({roomId, userId}) {
   }
 
   async createMessage({roomId, text, messageId, sender = null, team = 'game'}) {
+    const convertTeam = {blue: 'b', red: 'r', game: 'g'};
     const messagesRef = this.db.ref(`messages/${roomId}`);
     const newMessage = messagesRef.push();
     messageId = messageId || newMessage.key;
-    const message = {messageId, text, sender, team, timestamp: ServerValue.TIMESTAMP};
+    const message = {
+      i: messageId, // messageId
+      t: text,      // text 
+      s: sender,    // sender
+      e: convertTeam[team],    // team
+      m: ServerValue.TIMESTAMP // timestamp
+    };
 
     await newMessage.set(message);
     this.updateRoomTimestamp({roomId});
@@ -187,7 +184,7 @@ async switchTeam({roomId, userId}) {
         snapshot.forEach(roomSnapshot => {
           const roomId = roomSnapshot.key;
           const room = roomSnapshot.val();
-          if (Date.now() - room.timestamps.lastUpdate > 60 * 60 * 1000) {
+          if (Date.now() - room.t.l > 60 * 60 * 1000) {
             this.deleteRoom({roomId});
           }
         });
@@ -206,47 +203,47 @@ async switchTeam({roomId, userId}) {
 
 class Users {
   static nameExists(users, name) {
-    return Object.values(users).some(user => user.name.toLowerCase() === name.toLowerCase());
+    return Object.values(users).some(user => user.n.toLowerCase() === name.toLowerCase());
   }
 
   static getNextBalancedTeam(users) {
     users = Object.values(users);
-    const numBlue = users.filter(user => user.team === 'blue').length;
-    const numRed = users.filter(user => user.team === 'red').length;
+    const numBlue = users.filter(user => user.team === 'b').length;
+    const numRed = users.filter(user => user.team === 'r').length;
 
-    if (numBlue !== numRed) return numBlue > numRed ? 'red' : 'blue';
-    return Math.random() < 0.5 ? 'red': 'blue';
+    if (numBlue !== numRed) return numBlue > numRed ? 'r' : 'b';
+    return Math.random() < 0.5 ? 'r': 'b';
   }
 }
 
 class Game {
   static setCurrentTurn({game, revealedType}) {
-    const swap = {blue: 'red', red: 'blue'};
-    const previousTurn = game.currentTurn;
+    const swap = {b: 'r', r: 'b'};
+    const previousTurn = game.c;
     const advanceTurn = previousTurn === revealedType;
     const typesLeft = Game.getTypesLeft(game);
 
-    if (revealedType === 'assassin') {
-      game.currentTurn = `${swap[previousTurn]}_win`;
+    if (revealedType === 'a') {
+      game.c = `${swap[previousTurn]}w`;
     } else if (!typesLeft.blue || !typesLeft.red) {
-      game.currentTurn = `${previousTurn}_win`;
+      game.c = `${previousTurn}w`;
     } else if (!advanceTurn) {
-      game.currentTurn = swap[previousTurn];
+      game.c = swap[previousTurn];
     }
   }
 
   static isGameOver(game) {
-    return game.currentTurn.includes('win');
+    return game.c.includes('w');
   }
 
   static getTypesLeft(game) {
-    const {board} = game;
-    const types = Object.values(board).filter(card => !card.revealed).map(card => card.type);
+    const {b: board} = game;
+    const types = Object.values(board).filter(c => !c.r).map(c => c.t);
     return {
-      blue: types.filter(type => type === 'blue').length,
-      red: types.filter(type => type === 'red').length,
-      bystander: types.filter(type => type === 'bystander').length,
-      assassin: types.filter(type => type === 'assassin').length,
+      blue: types.filter(type => type === 'b').length,
+      red: types.filter(type => type === 'r').length,
+      bystander: types.filter(type => type === 'y').length,
+      assassin: types.filter(type => type === 'a').length,
     };
   }
 
@@ -265,20 +262,23 @@ class Game {
   }
 
   static assignRandomCards(words, numAgents) {
-    const cards = words.map((word, index) => {
-      return {index, word, type: 'bystander', revealed :false}
-    });
-    const firstAgent = Math.random() < 0.5 ? 'blue' : 'red';
-    const secondAgent = firstAgent === 'blue' ? 'red' : 'blue';
+    const cards = words.map((word, index) => ({
+        i: index, // index
+        w: word,  // word 
+        t: 'y',   // type
+        r: 0,     //revealed
+    }));
+    const firstAgent = Math.random() < 0.5 ? 'b' : 'r';
+    const secondAgent = firstAgent === 'b' ? 'r' : 'b';
 
-    cards[Math.floor(Math.random() * cards.length)].type = 'assassin';
+    cards[Math.floor(Math.random() * cards.length)].t = 'a';
 
     while (numAgents) {
       const randomIndex = Math.floor(Math.random() * cards.length);
-      if (cards[randomIndex].type !== 'bystander') continue;
+      if (cards[randomIndex].t !== 'y') continue;
 
       const agentType = numAgents % 2 === 1 ? firstAgent : secondAgent;
-      cards[randomIndex].type = agentType;
+      cards[randomIndex].t = agentType;
       numAgents--;
     }
 
@@ -289,8 +289,8 @@ class Game {
     const randomWords =  Game.getRandomWords(gameWords.english.original, 25);
     const {cards, firstAgent} = Game.assignRandomCards(randomWords, 17);
     return {
-      board: cards,
-      currentTurn: firstAgent,
+      b: cards,      // board
+      c: firstAgent, // currentTurn
     };
   }
 }

@@ -48,11 +48,50 @@ export default function Room() {
   useEffect(() => {
     if (!roomId) return;
 
+    const convertTeam = {b: 'blue', r: 'red', g: 'game'};
+    const convertType = {b: 'blue', r: 'red', y: 'bystander', a: 'assassin'};
+    const convertCurrentTurn = {b: 'blue', r: 'red', bw: 'blue_win', rw: 'red_win'};
+
+    const convertUser = user => ({
+      userId: user.i,
+      name: user.n,
+      team: convertTeam[user.t],
+      spymaster: Boolean(user.s),
+      current: user.current,
+    });
+
+    const convertCard = card => ({
+      index: card.i,
+      word: card.w,
+      type: convertType[card.t],
+      revealed: Boolean(card.r),
+    });
+
+    const convertGame = game => {
+      const board = {};
+      Object.values(game.b).forEach(card => {
+        board[card.i] = convertCard(card);
+      });
+      return {
+        board,
+        currentTurn: convertCurrentTurn[game.c],
+      };
+    };
+    
+    const convertMessage = message => ({
+      messageId: message.i,
+      text: message.t,
+      sender: message.s,
+      team: convertTeam[message.e],
+      timestamp: message.m,
+    });
+
     db.watch(`users/${roomId}`, 'child_added', snapshot => {
       if (isDev) console.log('User add', snapshot);
       setUsers(prevUsers => {
-        if (snapshot.userId === userId) snapshot.current = true;
-        prevUsers[snapshot.userId] = snapshot;
+        if (snapshot.i === userId) snapshot.current = true;
+        prevUsers[snapshot.i] = convertUser(snapshot);
+        console.log(prevUsers);
         return {...prevUsers};
       });
     });
@@ -60,7 +99,7 @@ export default function Room() {
     db.watch(`users/${roomId}`, 'child_removed', snapshot => {
       if (isDev) console.log('User remove', snapshot);
       setUsers(prevUsers => {
-        delete prevUsers[snapshot.userId];
+        delete prevUsers[snapshot.i];
         return {...prevUsers};
       });
     });
@@ -69,7 +108,7 @@ export default function Room() {
     db.watch(`users/${roomId}`, 'child_changed', snapshot => {
       if (isDev) console.log('User change', snapshot);
       setUsers(prevUsers => {
-        prevUsers[snapshot.userId] = snapshot;
+        prevUsers[snapshot.i] = convertUser(snapshot);
         return {...prevUsers};
       });
     });
@@ -77,20 +116,21 @@ export default function Room() {
 
     db.get(`games/${roomId}`, snapshot => {
       if (isDev) console.log('Initial game', snapshot);
-      setGame(snapshot);
+      console.log(convertGame(snapshot));
+      setGame(convertGame(snapshot));
 
-      db.watch(`games/${roomId}/currentTurn`, 'value', snapshot => {
+      db.watch(`games/${roomId}/c`, 'value', snapshot => {
         if (isDev) console.log('CurrentTurn update', snapshot);
         setGame(prevGame => {
-          prevGame.currentTurn = snapshot;
+          prevGame.currentTurn = convertCurrentTurn[snapshot];
           return {...prevGame};
         });
       });
 
-      db.watch(`games/${roomId}/board`, 'child_changed', snapshot => {
+      db.watch(`games/${roomId}/b`, 'child_changed', snapshot => {
         if (isDev) console.log('Board change', snapshot);
         setGame(prevGame => {
-          prevGame.board[snapshot.index] = snapshot;
+          prevGame.board[snapshot.i] = convertCard(snapshot);
           return {...prevGame};
         });
       });
@@ -99,7 +139,7 @@ export default function Room() {
     db.watch(`messages/${roomId}`, 'child_added', snapshot => {
       if (isDev) console.log('Message add', snapshot);
       setMessages(prevMessages => {
-        prevMessages[snapshot.messageId] = snapshot;
+        prevMessages[snapshot.i] = convertMessage(snapshot);
         return {...prevMessages};
       });
     });

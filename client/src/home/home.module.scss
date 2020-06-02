@@ -6,15 +6,14 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  justify-content: center;
 }
 
 .title {
-  display: flex;
-  justify-content: center;
   align-items: center;
+  display: flex;
   font-size: calc(100% + 2vw);
-  height: 30%; 
+  justify-content: center;
+  margin-top: 20vh;
   width: 100%;
 }
 
@@ -24,15 +23,16 @@
   cursor: pointer;
   font-family: 'Oswald', sans-serif;
   font-weight: 500;
-  height: 15vh;
+  height: 15vmin;
+  max-width: 8%;
+  margin: 0 0.1em;
   perspective: 20em;
-  width: 19%;
+  width: 2em;
 
   .cardInner {
     $shadow-color: #222;
-
     bottom: 0;
-    box-shadow: 0 0.2em 0 $shadow-color;
+    box-shadow: 0 0.1em 0 $shadow-color;
     height: 100%;
     perspective: 50em;
     position: relative;
@@ -41,12 +41,12 @@
 
     &:not([data-revealed='true']):hover {
       bottom: 0.1em;
-      box-shadow: 0 0.3em 0 $shadow-color;
+      box-shadow: 0 0.2em 0 $shadow-color;
     }
 
     &:not([data-revealed='true']):active {
      bottom: 0em;  
-     box-shadow: 0 0.2em 0 $shadow-color;
+     box-shadow: 0 0.1em 0 $shadow-color;
     }
 
     & > div {
@@ -108,6 +108,7 @@
   display: flex;
   font-size: calc(90% + 0.8vw);
   justify-content: space-between;
+  margin-top: 10vh;
   max-width: 15em;
   width: 90%;
 
