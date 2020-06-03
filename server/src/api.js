@@ -16,7 +16,7 @@ router.post('/rooms/create', async (req, res) => {
 /*** users ***/
 router.post('/users/create', async (req, res) => {
   const userId = await db.createUser(req.query);
-  if (process.env.NODE_ENV !== 'production') db.createTestUsers(req.query, 2);
+  // if (process.env.NODE_ENV !== 'production') db.createTestUsers(req.query, 2);
   if (!userId) {
     res.json({'status': 'name_taken'});
   } else {

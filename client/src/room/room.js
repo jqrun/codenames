@@ -87,6 +87,7 @@ export default function Room() {
         timestamp: message.m,
       };
       if (message.e === 'g') {
+        converted.sender = null;
         if (message.t.includes(',')) {
           const [word, type] = message.t.split(',');
           converted.text = `${message.s} revealed ${word} (${convertType[type]})`;
