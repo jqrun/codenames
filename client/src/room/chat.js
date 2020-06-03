@@ -1,8 +1,7 @@
-import * as crpyto from 'crypto'; 
+import {getFetchUrl} from '../common/util';
 import commonCss from '../common/common.module.scss'
 import css from './chat.module.scss'
 import React, {useEffect, useRef, useState} from 'react';
-import {getFetchUrl} from '../common/util';
 
 const DEFAULT_PLACEHOLDER = 'Send a chat message';
 

@@ -24,9 +24,10 @@
   font-family: 'Oswald', sans-serif;
   font-weight: 500;
   height: 15vmin;
-  max-width: 8%;
   margin: 0 0.1em;
+  max-width: 8%;
   perspective: 20em;
+  user-select: none;
   width: 2em;
 
   .cardInner {
@@ -37,6 +38,7 @@
     perspective: 50em;
     position: relative;
     transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.68, -0.6, 0.32, 1.6);
     width: 100%;
 
     &:not([data-revealed='true']):hover {
@@ -78,7 +80,10 @@
       box-shadow: none;
       cursor: default;
       transform: rotateY(180deg);
-      transition: transform 1s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+    }
+
+    &[data-revealed='false'] {
+    transition: transform 1s cubic-bezier(0.68, -0.6, 0.32, 1.6), box-shadow 0s linear 0.5s;
     }
 
     &[data-type='blue'] .cardBack {

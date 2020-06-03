@@ -1,10 +1,11 @@
+import {getFetchUrl} from '../common/util';
+import {useHistory} from "react-router-dom";
 import commonCss from '../common/common.module.scss'
 import css from './home.module.scss'
 import db from '../common/database';
 import hridWords from '../assets/human_readable_id_words.json';
 import React, {useState} from 'react';
-import {getFetchUrl} from '../common/util';
-import {useHistory} from "react-router-dom";
+import { useEffect } from 'react';
 
 function generateRandomId() {
   const adjectives = hridWords.adjectives;
@@ -31,7 +32,9 @@ export default function Home() {
   const [roomId, setRoomId] = useState();
   const [joining, setJoining] = useState(false);
 
-  if (typeof roomId === 'undefined') getNonCollisionId(setRoomId);
+  const isLoading = typeof roomId === 'undefined';
+
+  if (isLoading) getNonCollisionId(setRoomId);
 
   function initTitle() {
     const letters = 'CODENAMES'.split('');
@@ -39,8 +42,21 @@ export default function Home() {
       index,
       letter,
       revealed: false,
-      color: index < 4 ? 'blue' : 'red',
+      type: index < 4 ? 'blue' : 'red',
     }));
+  }
+
+  function flip(index, reveal = true, unflip = true) {
+    setTitle(prevTitle => {
+      prevTitle[index].revealed = reveal;
+      return [...prevTitle];
+    });
+
+    if (reveal && unflip) {
+      setTimeout(() => {
+        flip(index, false);
+      }, 2000);
+    }
   }
 
   function handleRoomInput(event) {
@@ -72,14 +88,53 @@ export default function Home() {
     }
   };
 
-  if (typeof roomId === 'undefined') return (<div></div>)
+  useEffect(() => {
+    if (isLoading) return;
+
+    let timeout1, timeout2, timeout3, timeout4, timeout5;
+    timeout1 = setTimeout(() => {
+      const stagger = 100;
+      title.forEach((card, index) => {
+        timeout2 = setTimeout(() => flip(index, true, false), index * stagger);
+        timeout3 = setTimeout(() => flip(index, false), 800 + (index * stagger));
+      });
+    }, 500);
+
+    timeout4 = setTimeout(() => {
+      (function randomInterval() {
+        timeout5 = setTimeout(() => {
+          const randomIndex = Math.floor(Math.random() * title.length);
+          flip(randomIndex, true);
+          randomInterval();
+        }, 200 + (Math.random() * 800));
+      })();
+    }, 2000);
+
+    return () => {
+      clearTimeout(timeout1);
+      clearTimeout(timeout2);
+      clearTimeout(timeout3);
+      clearTimeout(timeout4);
+      clearTimeout(timeout5);
+    }
+  }, [isLoading]);
+
+  if (isLoading) return (<div></div>)
 
   return (
     <div className={css.home}>
       <div className={css.title}>
         {title.map(card =>
-          <div key={card.index} className={css.card}>
-            <div className={css.cardInner}>
+          <div 
+            key={card.index} 
+            className={css.card} 
+            onClick={() => flip(card.index, true)}
+          >
+            <div 
+              className={css.cardInner} 
+              data-revealed={card.revealed}
+              data-type={card.type}
+            >
               <div className={css.cardFront}>
                 {card.letter}
               </div>

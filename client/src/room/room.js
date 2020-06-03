@@ -1,3 +1,6 @@
+import {getFetchUrl, isDev} from '../common/util';
+import {useHistory} from "react-router-dom";
+import {useParams} from 'react-router-dom';
 import Board from './board';
 import Chat from './chat';
 import css from './room.module.scss'
@@ -5,9 +8,6 @@ import db from '../common/database';
 import Join from './join';
 import React, {useEffect, useState} from 'react';
 import Teams from './teams';
-import {getFetchUrl, isDev} from '../common/util';
-import {useHistory} from "react-router-dom";
-import {useParams} from 'react-router-dom';
 
 // Toggle for local development.
 const PERSIST_USER = true;

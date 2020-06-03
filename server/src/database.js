@@ -130,7 +130,7 @@ async switchTeam({roomId, userId}) {
 
     await gameRef.set(game);
     this.updateRoomTimestamp({roomId});
-    this.createMessage({roomId, sender: name, text: `${word},${revealedType}`});
+    this.createMessage({roomId, sender: name, text: `${word.toLowerCase()},${revealedType}`});
     if (Game.isGameOver(game)) {
       this.createMessage({roomId, text: game.c});
     }
