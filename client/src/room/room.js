@@ -78,13 +78,25 @@ export default function Room() {
       };
     };
     
-    const convertMessage = message => ({
-      messageId: message.i,
-      text: message.t,
-      sender: message.s,
-      team: convertTeam[message.e],
-      timestamp: message.m,
-    });
+    const convertMessage = message => {
+      const converted = {
+        messageId: message.i,
+        text: message.t,
+        sender: message.s,
+        team: convertTeam[message.e],
+        timestamp: message.m,
+      };
+      if (message.e === 'g') {
+        if (message.t.includes(',')) {
+          const [word, type] = message.t.split(',');
+          converted.text = `${message.s} revealed ${word} (${convertType[type]})`;
+        } else {
+          const convertWin = {bw: 'BLUE WINS!', rw: 'RED WINS!'};
+          converted.text = convertWin[message.t];
+        }
+      }
+      return converted;
+    };
 
     db.watch(`users/${roomId}`, 'child_added', snapshot => {
       if (isDev) console.log('User add', snapshot);

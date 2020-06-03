@@ -12,10 +12,6 @@ admin.initializeApp({
   databaseURL: "https://codenames-273814.firebaseio.com"
 });
 
-const convertTeam = {b: 'blue', r: 'red'};
-const convertType = {b: 'blue', r: 'red', y: 'bystander', a: 'assassin'};
-const convertCurrentTurn = {b: 'blue', r: 'red', bw: 'blue_win', rw: 'red_win'};
-
 class Database {
   constructor() {
     this.firestore = admin.firestore();
@@ -134,10 +130,9 @@ async switchTeam({roomId, userId}) {
 
     await gameRef.set(game);
     this.updateRoomTimestamp({roomId});
-    this.createMessage({roomId, text: `${name} revealed ${word} (${convertType[revealedType]})`});
+    this.createMessage({roomId, sender: name, text: `${word},${revealedType}`});
     if (Game.isGameOver(game)) {
-      const winner = game.c.split('w')[0];
-      this.createMessage({roomId, text: `${convertTeam[winner]} wins!`.toUpperCase()});
+      this.createMessage({roomId, text: game.c});
     }
     return true;
   }
