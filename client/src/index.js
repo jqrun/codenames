@@ -1,12 +1,13 @@
 import './base.scss';
 import './index.css';
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
 import Admin from './admin/admin';
+import Footer from './common/footer.js';
 import Home from './home/home';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Room from './room/room.js';
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 
 function NoRouteMatched() {
   return <div className="centeredFlex" style={{fontSize: "36px"}}>404, page not found</div>
@@ -15,23 +16,30 @@ function NoRouteMatched() {
 function App() {
   return (
     <Router>
-      <Switch>
-        <Route exact path="/">
-          <Home />
-        </Route>
+      <div className="app">
+        <div className="appBody">
+          <Switch>
+            <Route exact path="/">
+              <Home />
+            </Route>
 
-        <Route exact path="/room/:roomId/">
-          <Room />
-        </Route>
+            <Route exact path="/room/:roomId/">
+              <Room />
+            </Route>
 
-        <Route exact path="/admin">
-          <Admin />
-        </Route>
+            <Route exact path="/admin">
+              <Admin />
+            </Route>
 
-        <Route path="*">
-          <NoRouteMatched />
-        </Route>
-      </Switch>
+            <Route path="*">
+              <NoRouteMatched />
+            </Route>
+          </Switch>
+        </div>
+        <div className="appFooter">
+          <Footer />
+        </div>
+      </div>
     </Router>
   );  
 }

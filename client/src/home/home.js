@@ -4,8 +4,7 @@ import commonCss from '../common/common.module.scss'
 import css from './home.module.scss'
 import db from '../common/database';
 import hridWords from '../assets/human_readable_id_words.json';
-import React, {useState} from 'react';
-import { useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 
 function generateRandomId() {
   const adjectives = hridWords.adjectives;
@@ -144,6 +143,10 @@ export default function Home() {
             </div>
           </div>
         )}
+      </div>
+
+      <div className={css.callToAction}>
+        Create a room and invite your friends to play!
       </div>
 
       <div className={css.input}>

@@ -5,6 +5,7 @@
   background: $background-color;
   display: flex;
   flex-direction: column;
+  font-family: 'Roboto Condensed', sans-serif;
   height: 100%;
 }
 
@@ -108,12 +109,21 @@
   }
 }
 
+.callToAction {
+  color: #555;
+  font-family: 'Oswald', sans-serif;
+  font-size: calc(80% + 1.5vw);
+  margin-top: 10vh;
+  padding: 0 5vw;
+  text-align: center;
+}
+
 .input {
   align-items: center;
   display: flex;
   font-size: calc(90% + 0.8vw);
   justify-content: space-between;
-  margin-top: 10vh;
+  margin-top: 3vh;
   max-width: 15em;
   width: 90%;
 
@@ -125,7 +135,6 @@
   .textInput {
     border-radius: 2px;
     color: $accent-text;
-    font-family: 'Roboto Condensed', sans-serif;
     font-size: 0.9em;
     height: 1.95em;
     margin: 0;

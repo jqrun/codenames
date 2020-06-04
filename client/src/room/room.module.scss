@@ -3,16 +3,17 @@
 .room {
   background: $background-color;
   font-size: calc(55% + 1vw);
+  width: 100%;
+  height: 100%;
 }
 
 .inner {
   box-sizing: border-box;
   display: flex;
-  height: 100vh;
+  height: 100%;
   justify-content: space-between;
-  padding: 2.5vw;
-  padding-bottom: 7vh;
-  width: 100vw;
+  padding: 2.5vw 2.5vw 0 2.5vw;
+  width: 100%;
 }
 
 .left {
@@ -44,8 +45,7 @@
 @media (max-width: $media-small-max-width) {
   .inner {
     flex-direction: column;
-    padding: 3vw;
-    padding-bottom: 5vh;
+    padding: 3vw 3vw 0 3vw;
   }
 
   .left {

@@ -11,6 +11,7 @@
 .row {
   display: flex;
   justify-content: space-between;
+  height: 15%;
 }
 
 .card {
@@ -19,7 +20,6 @@
   cursor: pointer;
   font-family: 'Oswald', sans-serif;
   font-weight: 500;
-  height: 14.2vh;
   perspective: 20em;
   user-select: none;
   width: 19%;
@@ -173,7 +173,4 @@
 }
 
 @media (max-width: $media-small-max-width) {
-  .card {
-    height: 7.7vh;
-  }
 }

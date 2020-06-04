@@ -9,6 +9,21 @@ html, body, #root {
   width: 100%;
 }
 
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.appBody {
+  flex-basis: 94%;
+}
+
+.appFooter {
+  flex-grow: 1;
+}
+
 input {
   border: none;
   outline: none;
