@@ -1,15 +1,16 @@
-import * as firebase from 'firebase/app';
 import 'firebase/database';
+import firebase from 'firebase/app';
 
 if (!firebase.apps.length) {
   firebase.initializeApp({
-    "authDomain": "codenames-273814.firebaseapp.com",
-    "databaseURL": "https://codenames-273814.firebaseio.com",
-    "projectId": "codenames-273814",
-    "storageBucket": "codenames-273814.appspot.com",
-    "messagingSenderId": "825324062075",
-    "appId": "1:825324062075:webte:46e39a5de955e038a669de",
-    "measurementId": "G-K289QC9ZQM"
+    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+    databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.REACT_APP_FIREBASE_APP_ID,
+    measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
   });
 }
 
