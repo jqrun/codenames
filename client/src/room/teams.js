@@ -10,8 +10,8 @@ const Teams = React.memo((props) => {
   const redTeam = {spymaster: getSpymaster('red'), players: getTeam('red'), team: 'red'};
   const teams = [blueTeam, redTeam];
 
-  const isSpymaster = users[userId].spymaster;
-  const currentTeam = users[userId].team;
+  const isSpymaster = Boolean(userId) && users[userId].spymaster;
+  const currentTeam = userId && users[userId].team;
 
   const [togglingSpymaster, setTogglingSpymaster] = useState(false);
   const [switchingTeam, setSwitchingTeam] = useState(false);

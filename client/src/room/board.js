@@ -9,13 +9,13 @@ const ALWAYS_ALLOW_REVEAL = true;
 const CARDS_PER_ROW = 5;
 
 const Board = React.memo((props) => {
-  const {roomId, userId, user, game} = props;
+  const {roomId, user, game} = props;
   const {board, currentTurn} = game;
-  const {name} = user;
+  const {name} = user || {};
   const gameOver = currentTurn.includes('win');
   const canReveal = getCanReveal();
   const typesLeft = getTypesLeft();
-  const isSpymaster = user.spymaster;
+  const isSpymaster = Boolean(user) && user.spymaster;
 
   const [revealing, setRevealing] = useState(false);
   const [showAll, setShowAll] = useState(false);

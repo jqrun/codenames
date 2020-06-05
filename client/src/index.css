@@ -1,6 +1,7 @@
 @import-normalize;
 
 html, body, #root {
+  background: #e0ebeb;
   font-family: 'Roboto', sans-serif;
   font-size: 16px;
   height: 100%;
@@ -17,11 +18,11 @@ html, body, #root {
 }
 
 .appBody {
-  flex-basis: 94%;
+  height: 94%
 }
 
 .appFooter {
-  flex-grow: 1;
+  height: 6%;
 }
 
 input {

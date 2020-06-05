@@ -102,7 +102,6 @@ export default function Room() {
     db.watch(`users/${roomId}`, 'child_added', snapshot => {
       if (isDev) console.log('User add', snapshot);
       setUsers(prevUsers => {
-        if (snapshot.i === userId) snapshot.current = true;
         prevUsers[snapshot.i] = convertUser(snapshot);
         console.log(prevUsers);
         return {...prevUsers};
@@ -160,6 +159,20 @@ export default function Room() {
     return () => db.unwatchAll();
   }, [roomId]);
 
+  useEffect(() => {
+    if (!userId) return;
+
+    setUsers(prevUsers => {
+      Object.entries(prevUsers).forEach(([key, value]) => {
+        if (key === userId) {
+          prevUsers[key].current = true;
+          return {...prevUsers};
+        }
+      })
+      return {...prevUsers};
+    });
+  }, [userId]);
+
   // Delete user when leaving the page.
   useEffect(() => {
     if (!userId) return;
@@ -186,34 +199,32 @@ export default function Room() {
 
   // Set loading state.
   useEffect(() => {
-    if (!roomId || !userId || !user || !room || !users || !game) return;
+    if (!roomId || !room || !users || !game) return;
     setLoading(false);
-  }, [roomId, userId, room, users, user, game]);
+  }, [roomId, room, users, game]);
 
   if (!room) return (<div></div>);
   return (
-    <React.Fragment>
-      {!userId && <Join roomId={roomId} setUserId={setUserId} />}
+    <div className={css.room}>
+      <Join roomId={roomId} userId={userId} setUserId={setUserId} />
 
-      {!loading && <div className={css.room}>
-        <div className={css.inner}>
-          <div className={css.left}>
-            <div className={css.board}>
-              <Board roomId={roomId} userId={userId} game={game} user={user} />
-            </div>
+      {!loading && <div className={css.inner}>
+        <div className={css.left}>
+          <div className={css.board}>
+            <Board roomId={roomId} game={game} user={user} />
+          </div>
+        </div>
+
+        <div className={css.right}>
+          <div className={css.teams}>
+            <Teams roomId={roomId} userId={userId} users={users} />
           </div>
 
-          <div className={css.right}>
-            <div className={css.teams}>
-              <Teams roomId={roomId} userId={userId} users={users} />
-            </div>
-
-            <div className={css.chat}>
-              <Chat roomId={roomId} user={user} messages={messages} setMessages={setMessages} />
-            </div>
+          <div className={css.chat}>
+            <Chat roomId={roomId} user={user} messages={messages} setMessages={setMessages} />
           </div>
         </div>
       </div>}
-    </React.Fragment>
+    </div>
   );  
 }

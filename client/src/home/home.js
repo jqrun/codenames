@@ -4,7 +4,7 @@ import commonCss from '../common/common.module.scss'
 import css from './home.module.scss'
 import db from '../common/database';
 import hridWords from '../assets/human_readable_id_words.json';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 function generateRandomId() {
   const adjectives = hridWords.adjectives;
@@ -31,6 +31,9 @@ export default function Home() {
   const [roomId, setRoomId] = useState();
   const [joining, setJoining] = useState(false);
 
+  const timersRef = useRef({});
+
+  const titleLength = title.length;
   const isLoading = typeof roomId === 'undefined';
 
   if (isLoading) getNonCollisionId(setRoomId);
@@ -45,18 +48,19 @@ export default function Home() {
     }));
   }
 
-  function flip(index, reveal = true, unflip = true) {
+  const flip = useCallback((index, reveal = true, unflip = true) => {
     setTitle(prevTitle => {
       prevTitle[index].revealed = reveal;
       return [...prevTitle];
     });
 
     if (reveal && unflip) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         flip(index, false);
       }, 2000);
+      timersRef.current[timer] = true;
     }
-  }
+  }, []);
 
   function handleRoomInput(event) {
     const originalValue = event.target.value 
@@ -88,35 +92,45 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || !titleLength) return;
 
-    let timeout1, timeout2, timeout3, timeout4, timeout5;
-    timeout1 = setTimeout(() => {
+    const timer1 = setTimeout(() => {
+      delete timersRef.current[timer1];
       const stagger = 100;
-      title.forEach((card, index) => {
-        timeout2 = setTimeout(() => flip(index, true, false), index * stagger);
-        timeout3 = setTimeout(() => flip(index, false), 800 + (index * stagger));
-      });
+      for (let i = 0; i < titleLength; i++) {
+        const timer2 = setTimeout(() => {
+          delete timersRef.current[timer2];
+          flip(i, true, false);
+        }, i * stagger);
+        const timer3 = setTimeout(() => {
+          delete timersRef.current[timer3];
+          flip(i, false);
+        }, 800 + (i * stagger));
+        timersRef.current[timer2] = true;
+        timersRef.current[timer3] = true;
+  }
     }, 500);
+    timersRef.current[timer1] = true;
 
-    timeout4 = setTimeout(() => {
+    const timer4 = setTimeout(() => {
+      delete timersRef.current[timer4];
       (function randomInterval() {
-        timeout5 = setTimeout(() => {
-          const randomIndex = Math.floor(Math.random() * title.length);
+        const timer5 = setTimeout(() => {
+          delete timersRef.current[timer5];
+          const randomIndex = Math.floor(Math.random() * titleLength);
           flip(randomIndex, true);
           randomInterval();
         }, 200 + (Math.random() * 800));
+        timersRef.current[timer5] = true;
       })();
     }, 2000);
+    timersRef.current[timer4] = true;
+  }, [isLoading, titleLength, flip]);
 
-    return () => {
-      clearTimeout(timeout1);
-      clearTimeout(timeout2);
-      clearTimeout(timeout3);
-      clearTimeout(timeout4);
-      clearTimeout(timeout5);
-    }
-  }, [isLoading]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => Object.keys(timersRef.current).map(Number).forEach(clearTimeout);
+  }, [])
 
   if (isLoading) return (<div></div>)
 

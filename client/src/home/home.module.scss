@@ -135,12 +135,13 @@
   .textInput {
     border-radius: 2px;
     color: $accent-text;
+    font-family: 'Roboto Condensed', sans-serif;
     font-size: 0.9em;
     height: 1.95em;
     margin: 0;
     padding: 0 0.5em;
-    width: 100%;
     text-align: center;
+    width: 100%;
 
     &:disabled {
       background: rgba(255, 255, 255, 0.7);

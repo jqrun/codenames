@@ -2,10 +2,55 @@
 
 .join {
   align-items: center;
-  background: $background-color;
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
-  flex-direction: column;
-  font-size: 1.5rem;
   height: 100%;
   justify-content: center;
+  left: 0;
+  position: fixed;
+  top: 0;
+  transition: all 0.25s ease-out;
+  width: 100%;
+  z-index: 999;
+
+  &[data-closing='true'] {
+    background: rgba(0, 0, 0, 0);
+
+    .modal {
+      transform: scale(0);
+    }
+  }
+}
+
+.modal {
+  align-items: center;
+  background: $background-color;
+  border-radius: 1px;
+  display: flex;
+  flex-direction: column;
+  font-size: calc(10px + 0.6vw);
+  padding: 10vh 3vw;
+  transform: scale(1);
+  transition: all 0.25s ease-out;
+
+  .instructions {
+    color: #555;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5em;
+  }
+}
+
+.input {
+  margin-top: 1em;
+  position: relative;
+
+  .error {
+    bottom: -2em;
+    color: $red-text;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.7em;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+  }
 }
