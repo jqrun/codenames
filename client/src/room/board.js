@@ -1,10 +1,11 @@
+import {getFetchUrl, isDev} from '../common/util';
+import {motion, useAnimation} from 'framer-motion';
 import commonCss from '../common/common.module.scss'
 import css from './board.module.scss'
 import React, {useEffect, useRef, useState} from 'react';
-import {getFetchUrl, isDev} from '../common/util';
 
 // Toggle for local development.
-const ALWAYS_ALLOW_REVEAL = true;
+const ALWAYS_ALLOW_REVEAL = false;
 
 const CARDS_PER_ROW = 5;
 
@@ -17,11 +18,13 @@ const Board = React.memo((props) => {
   const typesLeft = getTypesLeft();
   const isSpymaster = Boolean(user) && user.spymaster;
 
+  const [endingTurn, setEndingTurn] = useState(false);
+  const [holdingNewGame, setHoldingNewGame] = useState(false);
   const [revealing, setRevealing] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  const [endingTurn, setEndingTurn] = useState(false);
   const [startingNewGame, setStartingNewGame] = useState(false);
-  const [holdingNewGame, setHoldingNewGame] = useState(false);
+
+  const currentTurnControls = useAnimation();
 
   const newGameTimerRef = useRef();
 
@@ -69,7 +72,18 @@ const Board = React.memo((props) => {
     return `${winner} wins`;
   }
 
+  function warnIfNotCurrentTurn() {
+    if (user.spymaster) return;
+    if (game.currentTurn.includes(user.team)) return;
+
+    currentTurnControls.start({
+      scale: [1, 1.1, 1],
+      rotate: [5, -5, 3, -3, 6, -6, 4, -4, 0],
+    })
+  }
+
   async function revealCard(card) {
+    warnIfNotCurrentTurn();
     if (board[card.index].revealed || revealing || !canReveal) return;
     board[card.index].revealed = true;
     setRevealing(true);
@@ -136,9 +150,14 @@ const Board = React.memo((props) => {
       )}
       <div className={css.bottomBar}>
         <div className={css.status}>
-          <div className={css.currentTurn} data-turn={game.currentTurn}>
+          <motion.div 
+            className={css.currentTurn} 
+            data-turn={game.currentTurn}
+            animate={currentTurnControls}
+            transition={{duration: 0.5}}
+          >
             {getCurrentTurn()}
-          </div>
+          </motion.div>
           <div className={css.remaining}>
             (<span className={css.blueLeft}>{typesLeft.blue}</span>-
             <span className={css.redLeft}>{typesLeft.red}</span>)
