@@ -2,7 +2,6 @@ import './base.scss';
 import './index.css';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
-import Admin from './admin/admin';
 import Footer from './common/footer.js';
 import Home from './home/home';
 import React from 'react';
@@ -25,10 +24,6 @@ function App() {
 
             <Route exact path="/room/:roomId/">
               <Room />
-            </Route>
-
-            <Route exact path="/admin">
-              <Admin />
             </Route>
 
             <Route path="*">

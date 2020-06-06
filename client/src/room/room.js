@@ -103,7 +103,6 @@ export default function Room() {
       if (isDev) console.log('User add', snapshot);
       setUsers(prevUsers => {
         prevUsers[snapshot.i] = convertUser(snapshot);
-        console.log(prevUsers);
         return {...prevUsers};
       });
     });
@@ -128,7 +127,6 @@ export default function Room() {
 
     db.get(`games/${roomId}`, snapshot => {
       if (isDev) console.log('Initial game', snapshot);
-      console.log(convertGame(snapshot));
       setGame(convertGame(snapshot));
 
       db.watch(`games/${roomId}/c`, 'value', snapshot => {

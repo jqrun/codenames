@@ -1,0 +1,1 @@
+For reference, this is roughly the server setup when it was deployed as an instance on App Engine.

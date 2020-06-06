@@ -103,13 +103,8 @@ dist
 # TernJS port file
 .tern-port
 
-# Firebase
-client/.firebase*
+# Firebase cache
+.firebase/
 
-# Secrets
-client/src/secrets/
-server/secrets/
-
-# PouchDB
-server/rooms/
-server/tmp
+# Keys
+secrets/

@@ -1,9 +1,9 @@
-  const api = require('./src/api');
-  const compression = require('compression');
-  const cors = require('cors');
-  const express = require('express');
-  const logger = require('./src/logger');
-  const process = require('process');
+const api = require('./src/api');
+const compression = require('compression');
+const cors = require('cors');
+const express = require('express');
+const logger = require('./src/logger');
+const process = require('process');
 
 const ARTIFICIAL_LATENCY = true;
 

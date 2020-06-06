@@ -78,6 +78,7 @@ export default function Home() {
     setJoining(true);
 
     const url = getFetchUrl(roomId, '/rooms/create', {roomId});
+    console.log(url);
     const response = await fetch(url, {method: 'POST'});
     const {status} = await response.json();
     setJoining(false);
