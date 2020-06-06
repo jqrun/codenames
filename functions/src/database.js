@@ -5,6 +5,7 @@ const lock = require('./lock');
 const logger = require('./logger');
 const serviceAccount = require("../secrets/firebase_service_account.json");
 
+const {FieldValue} = admin.firestore;
 const {ServerValue} = admin.database;
 
 admin.initializeApp({
@@ -173,6 +174,13 @@ async switchTeam({roomId, userId}) {
     return messageId;
   }
 
+  async submitFeedback(feedback) {
+    await this.firestore.collection('feedback').add({
+      text: feedback,
+      timestamp: FieldValue.serverTimestamp(),
+    });
+  }
+
   deleteStaleRooms() {
     setInterval(() => {
       this.db.ref('rooms').once('value', snapshot => {
@@ -185,14 +193,6 @@ async switchTeam({roomId, userId}) {
         });
       });
     }, 60 * 60 * 1000);
-  }
-
-  getFirestore() {
-    return this.firestore;
-  }
-
-  getUniqueId() {
-    return crypto.randomBytes(16).toString('hex');
   }
 }
 

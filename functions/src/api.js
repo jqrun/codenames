@@ -1,8 +1,9 @@
+const bodyParser = require('body-parser')
 const db = require('./database');
 const express = require('express');
 const logger = require('./logger');
 
-const fs = db.getFirestore();
+const jsonParser = bodyParser.json();
 const router = express.Router({mergeParams: true});
 
 /*** rooms ***/
@@ -60,6 +61,13 @@ router.post('/game/new-game', async (req, res) => {
 router.post('/messages/create', async (req, res) => {
   const messageId = await db.createMessage(req.query);
   res.json({messageId});
+});
+
+/** feedback */
+router.post('/feedback', jsonParser, async (req, res) => {
+  const {feedback} = req.body;
+  await db.submitFeedback(feedback);
+  res.json({submitted: true});
 });
 
 module.exports = router;

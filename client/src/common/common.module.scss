@@ -14,6 +14,7 @@
     cursor: pointer;
     padding: 0.5em;
     position: relative;
+    user-select: none;
 
     &:last-child {
       margin-left: 0.5em;

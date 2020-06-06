@@ -8,6 +8,7 @@ export function getFetchUrl(roomId, path, params) {
 }
 
 export function getQueryParams(params) {
+  if (!params) return '';
   return '?' + Object.entries(params).map(([key, value]) => 
     `${key}=${value}`
   ).join('&');
