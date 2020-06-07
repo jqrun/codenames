@@ -6,6 +6,11 @@ const logger = require('./logger');
 const jsonParser = bodyParser.json();
 const router = express.Router({mergeParams: true});
 
+/*** warmup ***/
+router.get('/warmup', (req, res) => {
+  res.sendStatus(200);
+});
+
 /*** rooms ***/
 router.post('/rooms/create', async (req, res) => {
   const {roomId} = req.query;
@@ -63,7 +68,7 @@ router.post('/messages/create', async (req, res) => {
   res.json({messageId});
 });
 
-/** feedback */
+/*** feedback ***/
 router.post('/feedback', jsonParser, async (req, res) => {
   const {feedback} = req.body;
   await db.submitFeedback(feedback);
