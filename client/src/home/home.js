@@ -136,7 +136,10 @@ export default function Home() {
   }, [isLoading, titleLength, flip]);
 
   useEffect(() => {
-    setTimeout(() => fetch(getFetchUrl(null, '/warmup')), 200);
+    setTimeout(() => {
+      fetch(getFetchUrl(null, '/warmup'));
+      analytics.logEvent('home_warmup', {roomId});
+    }, 100);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => Object.keys(timersRef.current).map(Number).forEach(clearTimeout);
