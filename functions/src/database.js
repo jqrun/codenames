@@ -199,8 +199,8 @@ class Users {
 
   static getNextBalancedTeam(users) {
     users = Object.values(users);
-    const numBlue = users.filter(user => user.team === 'b').length;
-    const numRed = users.filter(user => user.team === 'r').length;
+    const numBlue = users.filter(user => user.t === 'b').length;
+    const numRed = users.filter(user => user.t === 'r').length;
 
     if (numBlue !== numRed) return numBlue > numRed ? 'r' : 'b';
     return Math.random() < 0.5 ? 'r': 'b';
