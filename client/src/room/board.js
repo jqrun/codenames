@@ -82,8 +82,11 @@ const Board = React.memo((props) => {
     if (game.currentTurn.includes(user.team)) return;
 
     currentTurnControls.start({
-      scale: [1, 1.1, 1],
-      rotate: [5, -5, 3, -3, 6, -6, 4, -4, 0],
+      x: [
+        '-0.2em', '0.2em', '-0.1em', '0.1em', 
+        '-0.2em', '0.2em', '-0.1em', '0.1em', 
+        '0em',
+      ],
     })
   }
 
@@ -162,7 +165,7 @@ const Board = React.memo((props) => {
             className={css.currentTurn} 
             data-turn={game.currentTurn}
             animate={currentTurnControls}
-            transition={{duration: 0.5}}
+            transition={{duration: 0.4, ease: 'easeOut'}}
           >
             {getCurrentTurn()}
           </motion.div>
