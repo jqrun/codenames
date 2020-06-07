@@ -1,6 +1,7 @@
 const api = require('./src/api');
 const compression = require('compression');
 const cors = require('cors');
+const db = require('./src/database');
 const express = require('express');
 const functions = require('firebase-functions');
 const logger = require('./src/logger');
@@ -53,3 +54,7 @@ process.on('unhandledRejection', (reason, p) => {
 
 
 exports.server = functions.https.onRequest(server);
+
+exports.cleanupRooms = functions.pubsub.schedule('every 1 hours').onRun(context => {
+  db.deleteStaleRooms();
+});

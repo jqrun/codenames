@@ -20,8 +20,6 @@ class Database {
     // The JSON data stored in Firebase Realtime DB will have extremely unreadable but short
     // keys/values in order to optimize for download size (optimizing Firebase's pricing model).
     this.db = admin.database();
-
-    this.deleteStaleRooms();
   }
 
   async getRooms() {
@@ -182,17 +180,15 @@ async switchTeam({roomId, userId}) {
   }
 
   deleteStaleRooms() {
-    setInterval(() => {
-      this.db.ref('rooms').once('value', snapshot => {
-        snapshot.forEach(roomSnapshot => {
-          const roomId = roomSnapshot.key;
-          const room = roomSnapshot.val();
-          if (Date.now() - room.t.l > 60 * 60 * 1000) {
-            this.deleteRoom({roomId});
-          }
-        });
+    this.db.ref('rooms').once('value', snapshot => {
+      snapshot.forEach(roomSnapshot => {
+        const roomId = roomSnapshot.key;
+        const room = roomSnapshot.val();
+        if (Date.now() - room.t.l > 60 * 60 * 1000) {
+          this.deleteRoom({roomId});
+        }
       });
-    }, 60 * 60 * 1000);
+    });
   }
 }
 
