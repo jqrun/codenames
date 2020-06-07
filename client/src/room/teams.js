@@ -1,7 +1,12 @@
+import {getFetchUrl} from '../common/util';
 import commonCss from '../common/common.module.scss'
 import css from './teams.module.scss'
+import firebase from 'firebase/app';
 import React, {useEffect, useState} from 'react';
-import {getFetchUrl} from '../common/util';
+
+import 'firebase/analytics';
+
+const analytics = firebase.analytics();
 
 const Teams = React.memo((props) => {
   const {roomId, userId, users} = props;
@@ -37,6 +42,7 @@ const Teams = React.memo((props) => {
     setTogglingSpymaster(true);
     const url = getFetchUrl(roomId, '/users/toggle-spymaster', {roomId, userId});
     await fetch(url, {method: 'POST'});
+    analytics.logEvent('users_toggle_spymaster');
   }
 
   async function switchTeam() {
@@ -44,6 +50,7 @@ const Teams = React.memo((props) => {
     setSwitchingTeam(true);
     const url = getFetchUrl(roomId, '/users/switch-team', {roomId, userId});
     await fetch(url, {method: 'POST'});
+    analytics.logEvent('users_switch_team');
   }
 
   useEffect(() => {

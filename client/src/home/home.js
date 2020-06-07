@@ -3,8 +3,13 @@ import {useHistory} from "react-router-dom";
 import commonCss from '../common/common.module.scss'
 import css from './home.module.scss'
 import db from '../common/database';
+import firebase from 'firebase/app';
 import hridWords from '../assets/human_readable_id_words.json';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+
+import 'firebase/analytics';
+
+const analytics = firebase.analytics();
 
 function generateRandomId() {
   const adjectives = hridWords.adjectives;
@@ -78,14 +83,16 @@ export default function Home() {
     setJoining(true);
 
     const url = getFetchUrl(roomId, '/rooms/create', {roomId});
-    console.log(url);
     const response = await fetch(url, {method: 'POST'});
     const {status} = await response.json();
     setJoining(false);
 
     switch (status) {
       case 'already_exists':
+        analytics.logEvent('room_already_exists', {roomId});
+        break;
       case 'created':
+        analytics.logEvent('room_create', {roomId});
         history.push(`/room/${roomId}`);
         break;
       default:

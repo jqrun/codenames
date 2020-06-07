@@ -2,7 +2,12 @@ import {getFetchUrl, isDev} from '../common/util';
 import {motion, useAnimation} from 'framer-motion';
 import commonCss from '../common/common.module.scss'
 import css from './board.module.scss'
+import firebase from 'firebase/app';
 import React, {useEffect, useRef, useState} from 'react';
+
+import 'firebase/analytics';
+
+const analytics = firebase.analytics();
 
 // Toggle for local development.
 const ALWAYS_ALLOW_REVEAL = false;
@@ -90,6 +95,7 @@ const Board = React.memo((props) => {
 
     const url = getFetchUrl(roomId, '/game/reveal', {roomId, name, cardIndex: card.index});
     await (await fetch(url, {method: 'POST'})).json();
+    analytics.logEvent('game_reveal');
   }
 
   async function endTurn() {
@@ -97,15 +103,17 @@ const Board = React.memo((props) => {
     setEndingTurn(true);
     const url = getFetchUrl(roomId, '/game/end-turn', {roomId, name});
     await fetch(url, {method: 'POST'});
+    analytics.logEvent('game_end_turn');
   }
 
   function startNewGame() {
     setHoldingNewGame(true);
     newGameTimerRef.current = setTimeout(() => {
       setStartingNewGame(true);
-      const url = getFetchUrl(roomId, '/game/new-game', {roomId, name});
+    const url = getFetchUrl(roomId, '/game/new-game', {roomId, name});
       fetch(url, {method: 'POST'});
-    }, 1000);
+      analytics.logEvent('game_new_game');
+  }, 1000);
   }
 
   function cancelNewGame() {

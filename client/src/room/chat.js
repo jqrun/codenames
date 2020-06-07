@@ -1,7 +1,12 @@
 import {getFetchUrl} from '../common/util';
 import commonCss from '../common/common.module.scss'
 import css from './chat.module.scss'
+import firebase from 'firebase/app';
 import React, {useEffect, useRef, useState} from 'react';
+
+import 'firebase/analytics';
+
+const analytics = firebase.analytics();
 
 const DEFAULT_PLACEHOLDER = 'Send a chat message';
 
@@ -66,6 +71,7 @@ export default function Chat(props) {
       text: encodeURIComponent(messageText),
     });
     fetch(url, {method: 'POST'});
+    analytics.logEvent('messages_create', {length: text.length});
 
     checkForSpam();
   }
@@ -82,6 +88,7 @@ export default function Chat(props) {
         setSpamTimeout(false);
         setPlaceholder(DEFAULT_PLACEHOLDER);
       }, 3000);
+      analytics.logEvent('messages_spam_detected');
     } 
   }
 

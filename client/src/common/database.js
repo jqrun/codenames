@@ -1,5 +1,7 @@
-import 'firebase/database';
 import firebase from 'firebase/app';
+
+import 'firebase/analytics';
+import 'firebase/database';
 
 if (!firebase.apps.length) {
   firebase.initializeApp({
@@ -12,12 +14,12 @@ if (!firebase.apps.length) {
     appId: process.env.REACT_APP_FIREBASE_APP_ID,
     measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
   });
+  firebase.analytics();
 }
 
 class Database {
   constructor() {
     this.db = firebase.database();
-
     this.watches = [];
   }
 
@@ -38,6 +40,9 @@ class Database {
     this.watches.forEach(({path, event}) => this.db.ref(path).off(event));
   }
 
+  getAnalytics() {
+    return this.analytics;
+  }
 }
 
 export default new Database();

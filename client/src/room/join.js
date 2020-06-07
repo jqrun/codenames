@@ -1,9 +1,14 @@
+import { useEffect } from 'react';
+import {getFetchUrl} from '../common/util';
 import commonCss from '../common/common.module.scss'
 import css from './join.module.scss';
+import firebase from 'firebase/app';
 import homeCss from '../home/home.module.scss';
 import React, {useState} from 'react';
-import {getFetchUrl} from '../common/util';
-import { useEffect } from 'react';
+
+import 'firebase/analytics';
+
+const analytics = firebase.analytics();
 
 const Join = React.memo(props => {
   const {roomId, userId, setUserId} = props;
@@ -30,11 +35,13 @@ const Join = React.memo(props => {
     switch(status) {
       case 'name_taken':
         setNameTakenError(true);
+        analytics.logEvent('users_name_taken', {name});
         break;
       case 'created':
         sessionStorage.setItem(roomId, userId);
         setName('');
         setUserId(userId);
+        analytics.logEvent('users_create', {name});
         break;
       default:
     }
