@@ -86,7 +86,7 @@ class Database {
     delete users[userId];
     await usersRef.set(users);
     this.updateRoomTimestamp({roomId});
-    if (!Object.values(users).length) this.deleteRoom({roomId});
+    // if (!Object.values(users).length) this.deleteRoom({roomId});
     return userId;
   }
 
@@ -184,7 +184,7 @@ async switchTeam({roomId, userId}) {
       snapshot.forEach(roomSnapshot => {
         const roomId = roomSnapshot.key;
         const room = roomSnapshot.val();
-        if (Date.now() - room.t.l > 60 * 60 * 1000) {
+        if (Date.now() - room.t.l > 24 * 60 * 60 * 1000) {
           this.deleteRoom({roomId});
         }
       });
