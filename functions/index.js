@@ -17,6 +17,7 @@ const corsWhitelist = [
   'http://localhost:5000',
   'https://codenames-273814.web.app',
   'https://codenames.us',
+  'https://www.codenames.us',
 ];
 
 const corsOptions = {
