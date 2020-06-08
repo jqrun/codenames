@@ -41,6 +41,13 @@ export default function Footer() {
     <div className={css.footer}>
       <div className={css.content}>
         created by jq.run | &nbsp;
+        <a
+          className={css.howToPlay} 
+          href="https://en.wikipedia.org/wiki/Codenames_(board_game)#Rules"
+          target="_blank"
+        >
+          how to play
+        </a> | &nbsp;
         <span className={css.feedback} onClick={() => setShowFeedback(true)}>
           write feedback
         </span>

@@ -17,7 +17,8 @@
   width: 100%;
 }
 
-.feedback {
+.feedback, .howToPlay {
+  color: rgba(0, 0, 0, 0.4);
   cursor: pointer;
   text-decoration: underline;
 
