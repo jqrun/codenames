@@ -20,7 +20,7 @@ $message-base-color: #555;
   height: 100%;
   padding: 0.7em;
   position: relative;
-  overflow-y: scroll;
+  overflow-y: auto;
   width: 100%;
 
   .message {
